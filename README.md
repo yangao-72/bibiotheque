@@ -6,18 +6,32 @@
 
 [![Spring Boot](https://img.shields.io/badge/Spring-6DB33F?style=for-the-badge&logo=spring&logoColor=white)]()
 [![Angular](https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white)]()
-[![MySQL](https://img.shields.io/badge/MySQL-00000F?style=for-the-badge&logo=mysql&logoColor=white)]()
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white)]()
 [![Hibernate](https://img.shields.io/badge/Hibernate-59666C?style=for-the-badge&logo=Hibernate&logoColor=white)]()
 [![Maven](https://img.shields.io/badge/apache_maven-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white)]()
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white)]()
 
 Application full-stack de gestion de bibliothèque : **Spring Boot** (API REST) +
-**Angular** (interface) + **MySQL** (persistance).
+**Angular** (interface) + **PostgreSQL** (persistance).
 
 * Deux profils : **Admin** (CRUD livres et utilisateurs) et **User** (emprunter / rendre).
 * Authentification par **JWT**.
 * Mots de passe chiffrés avec **BCrypt**.
 * Redirection vers une page *forbidden* si le rôle n'a pas accès à l'URL.
+
+---
+
+## 0. Démarrage rapide (Docker)
+
+```bash
+docker compose up --build
+```
+
+Puis ouvrez **http://localhost:4200** et connectez-vous avec **admin / admin123**
+(le compte et quelques livres sont insérés automatiquement au premier démarrage).
+
+Les identifiants de la base se personnalisent via un fichier `.env`
+(copiez `.env.example`) : base PostgreSQL, user `bibliotheque`, port 5432.
 
 ---
 
@@ -155,6 +169,10 @@ Côté frontend, un dossier = un écran, et tout ce qui parle au réseau vit dan
 ## 4. Démarrer le projet
 
 ### 4.1 La base de données
+
+> Avec Docker (`docker compose up`), la base **PostgreSQL** est lancée avec le
+> schéma et les données initiales automatiquement : cette section ne concerne
+> que le lancement manuel sans Docker.
 
 Le backend ne crée pas le schéma, seulement les tables. Il faut donc :
 

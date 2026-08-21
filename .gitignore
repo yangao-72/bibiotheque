@@ -1,2 +1,5 @@
 # Réglages locaux des outils
 .claude/
+
+# Identifiants locaux de la base (voir .env.example)
+.env
