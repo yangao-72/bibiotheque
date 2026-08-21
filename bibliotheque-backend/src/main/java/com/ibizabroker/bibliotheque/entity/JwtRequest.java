@@ -9,15 +9,15 @@ public class JwtRequest {
         return username;
     }
 
-    public void setUserName(String userName) {
-        this.username = userName;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPassword() {
         return password;
     }
 
-    public void setUserPassword(String userPassword) {
-        this.password = userPassword;
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
