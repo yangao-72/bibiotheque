@@ -114,7 +114,7 @@ describe('ReservationsComponent', () => {
     component.ngOnInit();
     tick();
 
-    expect(component.errorMessage).toContain('Erreur 500');
+    expect(component.errorMessage).toContain('Erreur serveur');
     expect(component.loading).toBeFalse();
   }));
 
@@ -193,6 +193,10 @@ describe('ReservationsComponent', () => {
 
     expect(reservationServiceSpy.createReservation).toHaveBeenCalled();
     expect(component.formSuccess).toContain('succès');
+    expect(component.newReservation.livreId).toBeNull();
+
+    // Vider le setTimeout pour éviter "timer still in queue"
+    tick(5000);
   }));
 
   it('should show form error on 409 conflict', fakeAsync(() => {
@@ -257,10 +261,13 @@ describe('ReservationsComponent', () => {
     tick();
 
     expect(component.reservations[0].statut).toBe('ANNULEE');
+    expect(component.formSuccess).toContain('annulée');
+
+    // Vider le setTimeout pour éviter "timer still in queue"
+    tick(5000);
   }));
 
-  it('should show alert on cancel error', fakeAsync(() => {
-    spyOn(window, 'alert');
+  it('should show cancel error message on 409 conflict', fakeAsync(() => {
     reservationServiceSpy.annulerReservation.and.returnValue(
       throwError(() => ({
         status: 409,
@@ -272,11 +279,10 @@ describe('ReservationsComponent', () => {
     component.onAnnulerReservation(reservation);
     tick();
 
-    expect(window.alert).toHaveBeenCalledWith(jasmine.stringContaining('RG-06'));
+    expect(component.cancelError).toContain('RG-06');
   }));
 
-  it('should show alert on network error during cancel', fakeAsync(() => {
-    spyOn(window, 'alert');
+  it('should show cancel error message on network error', fakeAsync(() => {
     reservationServiceSpy.annulerReservation.and.returnValue(
       throwError(() => ({ status: 0 }))
     );
@@ -284,7 +290,7 @@ describe('ReservationsComponent', () => {
     component.onAnnulerReservation(mockReservations[0]);
     tick();
 
-    expect(window.alert).toHaveBeenCalledWith(jasmine.stringContaining('injoignable'));
+    expect(component.cancelError).toContain('injoignable');
   }));
 
   it('should compute isFormValid correctly', () => {

@@ -20,6 +20,7 @@ export class ReservationsComponent implements OnInit {
 
   loading = true;
   errorMessage = '';
+  cancelError = '';
 
   selectedStatut = '';
   statuts = ['EN_ATTENTE', 'DISPONIBLE', 'ANNULEE', 'EXPIREE', 'HONOREE'];
@@ -41,6 +42,7 @@ export class ReservationsComponent implements OnInit {
   loadData(): void {
     this.loading = true;
     this.errorMessage = '';
+    this.cancelError = '';
 
     forkJoin({
       reservations: this.reservationService.getReservations(this.selectedStatut || undefined),
@@ -55,11 +57,7 @@ export class ReservationsComponent implements OnInit {
       },
       error: (err) => {
         this.loading = false;
-        if (err.status === 0) {
-          this.errorMessage = 'Le serveur est injoignable. Veuillez réessayer plus tard.';
-        } else {
-          this.errorMessage = `Erreur ${err.status} : ${err.error?.message || 'Une erreur inattendue est survenue.'}`;
-        }
+        this.errorMessage = this.extractErrorMessage(err);
       }
     });
   }
@@ -76,11 +74,7 @@ export class ReservationsComponent implements OnInit {
       },
       error: (err) => {
         this.loading = false;
-        if (err.status === 0) {
-          this.errorMessage = 'Le serveur est injoignable. Veuillez réessayer plus tard.';
-        } else {
-          this.errorMessage = `Erreur ${err.status} : ${err.error?.message || 'Une erreur inattendue est survenue.'}`;
-        }
+        this.errorMessage = this.extractErrorMessage(err);
       }
     });
   }
@@ -94,38 +88,47 @@ export class ReservationsComponent implements OnInit {
         this.formSuccess = 'Réservation créée avec succès.';
         this.newReservation = new ReservationRequest();
         this.loadData();
+        // Auto-masquer le message de succès après 5 secondes
+        setTimeout(() => this.formSuccess = '', 5000);
       },
       error: (err) => {
-        if (err.status === 0) {
-          this.formError = 'Le serveur est injoignable. Veuillez réessayer plus tard.';
-        } else if (err.status === 400) {
-          this.formError = err.error?.message || 'Champ obligatoire manquant.';
-        } else if (err.status === 404) {
-          this.formError = err.error?.message || 'Livre ou adhérent introuvable.';
-        } else if (err.status === 409) {
-          this.formError = err.error?.message || 'Règle de gestion violée.';
-        } else {
-          this.formError = `Erreur ${err.status} : ${err.error?.message || 'Une erreur inattendue est survenue.'}`;
-        }
+        this.formError = this.extractErrorMessage(err);
       }
     });
   }
 
   onAnnulerReservation(reservation: Reservation): void {
+    this.cancelError = '';
     const userId = reservation.adherentId;
 
     this.reservationService.annulerReservation(reservation.reservationId, userId).subscribe({
       next: () => {
         reservation.statut = 'ANNULEE';
+        this.formSuccess = 'Réservation annulée avec succès.';
+        setTimeout(() => this.formSuccess = '', 5000);
       },
       error: (err) => {
-        if (err.status === 0) {
-          alert('Le serveur est injoignable. Veuillez réessayer plus tard.');
-        } else {
-          alert(err.error?.message || `Erreur ${err.status} : impossible d'annuler cette réservation.`);
-        }
+        this.cancelError = this.extractErrorMessage(err);
       }
     });
+  }
+
+  /**
+   * Extrait un message lisible depuis une erreur HTTP.
+   * Gère les erreurs réseau (status 0), les erreurs métier (400, 404, 409)
+   * et les erreurs inattendues.
+   */
+  private extractErrorMessage(err: any): string {
+    if (err.status === 0) {
+      return 'Le serveur est injoignable. Vérifiez que le backend est démarré et réessayez.';
+    }
+    if (err.error?.message) {
+      return err.error.message;
+    }
+    if (typeof err.error === 'string') {
+      return err.error;
+    }
+    return `Erreur ${err.status} : une erreur inattendue est survenue.`;
   }
 
   get isFormValid(): boolean {

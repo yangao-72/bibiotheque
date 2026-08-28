@@ -2,8 +2,8 @@
   <h2 class="text-center mb-4">Gestion des Réservations</h2>
 
   <!-- Filtre par statut -->
-  <div class="row mb-4">
-    <div class="col-md-4">
+  <div class="row mb-4 justify-content-center">
+    <div class="col-12 col-sm-8 col-md-6 col-lg-4">
       <label for="statutFilter" class="form-label"><strong>Filtrer par statut</strong></label>
       <select
         id="statutFilter"
@@ -24,10 +24,22 @@
     <p class="mt-2 text-muted">Chargement des réservations...</p>
   </div>
 
-  <!-- Message d'erreur -->
+  <!-- Message d'erreur global -->
   <div *ngIf="errorMessage && !loading" class="alert alert-danger d-flex justify-content-between align-items-center">
     <span>{{ errorMessage }}</span>
     <button class="btn btn-outline-danger btn-sm" (click)="loadData()">Réessayer</button>
+  </div>
+
+  <!-- Message de succès global -->
+  <div *ngIf="formSuccess" class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ formSuccess }}
+    <button type="button" class="btn-close" (click)="formSuccess = ''" aria-label="Fermer"></button>
+  </div>
+
+  <!-- Message d'erreur annulation -->
+  <div *ngIf="cancelError" class="alert alert-warning alert-dismissible fade show" role="alert">
+    <strong>Annulation refusée :</strong> {{ cancelError }}
+    <button type="button" class="btn-close" (click)="cancelError = ''" aria-label="Fermer"></button>
   </div>
 
   <!-- Liste des réservations -->
@@ -38,12 +50,15 @@
     (annuler)="onAnnulerReservation($event)">
   </app-reservations-list>
 
+  <!-- Séparateur -->
+  <hr class="my-5">
+
   <!-- Formulaire de création -->
   <app-reservation-form
     [books]="books"
     [users]="users"
     [formError]="formError"
-    [formSuccess]="formSuccess"
+    [formSuccess]="''"
     [isFormValid]="isFormValid"
     [(reservation)]="newReservation"
     (submitForm)="onCreateReservation()">

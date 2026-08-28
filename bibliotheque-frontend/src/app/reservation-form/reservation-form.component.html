@@ -1,50 +1,64 @@
-<div class="container col-md-6 offset-mid-3 mt-5">
-  <h3 class="text-center">Créer une réservation</h3>
+<div class="row justify-content-center">
+  <div class="col-12 col-sm-10 col-md-8 col-lg-6">
+    <h3 class="text-center mb-4">Créer une réservation</h3>
 
-  <!-- Message d'erreur -->
-  <div *ngIf="formError" class="alert alert-danger">
-    {{ formError }}
-  </div>
-
-  <!-- Message de succès -->
-  <div *ngIf="formSuccess" class="alert alert-success">
-    {{ formSuccess }}
-  </div>
-
-  <form (ngSubmit)="onSubmit()" autocomplete="off">
-    <div class="form-group">
-      <label style="margin-bottom: 10px"><strong>Livre</strong></label>
-      <select
-        class="form-control"
-        style="margin-bottom: 10px"
-        id="livreId"
-        [ngModel]="reservation.livreId"
-        (ngModelChange)="onLivreChange($event)"
-        name="livreId">
-        <option [ngValue]="null" disabled>-- Sélectionner un livre --</option>
-        <option *ngFor="let book of books" [ngValue]="book.bookId">{{ book.bookName }}</option>
-      </select>
+    <!-- Message d'erreur -->
+    <div *ngIf="formError" class="alert alert-danger alert-dismissible fade show" role="alert">
+      <strong>Erreur :</strong> {{ formError }}
+      <button type="button" class="btn-close" aria-label="Fermer"></button>
     </div>
 
-    <div class="form-group">
-      <label style="margin-bottom: 10px"><strong>Adhérent</strong></label>
-      <select
-        class="form-control"
-        style="margin-bottom: 10px"
-        id="adherentId"
-        [ngModel]="reservation.adherentId"
-        (ngModelChange)="onAdherentChange($event)"
-        name="adherentId">
-        <option [ngValue]="null" disabled>-- Sélectionner un adhérent --</option>
-        <option *ngFor="let user of users" [ngValue]="user.userId">{{ user.name }}</option>
-      </select>
+    <!-- Message de succès -->
+    <div *ngIf="formSuccess" class="alert alert-success alert-dismissible fade show" role="alert">
+      {{ formSuccess }}
+      <button type="button" class="btn-close" aria-label="Fermer"></button>
     </div>
 
-    <button
-      class="btn btn-success"
-      type="submit"
-      [disabled]="!isFormValid">
-      Créer la réservation
-    </button>
-  </form>
+    <form (ngSubmit)="onSubmit()" autocomplete="off">
+      <div class="mb-3">
+        <label for="livreId" class="form-label"><strong>Livre</strong></label>
+        <select
+          class="form-select"
+          id="livreId"
+          [ngModel]="reservation.livreId"
+          (ngModelChange)="onLivreChange($event)"
+          name="livreId">
+          <option [ngValue]="null" disabled>-- Sélectionner un livre --</option>
+          <option *ngFor="let book of books" [ngValue]="book.bookId">
+            {{ book.bookName }} — {{ book.bookAuthor }}
+          </option>
+        </select>
+        <div class="form-text" *ngIf="books.length === 0">
+          Aucun livre disponible.
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="adherentId" class="form-label"><strong>Adhérent</strong></label>
+        <select
+          class="form-select"
+          id="adherentId"
+          [ngModel]="reservation.adherentId"
+          (ngModelChange)="onAdherentChange($event)"
+          name="adherentId">
+          <option [ngValue]="null" disabled>-- Sélectionner un adhérent --</option>
+          <option *ngFor="let user of users" [ngValue]="user.userId">
+            {{ user.name }} ({{ user.username }})
+          </option>
+        </select>
+        <div class="form-text" *ngIf="users.length === 0">
+          Aucun adhérent disponible.
+        </div>
+      </div>
+
+      <div class="d-grid">
+        <button
+          class="btn btn-success btn-lg"
+          type="submit"
+          [disabled]="!isFormValid">
+          Créer la réservation
+        </button>
+      </div>
+    </form>
+  </div>
 </div>

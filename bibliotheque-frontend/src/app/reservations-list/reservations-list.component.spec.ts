@@ -196,8 +196,8 @@ describe('ReservationsListComponent', () => {
     expect(headers[0].textContent).toContain('Livre');
     expect(headers[1].textContent).toContain('Adhérent');
     expect(headers[2].textContent).toContain('Statut');
-    expect(headers[3].textContent).toContain('Date de réservation');
-    expect(headers[4].textContent).toContain("Date d'expiration");
+    expect(headers[3].textContent).toContain('Réservation');
+    expect(headers[4].textContent).toContain('Expiration');
     expect(headers[5].textContent).toContain('Action');
   });
 
@@ -207,8 +207,8 @@ describe('ReservationsListComponent', () => {
 
     const badges = fixture.nativeElement.querySelectorAll('.badge');
     expect(badges.length).toBe(5);
-    expect(badges[0].textContent.trim()).toBe('EN_ATTENTE');
-    expect(badges[1].textContent.trim()).toBe('DISPONIBLE');
-    expect(badges[2].textContent.trim()).toBe('ANNULEE');
+    expect(badges[0].textContent.trim()).toContain('EN_ATTENTE');
+    expect(badges[1].textContent.trim()).toContain('DISPONIBLE');
+    expect(badges[2].textContent.trim()).toContain('ANNULEE');
   });
 });

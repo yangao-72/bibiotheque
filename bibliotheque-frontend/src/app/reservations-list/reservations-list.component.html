@@ -3,35 +3,38 @@
   Aucune réservation trouvée.
 </div>
 
-<!-- Tableau -->
-<table *ngIf="reservations.length > 0" class="table table-success table-striped">
-  <thead>
-    <tr>
-      <th>Livre</th>
-      <th>Adhérent</th>
-      <th>Statut</th>
-      <th>Date de réservation</th>
-      <th>Date d'expiration</th>
-      <th>Action</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let r of reservations">
-      <td>{{ r.livreNom }}</td>
-      <td>{{ r.adherentNom }}</td>
-      <td>
-        <span [class]="getStatutClass(r.statut)">{{ r.statut }}</span>
-      </td>
-      <td>{{ r.dateReservation }}</td>
-      <td>{{ r.dateExpiration }}</td>
-      <td>
-        <button
-          *ngIf="canCancel(r.statut)"
-          class="btn btn-danger btn-sm"
-          (click)="confirmAnnuler(r)">
-          Annuler
-        </button>
-      </td>
-    </tr>
-  </tbody>
-</table>
+<!-- Tableau responsive -->
+<div *ngIf="reservations.length > 0" class="table-responsive">
+  <table class="table table-success table-striped table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>Livre</th>
+        <th>Adhérent</th>
+        <th>Statut</th>
+        <th>Réservation</th>
+        <th>Expiration</th>
+        <th class="text-center">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let r of reservations">
+        <td>{{ r.livreNom }}</td>
+        <td>{{ r.adherentNom }}</td>
+        <td>
+          <span [class]="getStatutClass(r.statut)">{{ r.statut }}</span>
+        </td>
+        <td>{{ r.dateReservation }}</td>
+        <td>{{ r.dateExpiration }}</td>
+        <td class="text-center">
+          <button
+            *ngIf="canCancel(r.statut)"
+            class="btn btn-danger btn-sm"
+            (click)="confirmAnnuler(r)">
+            Annuler
+          </button>
+          <span *ngIf="!canCancel(r.statut)" class="text-muted">—</span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

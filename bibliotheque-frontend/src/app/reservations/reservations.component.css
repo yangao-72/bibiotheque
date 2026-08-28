@@ -1,0 +1,18 @@
+@media (max-width: 576px) {
+  h2 {
+    font-size: 1.4rem;
+  }
+
+  .table-responsive {
+    font-size: 0.85rem;
+  }
+
+  .btn-sm {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+.alert-dismissible .btn-close {
+  padding: 0.5rem;
+}
