@@ -13,7 +13,9 @@ export class ReservationFormComponent {
   @Input() books: Books[] = [];
   @Input() users: Users[] = [];
   @Input() formError = '';
+  @Output() formErrorChange = new EventEmitter<string>();
   @Input() formSuccess = '';
+  @Output() formSuccessChange = new EventEmitter<string>();
   @Input() isFormValid = false;
   @Input() reservation: ReservationRequest = new ReservationRequest();
   @Output() reservationChange = new EventEmitter<ReservationRequest>();
@@ -33,5 +35,15 @@ export class ReservationFormComponent {
     if (this.isFormValid) {
       this.submitForm.emit();
     }
+  }
+
+  closeFormError(): void {
+    this.formError = '';
+    this.formErrorChange.emit('');
+  }
+
+  closeFormSuccess(): void {
+    this.formSuccess = '';
+    this.formSuccessChange.emit('');
   }
 }

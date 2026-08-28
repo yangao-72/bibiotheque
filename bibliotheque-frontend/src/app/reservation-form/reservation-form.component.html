@@ -5,13 +5,13 @@
     <!-- Message d'erreur -->
     <div *ngIf="formError" class="alert alert-danger alert-dismissible fade show" role="alert">
       <strong>Erreur :</strong> {{ formError }}
-      <button type="button" class="btn-close" aria-label="Fermer"></button>
+      <button type="button" class="btn-close" (click)="closeFormError()" aria-label="Fermer"></button>
     </div>
 
     <!-- Message de succès -->
     <div *ngIf="formSuccess" class="alert alert-success alert-dismissible fade show" role="alert">
       {{ formSuccess }}
-      <button type="button" class="btn-close" aria-label="Fermer"></button>
+      <button type="button" class="btn-close" (click)="closeFormSuccess()" aria-label="Fermer"></button>
     </div>
 
     <form (ngSubmit)="onSubmit()" autocomplete="off">
