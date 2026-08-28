@@ -1,0 +1,51 @@
+<div class="container mt-4">
+  <h2 class="text-center mb-4">Gestion des Réservations</h2>
+
+  <!-- Filtre par statut -->
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <label for="statutFilter" class="form-label"><strong>Filtrer par statut</strong></label>
+      <select
+        id="statutFilter"
+        class="form-select"
+        [(ngModel)]="selectedStatut"
+        (ngModelChange)="onFilterChange($event)">
+        <option value="">Tous</option>
+        <option *ngFor="let s of statuts" [value]="s">{{ s }}</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- État de chargement -->
+  <div *ngIf="loading" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+    <p class="mt-2 text-muted">Chargement des réservations...</p>
+  </div>
+
+  <!-- Message d'erreur -->
+  <div *ngIf="errorMessage && !loading" class="alert alert-danger d-flex justify-content-between align-items-center">
+    <span>{{ errorMessage }}</span>
+    <button class="btn btn-outline-danger btn-sm" (click)="loadData()">Réessayer</button>
+  </div>
+
+  <!-- Liste des réservations -->
+  <app-reservations-list
+    *ngIf="!loading && !errorMessage"
+    [reservations]="reservations"
+    [currentUserRole]="''"
+    (annuler)="onAnnulerReservation($event)">
+  </app-reservations-list>
+
+  <!-- Formulaire de création -->
+  <app-reservation-form
+    [books]="books"
+    [users]="users"
+    [formError]="formError"
+    [formSuccess]="formSuccess"
+    [isFormValid]="isFormValid"
+    [(reservation)]="newReservation"
+    (submitForm)="onCreateReservation()">
+  </app-reservation-form>
+</div>

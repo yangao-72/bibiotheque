@@ -1,0 +1,50 @@
+<div class="container col-md-6 offset-mid-3 mt-5">
+  <h3 class="text-center">Créer une réservation</h3>
+
+  <!-- Message d'erreur -->
+  <div *ngIf="formError" class="alert alert-danger">
+    {{ formError }}
+  </div>
+
+  <!-- Message de succès -->
+  <div *ngIf="formSuccess" class="alert alert-success">
+    {{ formSuccess }}
+  </div>
+
+  <form (ngSubmit)="onSubmit()" autocomplete="off">
+    <div class="form-group">
+      <label style="margin-bottom: 10px"><strong>Livre</strong></label>
+      <select
+        class="form-control"
+        style="margin-bottom: 10px"
+        id="livreId"
+        [ngModel]="reservation.livreId"
+        (ngModelChange)="onLivreChange($event)"
+        name="livreId">
+        <option [ngValue]="null" disabled>-- Sélectionner un livre --</option>
+        <option *ngFor="let book of books" [ngValue]="book.bookId">{{ book.bookName }}</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label style="margin-bottom: 10px"><strong>Adhérent</strong></label>
+      <select
+        class="form-control"
+        style="margin-bottom: 10px"
+        id="adherentId"
+        [ngModel]="reservation.adherentId"
+        (ngModelChange)="onAdherentChange($event)"
+        name="adherentId">
+        <option [ngValue]="null" disabled>-- Sélectionner un adhérent --</option>
+        <option *ngFor="let user of users" [ngValue]="user.userId">{{ user.name }}</option>
+      </select>
+    </div>
+
+    <button
+      class="btn btn-success"
+      type="submit"
+      [disabled]="!isFormValid">
+      Créer la réservation
+    </button>
+  </form>
+</div>

@@ -6,18 +6,19 @@
 
 [![Spring Boot](https://img.shields.io/badge/Spring-6DB33F?style=for-the-badge&logo=spring&logoColor=white)]()
 [![Angular](https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white)]()
-[![MySQL](https://img.shields.io/badge/MySQL-00000F?style=for-the-badge&logo=mysql&logoColor=white)]()
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white)]()
 [![Hibernate](https://img.shields.io/badge/Hibernate-59666C?style=for-the-badge&logo=Hibernate&logoColor=white)]()
 [![Maven](https://img.shields.io/badge/apache_maven-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white)]()
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white)]()
 
 Application full-stack de gestion de bibliothèque : **Spring Boot** (API REST) +
-**Angular** (interface) + **MySQL** (persistance).
+**Angular** (interface) + **PostgreSQL** (persistance).
 
-* Deux profils : **Admin** (CRUD livres et utilisateurs) et **User** (emprunter / rendre).
+* Deux profils : **Admin** (CRUD livres et utilisateurs) et **User** (emprunter / rendre / réserver).
 * Authentification par **JWT**.
 * Mots de passe chiffrés avec **BCrypt**.
 * Redirection vers une page *forbidden* si le rôle n'a pas accès à l'URL.
+* Module **Réservation** : création, liste filtrable par statut, annulation avec gestion des erreurs métier (409).
 
 ---
 
@@ -62,7 +63,7 @@ c'est d'abord savoir diagnostiquer pourquoi il refuse de démarrer.
 ### Ce qui est déjà là
 
 * Un backend Spring Boot complet : entités, repositories, contrôleurs, sécurité JWT.
-* Un frontend Angular complet : 15 composants, routage, guard, intercepteur HTTP.
+* Un frontend Angular complet : 18 composants, routage, guard, intercepteur HTTP.
 * Aucune donnée : la base est vide au premier démarrage.
 
 ### Ce qui manque ou coince — c'est votre travail
@@ -96,27 +97,37 @@ bibliothèque/
 │       │   │   ├── Users.java          un utilisateur, lié à des Role
 │       │   │   ├── Role.java           "Admin" ou "User"
 │       │   │   ├── Borrow.java         un emprunt (dates emprunt / retour)
+│       │   │   ├── Reservation.java    une réservation (livre, adhérent, statut, dates)
+│       │   │   ├── ReservationRequest.java   corps du POST /api/reservations
+│       │   │   ├── ReservationResponse.java  réponse enrichie (noms livre/adhérent)
+│       │   │   ├── ReservationStatus.java    enum : EN_ATTENTE, DISPONIBLE, ANNULEE, EXPIREE, HONOREE
 │       │   │   ├── JwtRequest.java     corps du POST /authenticate
 │       │   │   ├── JwtResponse.java    réponse : utilisateur + token
 │       │   │   └── JsonDataSerializer.java  formate les dates en dd-MM-yyyy
 │       │   ├── dao/                accès base — Spring Data JPA
 │       │   │   ├── BooksRepository.java
 │       │   │   ├── UsersRepository.java     findByUsername
-│       │   │   └── BorrowRepository.java    findByUserId, findByBookId
+│       │   │   ├── BorrowRepository.java    findByUserId, findByBookId
+│       │   │   └── ReservationRepository.java  findByStatut, findByAdherentUserId
 │       │   ├── controller/         les points d'entrée HTTP
 │       │   │   ├── BooksController.java     /admin/books
 │       │   │   ├── AdminController.java     /admin/users
 │       │   │   ├── BorrowController.java    /borrow
+│       │   │   ├── ReservationController.java  /api/reservations
 │       │   │   └── JwtController.java       /authenticate
 │       │   ├── service/
-│       │   │   └── JwtService.java     vérifie le couple login / mot de passe
+│       │   │   ├── JwtService.java     vérifie le couple login / mot de passe
+│       │   │   └── ReservationService.java  logique métier réservation (RG-01 à RG-06)
 │       │   ├── configuration/
 │       │   │   ├── WebSecurityConfiguration.java     qui a le droit d'aller où
 │       │   │   ├── JwtRequestFilter.java             lit le header Authorization
 │       │   │   ├── JwtAuthenticationEntryPoint.java  renvoie 401
 │       │   │   └── CorsConfiguration.java            autorise le front
 │       │   ├── util/JwtUtil.java       fabrique et valide les tokens
-│       │   └── exceptions/NotFoundException.java     -> HTTP 404
+│       │   └── exceptions/
+│       │       ├── NotFoundException.java     -> HTTP 404
+│       │       ├── BadRequestException.java   -> HTTP 400
+│       │       └── ConflictException.java     -> HTTP 409
 │       ├── main/resources/application.properties     port, URL base, identifiants
 │       └── test/java/...           un seul test : le contexte démarre-t-il ?
 │
@@ -129,16 +140,20 @@ bibliothèque/
 │       └── app/
 │           ├── app.module.ts       déclare composants, services, intercepteur
 │           ├── app-routing.module.ts   URL -> composant, + rôles autorisés
-│           ├── _model/             les types TypeScript (books, users, borrow)
+│           ├── _model/             les types TypeScript (books, users, borrow, reservation)
 │           ├── _service/           les appels HTTP vers le backend
 │           │   ├── books.service.ts      CRUD livres
 │           │   ├── users.service.ts      CRUD utilisateurs + login
 │           │   ├── borrow.service.ts     emprunts
+│           │   ├── reservation.service.ts  réservations (CRUD + annulation)
 │           │   └── user-auth.service.ts  token + rôles dans localStorage
 │           ├── _auth/
 │           │   ├── auth.guard.ts         bloque une route selon le rôle
 │           │   └── auth.interceptor.ts   ajoute "Bearer <token>" partout
-│           └── <15 composants>/    un dossier par écran (html / css / ts / spec)
+│           ├── reservations/          conteneur : état + appels API + filtre
+│           ├── reservations-list/     tableau avec badges statut + bouton annuler
+│           ├── reservation-form/      formulaire création (dropdowns livre/adhérent)
+│           └── <autres composants>/   un dossier par écran (html / css / ts / spec)
 │
 ├── screenshots/                    captures utilisées plus bas
 ├── SEANCE-1.md                     déroulé de la séance
@@ -352,6 +367,28 @@ Base : `http://localhost:8080`
 { "bookId": 3, "userId": 5 }
 ```
 
+### Réservations — `/api/reservations`
+
+| Verbe | URL | Description |
+|---|---|---|
+| GET | `/api/reservations?statut=X&adherentId=X` | Liste les réservations (filtres optionnels : `EN_ATTENTE`, `DISPONIBLE`, `ANNULEE`, `EXPIREE`, `HONOREE`) |
+| GET | `/api/reservations/{id}` | Détail d'une réservation |
+| POST | `/api/reservations` | Créer une réservation (livre doit être indisponible) |
+| PATCH | `/api/reservations/{id}/annuler?userId=X` | Annuler une réservation (statut `EN_ATTENTE` ou `DISPONIBLE`) |
+| DELETE | `/api/reservations/{id}` | Supprimer une réservation |
+
+```json
+{ "livreId": 10, "adherentId": 11 }
+```
+
+**Règles de gestion :**
+- RG-01 : On ne peut réserver qu'un livre indisponible (`noOfCopies == 0`)
+- RG-02 : Une seule réservation active par livre et par adhérent
+- RG-03 : Maximum 3 réservations actives simultanées
+- RG-04 : Date d'expiration = date de réservation + 7 jours
+- RG-05 : Annulation possible uniquement pour les statuts `EN_ATTENTE` ou `DISPONIBLE`
+- RG-06 : Un statut `ANNULEE`, `EXPIREE` ou `HONOREE` ne peut plus changer
+
 ---
 
 ## 8. Rappel Git
@@ -411,6 +448,7 @@ Quelques réflexes :
 | Liste des utilisateurs | ![Liste des utilisateurs](./screenshots/user_list.png) |
 | Ajout d'un utilisateur | ![Ajout utilisateur](./screenshots/user_add.png) |
 | Emprunts d'un utilisateur | ![Détail utilisateur](./screenshots/user_details.png) |
+| Gestion des réservations | Filtre par statut, création, annulation avec gestion erreurs |
 
 ### Côté utilisateur
 

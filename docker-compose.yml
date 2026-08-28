@@ -1,0 +1,113 @@
+# =============================================================================
+# Bibliothèque — docker compose up
+# -----------------------------------------------------------------------------
+# Trois services : db (PostgreSQL), backend (API Spring Boot, 8080) et
+# frontend (Angular servi par nginx, 4200). Un service `seed` optionnel
+# insère au premier démarrage le compte admin et quelques livres.
+#
+# Les identifiants de la base sont des variables d'environnement : copiez
+# `.env.example` vers `.env` pour les personnaliser.
+# =============================================================================
+
+name: bibliotheque
+
+services:
+
+  # ---- Base de données PostgreSQL -------------------------------------------
+  db:
+    image: postgres:15-alpine
+    container_name: bibliotheque-db
+    environment:
+      POSTGRES_DB: ${DB_NAME:-bibliotheque}
+      POSTGRES_USER: ${DB_USER:-bibliotheque}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-bibliotheque}
+    ports:
+      - "5433:5432"
+    volumes:
+      # Volume nommé : les données survivent à `docker compose down` puis `up`.
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-bibliotheque} -d ${DB_NAME:-bibliotheque}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  # ---- API Spring Boot ------------------------------------------------------
+  backend:
+    build: ./bibliotheque-backend
+    container_name: bibliotheque-backend
+    environment:
+      # `application.properties` n'est pas modifié : tout est surchargé par
+      # variables d'environnement (relaxed binding Spring Boot).
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_NAME:-bibliotheque}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER:-bibliotheque}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-bibliotheque}
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      # Spring Boot 2.6+ refuse les références circulaires par défaut ; le code
+      # (conçu pour Spring Boot 2.4) en utilise une (jwtRequestFilter ->
+      # JwtService -> WebSecurityConfiguration -> jwtRequestFilter). On
+      # restaure l'ancien comportement sans toucher au code.
+      SPRING_MAIN_ALLOW_CIRCULAR_REFERENCES: "true"
+    depends_on:
+      db:
+        # `depends_on` seul ne suffit pas : on attend que PostgreSQL
+        # réponde vraiment (healthcheck) avant de démarrer.
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    healthcheck:
+      # Tomcat n'écoute qu'après le démarrage complet du contexte Spring,
+      # donc après la création du schéma par Hibernate.
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8080' || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    restart: unless-stopped
+
+  # ---- Interface Angular ----------------------------------------------------
+  frontend:
+    build: ./bibliotheque-frontend
+    container_name: bibliotheque-frontend
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      # nginx écoute sur 80 dans le conteneur, publié sur le port 4200 de l'hôte.
+      - "4200:80"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ---- Initialisation des données (bonus) -----------------------------------
+  # Insère une seule fois les rôles, le compte admin (admin / admin123) et
+  # quelques livres. Le SQL est idempotent : relancer le service ne casse rien.
+  seed:
+    image: postgres:15-alpine
+    container_name: bibliotheque-seed
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${DB_PASSWORD:-bibliotheque}
+    volumes:
+      - ./db/seed.sql:/seed.sql:ro
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        echo "Attente des tables (backend sain)..."
+        until psql -h db -U "${DB_USER:-bibliotheque}" -d "${DB_NAME:-bibliotheque}" \
+              -v ON_ERROR_STOP=1 -f /seed.sql >/dev/null 2>&1; do
+          sleep 3
+        done
+        echo "Données initiales en place. Connexion : admin / admin123."
+    restart: "no"
+
+volumes:
+  db-data:

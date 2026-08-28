@@ -2,13 +2,14 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Borrow } from '../_model/borrow';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BorrowService {
 
-  private baseURL = "http://localhost:8080/borrow";
+  private baseURL = `${environment.apiUrl}/borrow`;
 
   constructor(private httpClient: HttpClient) { }
 
