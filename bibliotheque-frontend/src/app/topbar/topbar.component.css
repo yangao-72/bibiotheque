@@ -50,8 +50,9 @@
   left: 14px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   opacity: 0.5;
+  color: var(--text-muted);
 }
 
 .search-input {
@@ -64,6 +65,10 @@
   background: var(--surface-hover);
   transition: all 0.2s;
   outline: none;
+}
+
+.search-input::placeholder {
+  color: var(--text-muted);
 }
 
 .search-input:focus {
@@ -87,12 +92,13 @@
   border: none;
   background: var(--surface-hover);
   border-radius: 10px;
-  font-size: 1.1rem;
+  font-size: 1rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
+  color: var(--text-primary);
 }
 
 .btn-theme:hover {
@@ -112,12 +118,13 @@
   border: none;
   background: var(--surface-hover);
   border-radius: 10px;
-  font-size: 1.1rem;
+  font-size: 1rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
+  color: var(--text-primary);
 }
 
 .btn-notification:hover {
@@ -181,6 +188,13 @@
   color: var(--primary);
   text-decoration: none;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.notification-header a:hover {
+  color: var(--primary-dark);
 }
 
 .notification-list {
@@ -198,17 +212,21 @@
   padding: 0.85rem 1.25rem;
   border-bottom: 1px solid var(--surface-hover);
   transition: background 0.15s;
+  cursor: pointer;
 }
 
 .notification-list li:hover {
   background: var(--surface-hover);
 }
 
+.notification-list li:last-child {
+  border-bottom: none;
+}
+
 .notif-icon {
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  background: var(--surface-hover);
   display: flex;
   align-items: center;
   justify-content: center;

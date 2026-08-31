@@ -3,7 +3,7 @@
   <!-- Header -->
   <div class="page-header">
     <h2 class="page-title">
-      <span class="page-title-icon">👥</span>
+      <span class="page-title-icon"><i class="fas fa-users"></i></span>
       Liste des Adhérents
     </h2>
     <p class="page-subtitle">Consultez et gérez les utilisateurs de la bibliothèque</p>
@@ -12,11 +12,11 @@
   <!-- Messages -->
   <div *ngIf="errorMessage" class="toast-message toast-error">
     <div class="d-flex align-items-center">
-      <span class="toast-icon">⚠️</span>
+      <span class="toast-icon"><i class="fas fa-exclamation-circle"></i></span>
       <span>{{ errorMessage }}</span>
     </div>
     <div class="d-flex align-items-center gap-2">
-      <button class="btn btn-sm btn-outline-light" (click)="retry()">Réessayer</button>
+      <button class="btn btn-sm btn-outline-light" (click)="retry()"><i class="fas fa-sync-alt"></i> Réessayer</button>
       <button class="btn-close" (click)="errorMessage = ''" aria-label="Fermer"></button>
     </div>
   </div>
@@ -31,17 +31,17 @@
 
   <!-- Liste vide -->
   <div *ngIf="!loading && users.length === 0 && !errorMessage" class="empty-state text-center">
-    <div class="empty-icon">👤</div>
+    <div class="empty-icon"><i class="fas fa-user-slash"></i></div>
     <h4>Aucun adhérent trouvé</h4>
     <p>Aucun utilisateur n'est enregistré pour le moment.</p>
   </div>
 
   <!-- Erreur avec réessayer -->
   <div *ngIf="!loading && errorMessage && users.length === 0" class="error-state text-center">
-    <div class="error-icon">🔌</div>
+    <div class="error-icon"><i class="fas fa-plug"></i></div>
     <h4>Impossible de charger les adhérents</h4>
     <p class="text-muted">{{ errorMessage }}</p>
-    <button class="btn btn-retry" (click)="retry()">🔄 Réessayer</button>
+    <button class="btn btn-retry" (click)="retry()"><i class="fas fa-sync-alt"></i> Réessayer</button>
   </div>
 
   <!-- Tableau -->
@@ -70,8 +70,8 @@
             <td class="text-center">
               <div class="d-flex gap-1 justify-content-center">
                 <button *ngIf="user.role[0]?.roleName === 'User'"
-                  (click)="userDetails(user.userId)" class="btn btn-action btn-view" title="Historique">👁️</button>
-                <button (click)="updateUser(user.userId)" class="btn btn-action btn-edit" title="Modifier">✏️</button>
+                  (click)="userDetails(user.userId)" class="btn btn-action btn-view" title="Historique"><i class="fas fa-history"></i></button>
+                <button (click)="updateUser(user.userId)" class="btn btn-action btn-edit" title="Modifier"><i class="fas fa-edit"></i></button>
               </div>
             </td>
           </tr>

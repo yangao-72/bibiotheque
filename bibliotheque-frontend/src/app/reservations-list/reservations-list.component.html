@@ -1,6 +1,6 @@
 <!-- Liste vide — état élégant -->
 <div *ngIf="reservations.length === 0" class="empty-state text-center py-5">
-  <div class="empty-icon mb-3">📚</div>
+  <div class="empty-icon mb-3"><i class="fas fa-calendar-times"></i></div>
   <h4 class="text-muted fw-semibold">Aucune réservation</h4>
   <p class="text-muted small">Il n'y a aucune réservation pour le moment.<br>Créez-en une nouvelle ci-dessous.</p>
 </div>
@@ -43,8 +43,8 @@
               class="btn btn-outline-danger btn-sm btn-action"
               (click)="confirmAnnuler(r)"
               title="Annuler cette réservation">
-              <span class="d-none d-md-inline">Annuler</span>
-              <span class="d-md-none">✕</span>
+              <span class="d-none d-md-inline"><i class="fas fa-times-circle"></i> Annuler</span>
+              <span class="d-md-none"><i class="fas fa-times"></i></span>
             </button>
             <span *ngIf="!canCancel(r.statut)" class="text-muted small">—</span>
           </td>

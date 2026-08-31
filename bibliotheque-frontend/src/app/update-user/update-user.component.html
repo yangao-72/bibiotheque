@@ -1,7 +1,7 @@
 <div class="form-container">
   <!-- Header -->
   <div class="page-header">
-    <h2 class="page-title">✏️ Modifier un adhérent</h2>
+    <h2 class="page-title"><i class="fas fa-user-edit me-2"></i> Modifier un adhérent</h2>
   </div>
 
   <!-- Chargement -->
@@ -12,39 +12,39 @@
 
   <!-- Erreur chargement -->
   <div *ngIf="errorMessage && !loading && !saving" class="error-state">
-    <div class="error-icon">⚠️</div>
+    <div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div>
     <p class="error-text">{{ errorMessage }}</p>
-    <button class="btn-retry" (click)="retry()">↻ Réessayer</button>
+    <button class="btn-retry" (click)="retry()"><i class="fas fa-sync-alt me-1"></i> Réessayer</button>
   </div>
 
   <!-- Formulaire -->
   <div *ngIf="!loading" class="form-card">
     <!-- Toast succès -->
     <div *ngIf="successMessage" class="toast-success">
-      <span>✅</span> {{ successMessage }}
+      <i class="fas fa-check-circle"></i> {{ successMessage }}
     </div>
 
     <!-- Toast erreur -->
     <div *ngIf="errorMessage && saving" class="toast-error">
-      <span>❌</span> {{ errorMessage }}
-      <button class="toast-close" (click)="errorMessage = ''">✕</button>
+      <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+      <button class="toast-close" (click)="errorMessage = ''"><i class="fas fa-times"></i></button>
     </div>
 
     <form (ngSubmit)="onSubmit()" autocomplete="off">
       <div class="form-group">
-        <label class="form-label">Nom complet</label>
+        <label class="form-label"><i class="fas fa-user me-1"></i> Nom complet</label>
         <input type="text" class="form-input" placeholder="Ex: Jean Dupont"
                [(ngModel)]="user.name" name="name">
       </div>
 
       <div class="form-group">
-        <label class="form-label">Nom d'utilisateur</label>
+        <label class="form-label"><i class="fas fa-at me-1"></i> Nom d'utilisateur</label>
         <input type="text" class="form-input" placeholder="Ex: jdupont"
                [(ngModel)]="user.username" name="username">
       </div>
 
       <div class="form-group">
-        <label class="form-label">Rôle</label>
+        <label class="form-label"><i class="fas fa-user-tag me-1"></i> Rôle</label>
         <select class="form-input" [(ngModel)]="user.role[0].roleName" name="role">
           <option value="Admin">Administrateur</option>
           <option value="User">Utilisateur</option>
@@ -52,9 +52,10 @@
       </div>
 
       <div class="form-actions">
-        <button type="button" class="btn-cancel" (click)="goToUsersList()">Annuler</button>
+        <button type="button" class="btn-cancel" (click)="goToUsersList()"><i class="fas fa-times me-1"></i> Annuler</button>
         <button type="submit" class="btn-submit" [disabled]="saving">
           <span *ngIf="saving" class="spinner-small"></span>
+          <i *ngIf="!saving" class="fas fa-save me-1"></i>
           {{ saving ? 'Enregistrement...' : 'Enregistrer' }}
         </button>
       </div>

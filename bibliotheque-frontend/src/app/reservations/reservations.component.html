@@ -3,7 +3,7 @@
   <!-- Header -->
   <div class="page-header">
     <h2 class="page-title">
-      <span class="page-title-icon">🗓️</span>
+      <span class="page-title-icon"><i class="fas fa-calendar-check"></i></span>
       Gestion des Réservations
     </h2>
     <p class="page-subtitle">Consultez, créez et gérez les réservations de livres</p>
@@ -12,28 +12,28 @@
   <!-- Stats Cards -->
   <div class="stats-grid" *ngIf="!loading">
     <div class="stat-card">
-      <div class="stat-icon primary">📊</div>
+      <div class="stat-icon primary"><i class="fas fa-chart-bar"></i></div>
       <div class="stat-content">
         <div class="stat-label">Total</div>
         <div class="stat-value">{{ reservations.length }}</div>
       </div>
     </div>
     <div class="stat-card">
-      <div class="stat-icon warning">⏳</div>
+      <div class="stat-icon warning"><i class="fas fa-hourglass-half"></i></div>
       <div class="stat-content">
         <div class="stat-label">En attente</div>
         <div class="stat-value">{{ getCountByStatut('EN_ATTENTE') }}</div>
       </div>
     </div>
     <div class="stat-card">
-      <div class="stat-icon success">✅</div>
+      <div class="stat-icon success"><i class="fas fa-check-circle"></i></div>
       <div class="stat-content">
         <div class="stat-label">Disponibles</div>
         <div class="stat-value">{{ getCountByStatut('DISPONIBLE') }}</div>
       </div>
     </div>
     <div class="stat-card">
-      <div class="stat-icon info">📖</div>
+      <div class="stat-icon info"><i class="fas fa-book-reader"></i></div>
       <div class="stat-content">
         <div class="stat-label">Honorées</div>
         <div class="stat-value">{{ getCountByStatut('HONOREE') }}</div>
@@ -49,12 +49,12 @@
       class="toast-message toast-error"
       role="alert">
       <div class="d-flex align-items-center">
-        <span class="toast-icon">⚠️</span>
+        <span class="toast-icon"><i class="fas fa-exclamation-circle"></i></span>
         <span>{{ errorMessage }}</span>
       </div>
       <div class="d-flex align-items-center gap-2">
         <button class="btn btn-sm btn-outline-light" (click)="loadData()">
-          Réessayer
+          <i class="fas fa-sync-alt"></i> Réessayer
         </button>
         <button class="btn-close" (click)="errorMessage = ''" aria-label="Fermer"></button>
       </div>
@@ -66,7 +66,7 @@
       class="toast-message toast-success"
       role="alert">
       <div class="d-flex align-items-center">
-        <span class="toast-icon">✅</span>
+        <span class="toast-icon"><i class="fas fa-check-circle"></i></span>
         <span>{{ formSuccess }}</span>
       </div>
       <button class="btn-close" (click)="formSuccess = ''" aria-label="Fermer"></button>
@@ -78,7 +78,7 @@
       class="toast-message toast-warning"
       role="alert">
       <div class="d-flex align-items-center">
-        <span class="toast-icon">🚫</span>
+        <span class="toast-icon"><i class="fas fa-ban"></i></span>
         <span><strong>Annulation refusée :</strong> {{ cancelError }}</span>
       </div>
       <button class="btn-close" (click)="cancelError = ''" aria-label="Fermer"></button>

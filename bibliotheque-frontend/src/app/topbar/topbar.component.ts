@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Output, EventEmitter, OnInit, HostListener, ElementRef } from '@angular/core';
 import { ThemeService } from '../_service/theme.service';
 
 @Component({
@@ -15,23 +15,38 @@ export class TopbarComponent implements OnInit {
   isDarkMode = false;
 
   notifications = [
-    { icon: '🔴', title: '3 retours en retard', subtitle: 'Certains livres ne sont pas encore retournés.', time: 'il y a 1h' },
-    { icon: '📅', title: '5 réservations en attente', subtitle: 'Des réservations nécessitent votre attention.', time: 'il y a 3h' },
-    { icon: '👤', title: 'Nouveau membre', subtitle: 'Marie Dupont a rejoint la bibliothèque.', time: 'il y a 5h' },
-    { icon: '💾', title: 'Sauvegarde terminée', subtitle: 'La sauvegarde quotidienne a réussi.', time: 'il y a 1j' }
+    { iconClass: 'fas fa-exclamation-circle', iconColor: '#ef4444', title: '3 retours en retard', subtitle: 'Certains livres ne sont pas encore retournés.', time: 'il y a 1h' },
+    { iconClass: 'fas fa-clock', iconColor: '#f59e0b', title: '5 réservations en attente', subtitle: 'Des réservations nécessitent votre attention.', time: 'il y a 3h' },
+    { iconClass: 'fas fa-user-plus', iconColor: '#3b82f6', title: 'Nouveau membre', subtitle: 'Marie Dupont a rejoint la bibliothèque.', time: 'il y a 5h' },
+    { iconClass: 'fas fa-check-circle', iconColor: '#22c55e', title: 'Sauvegarde terminée', subtitle: 'La sauvegarde quotidienne a réussi.', time: 'il y a 1j' }
   ];
 
-  constructor(private themeService: ThemeService) { }
+  constructor(
+    private themeService: ThemeService,
+    private elementRef: ElementRef
+  ) { }
 
   ngOnInit(): void {
     this.isDarkMode = this.themeService.isDarkMode();
+  }
+
+  // Close dropdown when clicking outside
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (this.showNotifications) {
+      const clickedInside = this.elementRef.nativeElement.contains(event.target);
+      if (!clickedInside) {
+        this.showNotifications = false;
+      }
+    }
   }
 
   onToggleSidebar(): void {
     this.toggleSidebar.emit();
   }
 
-  toggleNotifications(): void {
+  toggleNotifications(event: MouseEvent): void {
+    event.stopPropagation();
     this.showNotifications = !this.showNotifications;
   }
 

@@ -1,43 +1,43 @@
 <div class="form-container">
   <!-- Header -->
   <div class="page-header">
-    <h2 class="page-title">➕ Ajouter un adhérent</h2>
+    <h2 class="page-title"><i class="fas fa-user-plus me-2"></i> Ajouter un adhérent</h2>
   </div>
 
   <!-- Formulaire -->
   <div class="form-card">
     <!-- Toast succès -->
     <div *ngIf="successMessage" class="toast-success">
-      <span>✅</span> {{ successMessage }}
+      <i class="fas fa-check-circle"></i> {{ successMessage }}
     </div>
 
     <!-- Toast erreur -->
     <div *ngIf="errorMessage" class="toast-error">
-      <span>❌</span> {{ errorMessage }}
-      <button class="toast-close" (click)="errorMessage = ''">✕</button>
+      <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+      <button class="toast-close" (click)="errorMessage = ''"><i class="fas fa-times"></i></button>
     </div>
 
     <form (ngSubmit)="onSubmit()" autocomplete="off">
       <div class="form-group">
-        <label class="form-label">Nom complet</label>
+        <label class="form-label"><i class="fas fa-user me-1"></i> Nom complet</label>
         <input type="text" class="form-input" placeholder="Ex: Jean Dupont"
                [(ngModel)]="user.name" name="name">
       </div>
 
       <div class="form-group">
-        <label class="form-label">Nom d'utilisateur</label>
+        <label class="form-label"><i class="fas fa-at me-1"></i> Nom d'utilisateur</label>
         <input type="text" class="form-input" placeholder="Ex: jdupont"
                [(ngModel)]="user.username" name="username">
       </div>
 
       <div class="form-group">
-        <label class="form-label">Mot de passe</label>
+        <label class="form-label"><i class="fas fa-lock me-1"></i> Mot de passe</label>
         <input type="password" class="form-input" placeholder="••••••••"
                [(ngModel)]="user.password" name="password">
       </div>
 
       <div class="form-group">
-        <label class="form-label">Rôle</label>
+        <label class="form-label"><i class="fas fa-user-tag me-1"></i> Rôle</label>
         <select class="form-input" [(ngModel)]="user.role[0].roleName" name="role">
           <option value="Admin">Administrateur</option>
           <option value="User">Utilisateur</option>
@@ -45,9 +45,10 @@
       </div>
 
       <div class="form-actions">
-        <button type="button" class="btn-cancel" (click)="goToUsersList()">Annuler</button>
+        <button type="button" class="btn-cancel" (click)="goToUsersList()"><i class="fas fa-times me-1"></i> Annuler</button>
         <button type="submit" class="btn-submit" [disabled]="saving">
           <span *ngIf="saving" class="spinner-small"></span>
+          <i *ngIf="!saving" class="fas fa-plus me-1"></i>
           {{ saving ? 'Création...' : 'Créer l\'adhérent' }}
         </button>
       </div>

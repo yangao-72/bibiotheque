@@ -8,7 +8,7 @@
 
   <!-- Search -->
   <div class="search-bar">
-    <span class="search-icon">🔍</span>
+    <span class="search-icon"><i class="fas fa-search"></i></span>
     <input type="text"
            placeholder="Rechercher un livre, un auteur..."
            [(ngModel)]="searchQuery"
@@ -19,13 +19,13 @@
   <div class="topbar-actions">
     <!-- Dark Mode Toggle -->
     <button class="btn-theme" (click)="toggleDarkMode()" [title]="isDarkMode ? 'Mode clair' : 'Mode sombre'">
-      {{ isDarkMode ? '☀️' : '🌙' }}
+      <i class="fas" [ngClass]="isDarkMode ? 'fa-sun' : 'fa-moon'"></i>
     </button>
 
     <!-- Notifications -->
     <div class="notification-wrapper">
-      <button class="btn-notification" (click)="toggleNotifications()">
-        🔔
+      <button class="btn-notification" (click)="toggleNotifications($event)">
+        <i class="fas fa-bell"></i>
         <span class="notification-badge">3</span>
       </button>
 
@@ -33,11 +33,13 @@
       <div class="notification-dropdown" *ngIf="showNotifications">
         <div class="notification-header">
           <h4>Notifications</h4>
-          <a href="javascript:void(0)">Voir tout →</a>
+          <a href="javascript:void(0)">Voir tout <i class="fas fa-arrow-right"></i></a>
         </div>
         <ul class="notification-list">
           <li *ngFor="let n of notifications">
-            <span class="notif-icon">{{ n.icon }}</span>
+            <span class="notif-icon" [style.background]="n.iconColor + '15'" [style.color]="n.iconColor">
+              <i [class]="n.iconClass"></i>
+            </span>
             <div class="notif-content">
               <strong>{{ n.title }}</strong>
               <p>{{ n.subtitle }}</p>

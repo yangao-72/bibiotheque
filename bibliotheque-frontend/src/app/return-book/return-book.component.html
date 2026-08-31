@@ -3,7 +3,7 @@
   <!-- Header -->
   <div class="page-header">
     <h2 class="page-title">
-      <span class="page-title-icon">📤</span>
+      <span class="page-title-icon"><i class="fas fa-undo-alt"></i></span>
       Retourner un Livre
     </h2>
     <p class="page-subtitle">Consultez vos emprunts en cours et retournez un livre</p>
@@ -12,7 +12,7 @@
   <!-- Messages -->
   <div *ngIf="errorMessage" class="toast-message toast-error">
     <div class="d-flex align-items-center">
-      <span class="toast-icon">⚠️</span>
+      <span class="toast-icon"><i class="fas fa-exclamation-circle"></i></span>
       <span>{{ errorMessage }}</span>
     </div>
     <button class="btn-close" (click)="errorMessage = ''" aria-label="Fermer"></button>
@@ -20,7 +20,7 @@
 
   <div *ngIf="successMessage" class="toast-message toast-success">
     <div class="d-flex align-items-center">
-      <span class="toast-icon">✅</span>
+      <span class="toast-icon"><i class="fas fa-check-circle"></i></span>
       <span>{{ successMessage }}</span>
     </div>
     <button class="btn-close" (click)="successMessage = ''" aria-label="Fermer"></button>
@@ -36,17 +36,17 @@
 
   <!-- Liste vide -->
   <div *ngIf="!loading && borrow.length === 0 && !errorMessage" class="empty-state text-center">
-    <div class="empty-icon">📤</div>
+    <div class="empty-icon"><i class="fas fa-undo-alt"></i></div>
     <h4>Aucun emprunt en cours</h4>
     <p>Vous n'avez aucun livre à retourner pour le moment.</p>
   </div>
 
   <!-- Erreur avec réessayer -->
   <div *ngIf="!loading && errorMessage && borrow.length === 0" class="error-state text-center">
-    <div class="error-icon">🔌</div>
+    <div class="error-icon"><i class="fas fa-plug"></i></div>
     <h4>Impossible de charger les emprunts</h4>
     <p class="text-muted">{{ errorMessage }}</p>
-    <button class="btn btn-retry" (click)="retry()">🔄 Réessayer</button>
+    <button class="btn btn-retry" (click)="retry()"><i class="fas fa-sync-alt"></i> Réessayer</button>
   </div>
 
   <!-- Tableau -->
@@ -67,14 +67,14 @@
             <td class="ps-3"><span class="fw-semibold">Livre #{{ b.bookId }}</span></td>
             <td>{{ b.issueDate }}</td>
             <td class="d-none d-sm-table-cell">
-              <span *ngIf="b.returnDate" class="text-success">✅ {{ b.returnDate }}</span>
-              <span *ngIf="!b.returnDate" class="text-warning">⏳ En cours</span>
+              <span *ngIf="b.returnDate" class="text-success"><i class="fas fa-check-circle"></i> {{ b.returnDate }}</span>
+              <span *ngIf="!b.returnDate" class="text-warning"><i class="fas fa-hourglass-half"></i> En cours</span>
             </td>
             <td class="d-none d-sm-table-cell">{{ b.dueDate }}</td>
             <td class="text-center pe-3">
               <button *ngIf="!b.returnDate" (click)="returnBook(b.borrowId)"
                 class="btn btn-return">
-                📤 Retourner
+                <i class="fas fa-undo-alt"></i> Retourner
               </button>
               <span *ngIf="b.returnDate" class="text-muted small">—</span>
             </td>

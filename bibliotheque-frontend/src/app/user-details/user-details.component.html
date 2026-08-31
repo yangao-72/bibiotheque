@@ -1,7 +1,7 @@
 <div class="user-details-container">
   <!-- Header -->
   <div class="page-header">
-    <h2 class="page-title">👤 Fiche adhérent</h2>
+    <h2 class="page-title"><i class="fas fa-user me-2"></i> Fiche adhérent</h2>
   </div>
 
   <!-- Chargement -->
@@ -12,9 +12,9 @@
 
   <!-- Erreur -->
   <div *ngIf="errorMessage && !loading" class="error-state">
-    <div class="error-icon">⚠️</div>
+    <div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div>
     <p class="error-text">{{ errorMessage }}</p>
-    <button class="btn-retry" (click)="retry()">↻ Réessayer</button>
+    <button class="btn-retry" (click)="retry()"><i class="fas fa-sync-alt me-1"></i> Réessayer</button>
   </div>
 
   <!-- Données -->
@@ -30,10 +30,10 @@
 
     <!-- Historique emprunts -->
     <div class="section-card">
-      <h3 class="section-title">📚 Historique des emprunts</h3>
+      <h3 class="section-title"><i class="fas fa-history me-2"></i> Historique des emprunts</h3>
 
       <div *ngIf="borrow.length === 0 && !loading" class="empty-state">
-        <div class="empty-icon">📭</div>
+        <div class="empty-icon"><i class="fas fa-inbox"></i></div>
         <p>Aucun emprunt enregistré.</p>
       </div>
 
@@ -55,8 +55,8 @@
               <td>{{ borrower.issueDate }}</td>
               <td>{{ borrower.returnDate || '—' }}</td>
               <td>
-                <span *ngIf="borrower.returnDate != null" class="status-badge returned">Retourné</span>
-                <span *ngIf="borrower.returnDate === null" class="status-badge active">En cours</span>
+                <span *ngIf="borrower.returnDate != null" class="status-badge returned"><i class="fas fa-check me-1"></i> Retourné</span>
+                <span *ngIf="borrower.returnDate === null" class="status-badge active"><i class="fas fa-hourglass-half me-1"></i> En cours</span>
               </td>
             </tr>
           </tbody>

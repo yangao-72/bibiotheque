@@ -1,7 +1,9 @@
 <aside class="sidebar" [class.collapsed]="false">
   <!-- Logo -->
   <div class="sidebar-brand">
-    <span class="brand-icon">📖</span>
+    <div class="brand-icon">
+      <i class="fas fa-book-open"></i>
+    </div>
     <div class="brand-text">
       <h1>BiblioGest</h1>
       <p>Gestion de bibliothèque</p>
@@ -14,31 +16,31 @@
       <!-- Admin Menu -->
       <li *ngIf="isAdmin()">
         <a routerLink="/books" routerLinkActive="active" class="nav-item">
-          <span class="nav-icon">📚</span>
+          <span class="nav-icon"><i class="fas fa-book"></i></span>
           <span class="nav-label">Livres</span>
         </a>
       </li>
       <li *ngIf="isAdmin()">
         <a routerLink="/users" routerLinkActive="active" class="nav-item">
-          <span class="nav-icon">👥</span>
+          <span class="nav-icon"><i class="fas fa-users"></i></span>
           <span class="nav-label">Adhérents</span>
         </a>
       </li>
       <li *ngIf="isAdmin()">
         <a routerLink="/reservations" routerLinkActive="active" class="nav-item">
-          <span class="nav-icon">🗓️</span>
+          <span class="nav-icon"><i class="fas fa-calendar-check"></i></span>
           <span class="nav-label">Réservations</span>
         </a>
       </li>
       <li *ngIf="isAdmin()">
         <a routerLink="/create-book" routerLinkActive="active" class="nav-item">
-          <span class="nav-icon">➕</span>
+          <span class="nav-icon"><i class="fas fa-plus-circle"></i></span>
           <span class="nav-label">Ajouter un livre</span>
         </a>
       </li>
       <li *ngIf="isAdmin()">
         <a routerLink="/register-user" routerLinkActive="active" class="nav-item">
-          <span class="nav-icon">📝</span>
+          <span class="nav-icon"><i class="fas fa-user-plus"></i></span>
           <span class="nav-label">Inscrire un adhérent</span>
         </a>
       </li>
@@ -46,19 +48,19 @@
       <!-- User Menu -->
       <li *ngIf="isUser()">
         <a routerLink="/borrow-book" routerLinkActive="active" class="nav-item">
-          <span class="nav-icon">📖</span>
+          <span class="nav-icon"><i class="fas fa-book-reader"></i></span>
           <span class="nav-label">Emprunts</span>
         </a>
       </li>
       <li *ngIf="isUser()">
         <a routerLink="/return-book" routerLinkActive="active" class="nav-item">
-          <span class="nav-icon">📤</span>
+          <span class="nav-icon"><i class="fas fa-undo-alt"></i></span>
           <span class="nav-label">Retours</span>
         </a>
       </li>
       <li *ngIf="isUser()">
         <a routerLink="/reservations" routerLinkActive="active" class="nav-item">
-          <span class="nav-icon">🗓️</span>
+          <span class="nav-icon"><i class="fas fa-calendar-check"></i></span>
           <span class="nav-label">Réservations</span>
         </a>
       </li>
@@ -74,7 +76,7 @@
         <span class="user-role">{{ role }}</span>
       </div>
       <button class="btn-logout" (click)="logout()" title="Déconnexion">
-        🚪
+        <i class="fas fa-sign-out-alt"></i>
       </button>
     </div>
   </div>
