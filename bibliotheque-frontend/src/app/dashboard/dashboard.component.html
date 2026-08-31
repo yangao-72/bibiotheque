@@ -1,0 +1,140 @@
+<div class="dashboard">
+  <!-- Welcome -->
+  <div class="welcome-section">
+    <h1>Bienvenue, {{ userName }} ! 👋</h1>
+    <p>Voici ce qui se passe dans votre bibliothèque aujourd'hui.</p>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner-ring"></div>
+    <p>Chargement du tableau de bord...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="errorMessage && !loading" class="error-state">
+    <div class="error-icon">⚠️</div>
+    <p>{{ errorMessage }}</p>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!loading && !errorMessage" class="dashboard-content">
+    <!-- Main Column -->
+    <div class="main-column">
+
+      <!-- Stats Cards -->
+      <div class="stats-grid" *ngIf="isAdmin">
+        <div class="stat-card stat-livres" (click)="navigateTo('/books')">
+          <div class="stat-icon">📚</div>
+          <div class="stat-info">
+            <span class="stat-label">Livres</span>
+            <span class="stat-value">{{ stats.livres }}</span>
+          </div>
+        </div>
+
+        <div class="stat-card stat-adherents" (click)="navigateTo('/users')">
+          <div class="stat-icon">👥</div>
+          <div class="stat-info">
+            <span class="stat-label">Adhérents</span>
+            <span class="stat-value">{{ stats.adherents }}</span>
+          </div>
+        </div>
+
+        <div class="stat-card stat-emprunts" (click)="navigateTo('/borrow-book')">
+          <div class="stat-icon">📖</div>
+          <div class="stat-info">
+            <span class="stat-label">Emprunts en cours</span>
+            <span class="stat-value">{{ stats.emprunts }}</span>
+          </div>
+        </div>
+
+        <div class="stat-card stat-reservations" (click)="navigateTo('/reservations')">
+          <div class="stat-icon">🗓️</div>
+          <div class="stat-info">
+            <span class="stat-label">Réservations</span>
+            <span class="stat-value">{{ stats.reservations }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions-card" *ngIf="isAdmin">
+        <h3>⚡ Actions rapides</h3>
+        <div class="actions-list">
+          <button class="action-btn" (click)="navigateTo('/create-book')">
+            <span>📚</span> Ajouter un livre
+          </button>
+          <button class="action-btn" (click)="navigateTo('/reservations')">
+            <span>🗓️</span> Nouvelle réservation
+          </button>
+          <button class="action-btn" (click)="navigateTo('/register-user')">
+            <span>👤</span> Ajouter un adhérent
+          </button>
+        </div>
+      </div>
+
+      <!-- User quick actions -->
+      <div class="quick-actions-card" *ngIf="!isAdmin">
+        <h3>⚡ Actions rapides</h3>
+        <div class="actions-list">
+          <button class="action-btn" (click)="navigateTo('/borrow-book')">
+            <span>📖</span> Enregistrer un emprunt
+          </button>
+          <button class="action-btn" (click)="navigateTo('/return-book')">
+            <span>📤</span> Enregistrer un retour
+          </button>
+          <button class="action-btn" (click)="navigateTo('/reservations')">
+            <span>🗓️</span> Nouvelle réservation
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Side Column -->
+    <div class="side-column">
+      <!-- Notifications -->
+      <div class="notifications-card">
+        <h3>🔔 Notifications</h3>
+        <ul class="notif-list">
+          <li>
+            <span class="notif-dot red"></span>
+            <div>
+              <strong>3 retours en retard</strong>
+              <p>Certains livres ne sont pas encore retournés.</p>
+            </div>
+            <span class="notif-time">il y a 1h</span>
+          </li>
+          <li>
+            <span class="notif-dot orange"></span>
+            <div>
+              <strong>5 réservations en attente</strong>
+              <p>Des réservations nécessitent votre attention.</p>
+            </div>
+            <span class="notif-time">il y a 3h</span>
+          </li>
+          <li>
+            <span class="notif-dot blue"></span>
+            <div>
+              <strong>Nouveau membre</strong>
+              <p>Marie Dupont a rejoint la bibliothèque.</p>
+            </div>
+            <span class="notif-time">il y a 5h</span>
+          </li>
+          <li>
+            <span class="notif-dot green"></span>
+            <div>
+              <strong>Sauvegarde terminée</strong>
+              <p>La sauvegarde quotidienne a réussi.</p>
+            </div>
+            <span class="notif-time">il y a 1j</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="dashboard-footer">
+    <p>© 2026 BiblioGest. Tous droits réservés.</p>
+  </footer>
+</div>

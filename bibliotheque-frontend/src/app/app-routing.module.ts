@@ -6,6 +6,7 @@ import { BorrowBookComponent } from './borrow-book/borrow-book.component';
 import { CreateBookComponent } from './create-book/create-book.component';
 import { ForbiddenComponent } from './forbidden/forbidden.component';
 import { HomeComponent } from './home/home.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
 import { LoginComponent } from './login/login.component';
 import { RegistrationComponent } from './registration/registration.component';
 import { ReturnBookComponent } from './return-book/return-book.component';
@@ -19,7 +20,8 @@ import { AuthGuard } from './_auth/auth.guard';
 const routes: Routes = [
   {path: 'books', component: BooksListComponent, canActivate:[AuthGuard], data:{roles:['Admin']}},
   {path: 'create-book', component: CreateBookComponent, canActivate:[AuthGuard], data:{roles:['Admin']}},
-  {path: '', component: HomeComponent},
+  {path: '', component: DashboardComponent, canActivate:[AuthGuard], data:{roles:['Admin', 'User']}},
+  {path: 'home', component: HomeComponent},
   {path: 'update-book/:bookId', component: UpdateBookComponent, canActivate:[AuthGuard], data:{roles:['Admin']}},
   {path: 'book-details/:bookId', component: BookDetailsComponent, canActivate:[AuthGuard], data:{roles:['Admin']}},
   {path: 'users', component: UsersListComponent, canActivate:[AuthGuard], data:{roles:['Admin']}},

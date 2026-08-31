@@ -1,4 +1,24 @@
-<app-header></app-header>
-<div class="container" style="margin-top: 20px;">
-  <router-outlet></router-outlet>
+<div class="app-layout" [class.sidebar-open]="sidebarOpen">
+  <!-- Sidebar -->
+  <app-sidebar
+    [class.open]="sidebarOpen"
+    (toggleSidebar)="toggleSidebar()">
+  </app-sidebar>
+
+  <!-- Main Area -->
+  <div class="main-area">
+    <!-- Topbar -->
+    <app-topbar (toggleSidebar)="toggleSidebar()"></app-topbar>
+
+    <!-- Content -->
+    <main class="main-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>
+
+<!-- Overlay for mobile -->
+<div class="sidebar-overlay"
+     *ngIf="sidebarOpen"
+     (click)="toggleSidebar()">
 </div>
