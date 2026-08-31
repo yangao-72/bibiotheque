@@ -21,27 +21,47 @@ export class RegistrationComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    // Initialize default role if not set
+    if (!this.user.role) {
+      this.user.role = [{ id: 0, roleName: 'User' }];
+    } else if (!this.user.role[0]) {
+      this.user.role[0] = { id: 0, roleName: 'User' };
+    }
   }
 
   onSubmit(): void {
-    if (!this.user.name || !this.user.username || !this.user.password) {
-      this.errorMessage = 'Veuillez remplir tous les champs obligatoires.';
+    // Clear previous messages
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    // Client-side validation
+    if (!this.user.name || !this.user.name.trim()) {
+      this.errorMessage = 'Veuillez renseigner le nom complet.';
+      return;
+    }
+
+    if (!this.user.username || !this.user.username.trim()) {
+      this.errorMessage = 'Veuillez renseigner le nom d\'utilisateur.';
+      return;
+    }
+
+    if (!this.user.password || !this.user.password.trim()) {
+      this.errorMessage = 'Veuillez renseigner le mot de passe.';
       return;
     }
 
     this.saving = true;
-    this.errorMessage = '';
-    this.successMessage = '';
 
     this.usersService.createUser(this.user).subscribe({
-      next: () => {
+      next: (response: any) => {
         this.saving = false;
-        this.successMessage = 'Adhérent créé avec succès.';
-        setTimeout(() => this.goToUsersList(), 1500);
+        this.successMessage = response?.message || 'Adhérent créé avec succès.';
+        // Auto-navigate after delay
+        setTimeout(() => this.goToUsersList(), 1800);
       },
       error: (err) => {
         this.saving = false;
-        this.errorMessage = this.getErrorMessage(err);
+        this.errorMessage = this.extractErrorMessage(err);
       }
     });
   }
@@ -50,11 +70,33 @@ export class RegistrationComponent implements OnInit {
     this.router.navigate(['/users']);
   }
 
-  private getErrorMessage(err: any): string {
-    if (err.status === 0) return 'Le serveur est injoignable. Vérifiez que le backend est démarré.';
-    if (err.status === 409) return err.error?.message || 'Conflit : cet identifiant est déjà utilisé.';
-    if (err.status === 400) return err.error?.message || 'Champ obligatoire manquant.';
-    if (err.error?.message) return err.error.message;
-    return 'Une erreur est survenue lors de la création.';
+  private extractErrorMessage(err: any): string {
+    // Network error — backend down
+    if (err.status === 0) {
+      return 'Le serveur est injoignable. Vérifiez que le backend est démarré.';
+    }
+
+    // Extract message from backend response
+    const backendMessage = err.error?.message
+      || err.error?.error
+      || err.error;
+
+    switch (err.status) {
+      case 400:
+        return backendMessage || 'Champ obligatoire manquant ou données invalides.';
+      case 404:
+        return backendMessage || 'Ressource introuvable.';
+      case 409:
+        return backendMessage || 'Conflit : cet identifiant est déjà utilisé.';
+      case 403:
+        return 'Accès interdit. Vous n\'avez pas les droits nécessaires.';
+      case 500:
+        return 'Erreur interne du serveur. Réessayez plus tard.';
+      default:
+        if (backendMessage && typeof backendMessage === 'string') {
+          return backendMessage;
+        }
+        return `Une erreur est survenue (code ${err.status || 'inconnu'}).`;
+    }
   }
 }
