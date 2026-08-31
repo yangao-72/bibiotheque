@@ -29,4 +29,10 @@ export class HeaderComponent implements OnInit {
     this.userAuthService.clear();
     this.router.navigate(['/']);
   }
+
+  public getUserRole(): string {
+    const roles: any[] = this.userAuthService.getRoles();
+    if (roles && roles.includes('Admin')) return 'Administrateur';
+    return 'Utilisateur';
+  }
 }

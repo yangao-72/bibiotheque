@@ -25,12 +25,23 @@ export class ReservationsListComponent {
 
   getStatutClass(statut: string): string {
     switch (statut) {
-      case 'EN_ATTENTE': return 'badge bg-warning text-dark';
-      case 'DISPONIBLE': return 'badge bg-success';
-      case 'ANNULEE': return 'badge bg-secondary';
-      case 'EXPIREE': return 'badge bg-danger';
-      case 'HONOREE': return 'badge bg-info';
-      default: return 'badge bg-light text-dark';
+      case 'EN_ATTENTE': return 'statut-badge statut-en-attente';
+      case 'DISPONIBLE': return 'statut-badge statut-disponible';
+      case 'ANNULEE': return 'statut-badge statut-annulee';
+      case 'EXPIREE': return 'statut-badge statut-expiree';
+      case 'HONOREE': return 'statut-badge statut-honoree';
+      default: return 'statut-badge';
     }
+  }
+
+  formatStatut(statut: string): string {
+    const labels: Record<string, string> = {
+      'EN_ATTENTE': 'En attente',
+      'DISPONIBLE': 'Disponible',
+      'ANNULEE': 'Annulée',
+      'EXPIREE': 'Expirée',
+      'HONOREE': 'Honorée'
+    };
+    return labels[statut] || statut;
   }
 }

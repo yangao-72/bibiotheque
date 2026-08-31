@@ -78,9 +78,9 @@ describe('ReservationsListComponent', () => {
     component.reservations = [];
     fixture.detectChanges();
 
-    const alert = fixture.nativeElement.querySelector('.alert-info');
-    expect(alert).toBeTruthy();
-    expect(alert.textContent).toContain('Aucune réservation');
+    const emptyState = fixture.nativeElement.querySelector('.empty-state');
+    expect(emptyState).toBeTruthy();
+    expect(emptyState.textContent).toContain('Aucune réservation');
   });
 
   it('should not display table when reservations is empty', () => {
@@ -109,7 +109,7 @@ describe('ReservationsListComponent', () => {
     const firstRow = fixture.nativeElement.querySelector('tbody tr');
     expect(firstRow.textContent).toContain('L1 - Livre disponible');
     expect(firstRow.textContent).toContain('Adhérent principal (A1)');
-    expect(firstRow.textContent).toContain('EN_ATTENTE');
+    expect(firstRow.textContent).toContain('En attente');
   });
 
   it('should show cancel button only for EN_ATTENTE and DISPONIBLE', () => {
@@ -117,15 +117,10 @@ describe('ReservationsListComponent', () => {
     fixture.detectChanges();
 
     const rows = fixture.nativeElement.querySelectorAll('tbody tr');
-    // EN_ATTENTE: has cancel button
     expect(rows[0].querySelector('button')).toBeTruthy();
-    // DISPONIBLE: has cancel button
     expect(rows[1].querySelector('button')).toBeTruthy();
-    // ANNULEE: no cancel button
     expect(rows[2].querySelector('button')).toBeNull();
-    // EXPIREE: no cancel button
     expect(rows[3].querySelector('button')).toBeNull();
-    // HONOREE: no cancel button
     expect(rows[4].querySelector('button')).toBeNull();
   });
 
@@ -150,23 +145,23 @@ describe('ReservationsListComponent', () => {
   });
 
   it('should return correct badge class for EN_ATTENTE', () => {
-    expect(component.getStatutClass('EN_ATTENTE')).toContain('bg-warning');
+    expect(component.getStatutClass('EN_ATTENTE')).toContain('statut-en-attente');
   });
 
   it('should return correct badge class for DISPONIBLE', () => {
-    expect(component.getStatutClass('DISPONIBLE')).toContain('bg-success');
+    expect(component.getStatutClass('DISPONIBLE')).toContain('statut-disponible');
   });
 
   it('should return correct badge class for ANNULEE', () => {
-    expect(component.getStatutClass('ANNULEE')).toContain('bg-secondary');
+    expect(component.getStatutClass('ANNULEE')).toContain('statut-annulee');
   });
 
   it('should return correct badge class for EXPIREE', () => {
-    expect(component.getStatutClass('EXPIREE')).toContain('bg-danger');
+    expect(component.getStatutClass('EXPIREE')).toContain('statut-expiree');
   });
 
   it('should return correct badge class for HONOREE', () => {
-    expect(component.getStatutClass('HONOREE')).toContain('bg-info');
+    expect(component.getStatutClass('HONOREE')).toContain('statut-honoree');
   });
 
   it('should emit annuler event on confirmAnnuler', () => {
@@ -205,10 +200,18 @@ describe('ReservationsListComponent', () => {
     component.reservations = mockReservations;
     fixture.detectChanges();
 
-    const badges = fixture.nativeElement.querySelectorAll('.badge');
+    const badges = fixture.nativeElement.querySelectorAll('.statut-badge');
     expect(badges.length).toBe(5);
-    expect(badges[0].textContent.trim()).toContain('EN_ATTENTE');
-    expect(badges[1].textContent.trim()).toContain('DISPONIBLE');
-    expect(badges[2].textContent.trim()).toContain('ANNULEE');
+    expect(badges[0].textContent.trim()).toContain('En attente');
+    expect(badges[1].textContent.trim()).toContain('Disponible');
+    expect(badges[2].textContent.trim()).toContain('Annulée');
+  });
+
+  it('should format statut labels correctly', () => {
+    expect(component.formatStatut('EN_ATTENTE')).toBe('En attente');
+    expect(component.formatStatut('DISPONIBLE')).toBe('Disponible');
+    expect(component.formatStatut('ANNULEE')).toBe('Annulée');
+    expect(component.formatStatut('EXPIREE')).toBe('Expirée');
+    expect(component.formatStatut('HONOREE')).toBe('Honorée');
   });
 });

@@ -90,7 +90,6 @@ describe('ReservationsComponent', () => {
   }));
 
   it('should display spinner when loading is true', () => {
-    // Spy on loadData to prevent it from overriding loading state
     spyOn(component, 'loadData');
     component.loading = true;
     component.reservations = [];
@@ -100,7 +99,7 @@ describe('ReservationsComponent', () => {
     const spinner = fixture.nativeElement.querySelector('.spinner-border');
     expect(spinner).toBeTruthy();
 
-    const loadingText = fixture.nativeElement.querySelector('.text-muted');
+    const loadingText = fixture.nativeElement.querySelector('.loading-state');
     expect(loadingText.textContent).toContain('Chargement');
   });
 
@@ -162,7 +161,7 @@ describe('ReservationsComponent', () => {
     tick();
     fixture.detectChanges();
 
-    const retryBtn = fixture.nativeElement.querySelector('.btn-outline-danger');
+    const retryBtn = fixture.nativeElement.querySelector('.toast-error .btn-outline-light');
     expect(retryBtn).toBeTruthy();
     expect(retryBtn.textContent).toContain('Réessayer');
   }));
@@ -195,7 +194,6 @@ describe('ReservationsComponent', () => {
     expect(component.formSuccess).toContain('succès');
     expect(component.newReservation.livreId).toBeNull();
 
-    // Vider le setTimeout pour éviter "timer still in queue"
     tick(5000);
   }));
 
@@ -263,7 +261,6 @@ describe('ReservationsComponent', () => {
     expect(component.reservations[0].statut).toBe('ANNULEE');
     expect(component.formSuccess).toContain('annulée');
 
-    // Vider le setTimeout pour éviter "timer still in queue"
     tick(5000);
   }));
 
@@ -302,5 +299,13 @@ describe('ReservationsComponent', () => {
 
     component.newReservation.adherentId = 11;
     expect(component.isFormValid).toBeTrue();
+  });
+
+  it('should format statut labels correctly', () => {
+    expect(component.formatStatut('EN_ATTENTE')).toBe('En attente');
+    expect(component.formatStatut('DISPONIBLE')).toBe('Disponible');
+    expect(component.formatStatut('ANNULEE')).toBe('Annulée');
+    expect(component.formatStatut('EXPIREE')).toBe('Expirée');
+    expect(component.formatStatut('HONOREE')).toBe('Honorée');
   });
 });

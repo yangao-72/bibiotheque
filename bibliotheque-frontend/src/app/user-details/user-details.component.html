@@ -1,22 +1,67 @@
-<h2>Borrow history of {{ user.name }}</h2>
-<table class="table table-info table-striped">
-    <thead>
-        <tr>
-            <th> Book ID </th>
-            <th> Issue Date </th>
-            <th> Return Date </th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr *ngFor="let borrower of borrow">
-            <td> {{ borrower.bookId }} </td>
-            <td> {{ borrower.issueDate }} </td>
-            <div *ngIf="borrower.returnDate != null">
-                <td> {{ borrower.returnDate }} </td>
-            </div>
-            <div *ngIf="borrower.returnDate === null">
-                <td> Book not returned yet </td>
-            </div>
-        </tr>
-    </tbody>
-</table>
+<div class="user-details-container">
+  <!-- Header -->
+  <div class="page-header">
+    <h2 class="page-title">👤 Fiche adhérent</h2>
+  </div>
+
+  <!-- Chargement -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner-ring"></div>
+    <p>Chargement des informations...</p>
+  </div>
+
+  <!-- Erreur -->
+  <div *ngIf="errorMessage && !loading" class="error-state">
+    <div class="error-icon">⚠️</div>
+    <p class="error-text">{{ errorMessage }}</p>
+    <button class="btn-retry" (click)="retry()">↻ Réessayer</button>
+  </div>
+
+  <!-- Données -->
+  <div *ngIf="!loading && !errorMessage" class="content-section">
+    <!-- Carte info adhérent -->
+    <div class="user-card">
+      <div class="user-avatar">{{ user.name?.charAt(0) || '?' }}</div>
+      <div class="user-info">
+        <h3>{{ user.name }}</h3>
+        <span class="user-role">{{ user.role?.[0]?.roleName || 'Utilisateur' }}</span>
+      </div>
+    </div>
+
+    <!-- Historique emprunts -->
+    <div class="section-card">
+      <h3 class="section-title">📚 Historique des emprunts</h3>
+
+      <div *ngIf="borrow.length === 0 && !loading" class="empty-state">
+        <div class="empty-icon">📭</div>
+        <p>Aucun emprunt enregistré.</p>
+      </div>
+
+      <div *ngIf="borrow.length > 0" class="table-responsive">
+        <table class="modern-table">
+          <thead>
+            <tr>
+              <th>Livre ID</th>
+              <th>Date d'emprunt</th>
+              <th>Date de retour</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let borrower of borrow; let i = index"
+                [style.animation-delay]="i * 0.05 + 's'"
+                class="fade-in-row">
+              <td class="cell-id">#{{ borrower.bookId }}</td>
+              <td>{{ borrower.issueDate }}</td>
+              <td>{{ borrower.returnDate || '—' }}</td>
+              <td>
+                <span *ngIf="borrower.returnDate != null" class="status-badge returned">Retourné</span>
+                <span *ngIf="borrower.returnDate === null" class="status-badge active">En cours</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,66 +1,148 @@
-<div class="container mt-4">
-  <h2 class="text-center mb-4">Gestion des Réservations</h2>
+<div class="reservations-page">
 
-  <!-- Filtre par statut -->
-  <div class="row mb-4 justify-content-center">
-    <div class="col-12 col-sm-8 col-md-6 col-lg-4">
-      <label for="statutFilter" class="form-label"><strong>Filtrer par statut</strong></label>
-      <select
-        id="statutFilter"
-        class="form-select"
-        [(ngModel)]="selectedStatut"
-        (ngModelChange)="onFilterChange($event)">
-        <option value="">Tous</option>
-        <option *ngFor="let s of statuts" [value]="s">{{ s }}</option>
-      </select>
+  <!-- Header -->
+  <div class="page-header">
+    <h2 class="page-title">
+      <span class="page-title-icon">🗓️</span>
+      Gestion des Réservations
+    </h2>
+    <p class="page-subtitle">Consultez, créez et gérez les réservations de livres</p>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid" *ngIf="!loading">
+    <div class="stat-card">
+      <div class="stat-icon primary">📊</div>
+      <div class="stat-content">
+        <div class="stat-label">Total</div>
+        <div class="stat-value">{{ reservations.length }}</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon warning">⏳</div>
+      <div class="stat-content">
+        <div class="stat-label">En attente</div>
+        <div class="stat-value">{{ getCountByStatut('EN_ATTENTE') }}</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon success">✅</div>
+      <div class="stat-content">
+        <div class="stat-label">Disponibles</div>
+        <div class="stat-value">{{ getCountByStatut('DISPONIBLE') }}</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon info">📖</div>
+      <div class="stat-content">
+        <div class="stat-label">Honorées</div>
+        <div class="stat-value">{{ getCountByStatut('HONOREE') }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Messages animés -->
+  <div class="messages-container">
+    <!-- Erreur globale -->
+    <div
+      *ngIf="errorMessage && !loading"
+      class="toast-message toast-error"
+      role="alert">
+      <div class="d-flex align-items-center">
+        <span class="toast-icon">⚠️</span>
+        <span>{{ errorMessage }}</span>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-sm btn-outline-light" (click)="loadData()">
+          Réessayer
+        </button>
+        <button class="btn-close" (click)="errorMessage = ''" aria-label="Fermer"></button>
+      </div>
+    </div>
+
+    <!-- Succès -->
+    <div
+      *ngIf="formSuccess"
+      class="toast-message toast-success"
+      role="alert">
+      <div class="d-flex align-items-center">
+        <span class="toast-icon">✅</span>
+        <span>{{ formSuccess }}</span>
+      </div>
+      <button class="btn-close" (click)="formSuccess = ''" aria-label="Fermer"></button>
+    </div>
+
+    <!-- Erreur annulation -->
+    <div
+      *ngIf="cancelError"
+      class="toast-message toast-warning"
+      role="alert">
+      <div class="d-flex align-items-center">
+        <span class="toast-icon">🚫</span>
+        <span><strong>Annulation refusée :</strong> {{ cancelError }}</span>
+      </div>
+      <button class="btn-close" (click)="cancelError = ''" aria-label="Fermer"></button>
+    </div>
+  </div>
+
+  <!-- Filtre -->
+  <div class="filter-section">
+    <div class="row align-items-center g-3">
+      <div class="col-12 col-sm-6 col-md-4">
+        <label for="statutFilter" class="form-label">Filtrer par statut</label>
+        <select
+          id="statutFilter"
+          class="form-select"
+          [(ngModel)]="selectedStatut"
+          (ngModelChange)="onFilterChange($event)">
+          <option value="">Tous les statuts</option>
+          <option *ngFor="let s of statuts" [value]="s">{{ formatStatut(s) }}</option>
+        </select>
+      </div>
+      <div class="col-12 col-sm-6 col-md-8 text-sm-end">
+        <span class="badge bg-primary rounded-pill fs-6" *ngIf="!loading" style="background: var(--primary) !important;">
+          {{ reservations.length }} réservation(s)
+        </span>
+      </div>
     </div>
   </div>
 
   <!-- État de chargement -->
-  <div *ngIf="loading" class="text-center my-5">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Chargement...</span>
+  <div *ngIf="loading" class="loading-state text-center">
+    <div class="spinner-container">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
     </div>
-    <p class="mt-2 text-muted">Chargement des réservations...</p>
-  </div>
-
-  <!-- Message d'erreur global -->
-  <div *ngIf="errorMessage && !loading" class="alert alert-danger d-flex justify-content-between align-items-center">
-    <span>{{ errorMessage }}</span>
-    <button class="btn btn-outline-danger btn-sm" (click)="loadData()">Réessayer</button>
-  </div>
-
-  <!-- Message de succès global -->
-  <div *ngIf="formSuccess" class="alert alert-success alert-dismissible fade show" role="alert">
-    {{ formSuccess }}
-    <button type="button" class="btn-close" (click)="formSuccess = ''" aria-label="Fermer"></button>
-  </div>
-
-  <!-- Message d'erreur annulation -->
-  <div *ngIf="cancelError" class="alert alert-warning alert-dismissible fade show" role="alert">
-    <strong>Annulation refusée :</strong> {{ cancelError }}
-    <button type="button" class="btn-close" (click)="cancelError = ''" aria-label="Fermer"></button>
+    <p class="mt-3 text-muted fw-medium">Chargement des réservations...</p>
   </div>
 
   <!-- Liste des réservations -->
-  <app-reservations-list
-    *ngIf="!loading && !errorMessage"
-    [reservations]="reservations"
-    [currentUserRole]="''"
-    (annuler)="onAnnulerReservation($event)">
-  </app-reservations-list>
+  <div *ngIf="!loading && !errorMessage" class="content-section">
+    <app-reservations-list
+      [reservations]="reservations"
+      [currentUserRole]="''"
+      (annuler)="onAnnulerReservation($event)">
+    </app-reservations-list>
+  </div>
 
   <!-- Séparateur -->
-  <hr class="my-5">
+  <div class="divider-section" *ngIf="!loading">
+    <div class="divider-line"></div>
+    <span class="divider-label">Nouvelle réservation</span>
+    <div class="divider-line"></div>
+  </div>
 
   <!-- Formulaire de création -->
-  <app-reservation-form
-    [books]="books"
-    [users]="users"
-    [(formError)]="formError"
-    [(formSuccess)]="formSuccess"
-    [isFormValid]="isFormValid"
-    [(reservation)]="newReservation"
-    (submitForm)="onCreateReservation()">
-  </app-reservation-form>
+  <div class="form-section" *ngIf="!loading">
+    <app-reservation-form
+      [books]="books"
+      [users]="users"
+      [(formError)]="formError"
+      [(formSuccess)]="formSuccess"
+      [isFormValid]="isFormValid"
+      [(reservation)]="newReservation"
+      (submitForm)="onCreateReservation()">
+    </app-reservation-form>
+  </div>
 </div>

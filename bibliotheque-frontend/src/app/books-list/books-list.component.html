@@ -1,27 +1,92 @@
-<h2>Book List</h2>
-<table class="table table-success table-striped">
-    <thead>
-        <tr>
-            <th> Book ID </th>
-            <th> Name </th>
-            <th> Author </th>
-            <th> Genre </th>
-            <th> Number of copies available </th>
-            <th> Actions </th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr *ngFor="let book of books">
-            <td> {{ book.bookId }} </td>
-            <td> {{ book.bookName }} </td>
-            <td> {{ book.bookAuthor }} </td>
-            <td> {{ book.bookGenre }} </td>
-            <td> {{ book.noOfCopies }} </td>
-            <td>
-                <button (click) = "bookDetails(book.bookId)" class="btn btn-success"> View </button>
-                <button (click) = "updateBook(book.bookId)" class="btn btn-info"  style="margin-left: 10px"> Edit </button>
-                <button (click) = "deleteBook(book.bookId)" class="btn btn-danger" style="margin-left: 10px"> Delete </button>                
+<div class="page-wrapper">
+
+  <!-- Header -->
+  <div class="page-header">
+    <h2 class="page-title">
+      <span class="page-title-icon">📖</span>
+      Liste des Livres
+    </h2>
+    <p class="page-subtitle">Consultez et gérez le catalogue de la bibliothèque</p>
+  </div>
+
+  <!-- Messages -->
+  <div class="messages-container">
+    <div *ngIf="errorMessage" class="toast-message toast-error">
+      <div class="d-flex align-items-center">
+        <span class="toast-icon">⚠️</span>
+        <span>{{ errorMessage }}</span>
+      </div>
+      <button class="btn-close" (click)="errorMessage = ''" aria-label="Fermer"></button>
+    </div>
+    <div *ngIf="successMessage" class="toast-message toast-success">
+      <div class="d-flex align-items-center">
+        <span class="toast-icon">✅</span>
+        <span>{{ successMessage }}</span>
+      </div>
+      <button class="btn-close" (click)="successMessage = ''" aria-label="Fermer"></button>
+    </div>
+  </div>
+
+  <!-- Chargement -->
+  <div *ngIf="loading" class="loading-state text-center">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+    <p class="mt-3 text-muted">Chargement des livres...</p>
+  </div>
+
+  <!-- Liste vide -->
+  <div *ngIf="!loading && books.length === 0 && !errorMessage" class="empty-state text-center">
+    <div class="empty-icon">📚</div>
+    <h4>Aucun livre trouvé</h4>
+    <p>Le catalogue est vide pour le moment.</p>
+  </div>
+
+  <!-- Erreur avec bouton réessayer -->
+  <div *ngIf="!loading && errorMessage && books.length === 0" class="error-state text-center">
+    <div class="error-icon">🔌</div>
+    <h4>Impossible de charger les livres</h4>
+    <p class="text-muted">{{ errorMessage }}</p>
+    <button class="btn btn-retry" (click)="retry()">
+      🔄 Réessayer
+    </button>
+  </div>
+
+  <!-- Tableau -->
+  <div *ngIf="!loading && books.length > 0" class="table-wrapper">
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th class="ps-3">ID</th>
+            <th>Nom</th>
+            <th>Auteur</th>
+            <th class="d-none d-sm-table-cell">Genre</th>
+            <th class="text-center">Copies</th>
+            <th class="text-center pe-3">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let book of books; let i = index" [style.animation-delay]="(i * 0.04) + 's'">
+            <td class="ps-3 text-muted">{{ book.bookId }}</td>
+            <td><span class="fw-semibold">{{ book.bookName }}</span></td>
+            <td>{{ book.bookAuthor }}</td>
+            <td class="d-none d-sm-table-cell">{{ book.bookGenre }}</td>
+            <td class="text-center">
+              <span class="badge" [class]="book.noOfCopies > 0 ? 'badge-available' : 'badge-unavailable'">
+                {{ book.noOfCopies }}
+              </span>
             </td>
-        </tr>
-    </tbody>
-</table>
+            <td class="text-center pe-3">
+              <div class="d-flex gap-1 justify-content-center flex-wrap">
+                <button (click)="bookDetails(book.bookId)" class="btn btn-action btn-view" title="Voir détails">👁️</button>
+                <button (click)="updateBook(book.bookId)" class="btn btn-action btn-edit" title="Modifier">✏️</button>
+                <button (click)="deleteBook(book.bookId)" class="btn btn-action btn-delete" title="Supprimer">🗑️</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

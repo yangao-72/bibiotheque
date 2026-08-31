@@ -10,7 +10,10 @@ import { BooksService } from '../_service/books.service';
 })
 export class BooksListComponent implements OnInit {
 
-  books: Books[];
+  books: Books[] = [];
+  loading = true;
+  errorMessage = '';
+  successMessage = '';
 
   constructor(private booksService: BooksService,
     private router: Router) { }
@@ -20,8 +23,17 @@ export class BooksListComponent implements OnInit {
   }
 
   private getBooks() {
-    this.booksService.getBooksList().subscribe(data =>{
-      this.books = data;
+    this.loading = true;
+    this.errorMessage = '';
+    this.booksService.getBooksList().subscribe({
+      next: data => {
+        this.books = data;
+        this.loading = false;
+      },
+      error: err => {
+        this.loading = false;
+        this.errorMessage = this.extractErrorMessage(err);
+      }
     });
   }
 
@@ -30,8 +42,17 @@ export class BooksListComponent implements OnInit {
   }
 
   deleteBook(bookId: number) {
-    this.booksService.deleteBook(bookId).subscribe( data=> {
-      this.getBooks();
+    if (!window.confirm('Supprimer ce livre définitivement ?')) return;
+    this.booksService.deleteBook(bookId).subscribe({
+      next: () => {
+        this.successMessage = 'Livre supprimé avec succès.';
+        this.getBooks();
+        setTimeout(() => this.successMessage = '', 5000);
+      },
+      error: err => {
+        this.errorMessage = this.extractErrorMessage(err);
+        setTimeout(() => this.errorMessage = '', 8000);
+      }
     });
   }
 
@@ -39,4 +60,14 @@ export class BooksListComponent implements OnInit {
     this.router.navigate(['book-details', bookId ]);
   }
 
+  retry() {
+    this.getBooks();
+  }
+
+  private extractErrorMessage(err: any): string {
+    if (err.status === 0) return 'Le serveur est injoignable. Vérifiez que le backend est démarré.';
+    if (err.error?.message) return err.error.message;
+    if (typeof err.error === 'string') return err.error;
+    return `Erreur ${err.status} : une erreur inattendue est survenue.`;
+  }
 }

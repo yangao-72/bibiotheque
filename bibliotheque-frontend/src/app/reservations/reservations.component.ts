@@ -134,4 +134,21 @@ export class ReservationsComponent implements OnInit {
   get isFormValid(): boolean {
     return this.newReservation.livreId != null && this.newReservation.adherentId != null;
   }
+
+  /** Formate le nom du statut pour l'affichage */
+  formatStatut(statut: string): string {
+    const labels: Record<string, string> = {
+      'EN_ATTENTE': 'En attente',
+      'DISPONIBLE': 'Disponible',
+      'ANNULEE': 'Annulée',
+      'EXPIREE': 'Expirée',
+      'HONOREE': 'Honorée'
+    };
+    return labels[statut] || statut;
+  }
+
+  /** Compte les réservations par statut */
+  getCountByStatut(statut: string): number {
+    return this.reservations.filter(r => r.statut === statut).length;
+  }
 }

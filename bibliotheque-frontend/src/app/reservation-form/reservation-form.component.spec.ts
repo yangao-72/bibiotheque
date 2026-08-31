@@ -44,7 +44,6 @@ describe('ReservationFormComponent', () => {
 
   it('should display book dropdown options', () => {
     const options = fixture.nativeElement.querySelectorAll('select[name="livreId"] option');
-    // 1 placeholder + 2 books
     expect(options.length).toBe(3);
     expect(options[1].textContent).toContain('L1 - Livre disponible');
     expect(options[2].textContent).toContain('L2 - Livre emprunté');
@@ -52,7 +51,6 @@ describe('ReservationFormComponent', () => {
 
   it('should display user dropdown options', () => {
     const options = fixture.nativeElement.querySelectorAll('select[name="adherentId"] option');
-    // 1 placeholder + 2 users
     expect(options.length).toBe(3);
     expect(options[1].textContent).toContain('Adhérent A1');
     expect(options[2].textContent).toContain('Adhérent A2');
@@ -119,7 +117,7 @@ describe('ReservationFormComponent', () => {
     component.formError = 'RG-01 : livre disponible';
     fixture.detectChanges();
 
-    const alert = fixture.nativeElement.querySelector('.alert-danger');
+    const alert = fixture.nativeElement.querySelector('.toast-error');
     expect(alert).toBeTruthy();
     expect(alert.textContent).toContain('RG-01');
   });
@@ -128,7 +126,7 @@ describe('ReservationFormComponent', () => {
     component.formSuccess = 'Réservation créée avec succès.';
     fixture.detectChanges();
 
-    const alert = fixture.nativeElement.querySelector('.alert-success');
+    const alert = fixture.nativeElement.querySelector('.toast-success');
     expect(alert).toBeTruthy();
     expect(alert.textContent).toContain('succès');
   });
@@ -137,7 +135,7 @@ describe('ReservationFormComponent', () => {
     component.formError = '';
     fixture.detectChanges();
 
-    const alert = fixture.nativeElement.querySelector('.alert-danger');
+    const alert = fixture.nativeElement.querySelector('.toast-error');
     expect(alert).toBeNull();
   });
 
@@ -145,7 +143,7 @@ describe('ReservationFormComponent', () => {
     component.formSuccess = '';
     fixture.detectChanges();
 
-    const alert = fixture.nativeElement.querySelector('.alert-success');
+    const alert = fixture.nativeElement.querySelector('.toast-success');
     expect(alert).toBeNull();
   });
 
@@ -157,5 +155,25 @@ describe('ReservationFormComponent', () => {
   it('should show placeholder text in user dropdown', () => {
     const placeholder = fixture.nativeElement.querySelector('select[name="adherentId"] option:first-child');
     expect(placeholder.textContent).toContain('Sélectionner un adhérent');
+  });
+
+  it('should close error message on closeFormError', () => {
+    component.formError = 'Erreur test';
+    spyOn(component.formErrorChange, 'emit');
+
+    component.closeFormError();
+
+    expect(component.formError).toBe('');
+    expect(component.formErrorChange.emit).toHaveBeenCalledWith('');
+  });
+
+  it('should close success message on closeFormSuccess', () => {
+    component.formSuccess = 'Succès test';
+    spyOn(component.formSuccessChange, 'emit');
+
+    component.closeFormSuccess();
+
+    expect(component.formSuccess).toBe('');
+    expect(component.formSuccessChange.emit).toHaveBeenCalledWith('');
   });
 });

@@ -1,0 +1,66 @@
+/* CreateBook — Design Violet/Indigo */
+.page-wrapper {
+  max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem;
+  background: #f8fafc; min-height: calc(100vh - 56px);
+}
+.page-header { margin-bottom: 2rem; }
+.page-title {
+  font-size: 1.6rem; font-weight: 700; color: #1e293b;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.page-title-icon {
+  width: 40px; height: 40px;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; color: white; box-shadow: 0 2px 8px rgba(99,102,241,0.3);
+}
+.page-subtitle { font-size: 0.95rem; color: #64748b; margin: 0.25rem 0 0; }
+
+/* Messages */
+.toast-message {
+  padding: 1rem 1.25rem; border-radius: 8px; margin-bottom: 0.75rem;
+  color: #fff; font-size: 0.9rem; animation: slideIn 0.35s ease-out;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.toast-error { background: linear-gradient(135deg, #ef4444, #dc2626); }
+.toast-success { background: linear-gradient(135deg, #22c55e, #16a34a); }
+.toast-icon { font-size: 1.1rem; margin-right: 0.5rem; }
+.toast-message .btn-close { opacity: 0.8; filter: invert(1); }
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Formulaire */
+.form-card {
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+  padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+.form-label {
+  font-size: 0.85rem; color: #64748b; font-weight: 500; margin-bottom: 0.4rem;
+}
+.form-control {
+  border-radius: 8px; border-color: #e2e8f0; padding: 0.7rem 1rem;
+  font-size: 0.95rem; transition: all 0.2s;
+}
+.form-control:focus {
+  border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+}
+.btn-submit {
+  background: linear-gradient(135deg, #6366f1, #4f46e5); border: none;
+  color: white; font-weight: 600; font-size: 1rem; border-radius: 8px;
+  padding: 0.8rem 1.5rem; transition: all 0.2s;
+}
+.btn-submit:hover:not(:disabled) {
+  background: linear-gradient(135deg, #4f46e5, #4338ca);
+  transform: translateY(-1px); box-shadow: 0 4px 12px rgba(99,102,241,0.4);
+}
+.btn-submit:disabled {
+  background: #cbd5e1; color: #94a3b8; cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .page-wrapper { padding: 1.5rem 1rem; }
+  .form-card { padding: 1.5rem 1.25rem; }
+}

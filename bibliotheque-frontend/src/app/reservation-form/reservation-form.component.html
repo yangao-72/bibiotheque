@@ -1,64 +1,94 @@
-<div class="row justify-content-center">
-  <div class="col-12 col-sm-10 col-md-8 col-lg-6">
-    <h3 class="text-center mb-4">Créer une réservation</h3>
+<div class="reservation-form-wrapper">
+  <div class="row justify-content-center">
+    <div class="col-12 col-sm-10 col-md-8 col-lg-6">
 
-    <!-- Message d'erreur -->
-    <div *ngIf="formError" class="alert alert-danger alert-dismissible fade show" role="alert">
-      <strong>Erreur :</strong> {{ formError }}
-      <button type="button" class="btn-close" (click)="closeFormError()" aria-label="Fermer"></button>
-    </div>
+      <!-- Titre -->
+      <h3 class="form-title text-center mb-4">
+        <span class="form-title-icon me-2">📝</span>
+        Créer une réservation
+      </h3>
 
-    <!-- Message de succès -->
-    <div *ngIf="formSuccess" class="alert alert-success alert-dismissible fade show" role="alert">
-      {{ formSuccess }}
-      <button type="button" class="btn-close" (click)="closeFormSuccess()" aria-label="Fermer"></button>
-    </div>
+      <!-- Messages animés -->
+      <div class="messages-container">
+        <!-- Erreur -->
+        <div *ngIf="formError" class="toast-message toast-error d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center">
+            <span class="toast-icon me-2">⚠️</span>
+            <span><strong>Erreur :</strong> {{ formError }}</span>
+          </div>
+          <button class="btn-close btn-close-white" (click)="closeFormError()" aria-label="Fermer"></button>
+        </div>
 
-    <form (ngSubmit)="onSubmit()" autocomplete="off">
-      <div class="mb-3">
-        <label for="livreId" class="form-label"><strong>Livre</strong></label>
-        <select
-          class="form-select"
-          id="livreId"
-          [ngModel]="reservation.livreId"
-          (ngModelChange)="onLivreChange($event)"
-          name="livreId">
-          <option [ngValue]="null" disabled>-- Sélectionner un livre --</option>
-          <option *ngFor="let book of books" [ngValue]="book.bookId">
-            {{ book.bookName }} — {{ book.bookAuthor }}
-          </option>
-        </select>
-        <div class="form-text" *ngIf="books.length === 0">
-          Aucun livre disponible.
+        <!-- Succès -->
+        <div *ngIf="formSuccess" class="toast-message toast-success d-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center">
+            <span class="toast-icon me-2">✅</span>
+            <span>{{ formSuccess }}</span>
+          </div>
+          <button class="btn-close btn-close-white" (click)="closeFormSuccess()" aria-label="Fermer"></button>
         </div>
       </div>
 
-      <div class="mb-3">
-        <label for="adherentId" class="form-label"><strong>Adhérent</strong></label>
-        <select
-          class="form-select"
-          id="adherentId"
-          [ngModel]="reservation.adherentId"
-          (ngModelChange)="onAdherentChange($event)"
-          name="adherentId">
-          <option [ngValue]="null" disabled>-- Sélectionner un adhérent --</option>
-          <option *ngFor="let user of users" [ngValue]="user.userId">
-            {{ user.name }} ({{ user.username }})
-          </option>
-        </select>
-        <div class="form-text" *ngIf="users.length === 0">
-          Aucun adhérent disponible.
-        </div>
+      <!-- Formulaire -->
+      <div class="form-card">
+        <form (ngSubmit)="onSubmit()" autocomplete="off">
+
+          <!-- Sélecteur Livre -->
+          <div class="mb-4">
+            <label for="livreId" class="form-label fw-semibold">
+              <span class="label-icon me-1">📖</span> Livre
+            </label>
+            <select
+              class="form-select form-select-lg"
+              id="livreId"
+              [ngModel]="reservation.livreId"
+              (ngModelChange)="onLivreChange($event)"
+              name="livreId">
+              <option [ngValue]="null" disabled>-- Sélectionner un livre --</option>
+              <option *ngFor="let book of books" [ngValue]="book.bookId">
+                {{ book.bookName }} — {{ book.bookAuthor }}
+              </option>
+            </select>
+            <div class="form-hint" *ngIf="books.length === 0">
+              <span class="text-warning">⚠</span> Aucun livre disponible.
+            </div>
+          </div>
+
+          <!-- Sélecteur Adhérent -->
+          <div class="mb-4">
+            <label for="adherentId" class="form-label fw-semibold">
+              <span class="label-icon me-1">👤</span> Adhérent
+            </label>
+            <select
+              class="form-select form-select-lg"
+              id="adherentId"
+              [ngModel]="reservation.adherentId"
+              (ngModelChange)="onAdherentChange($event)"
+              name="adherentId">
+              <option [ngValue]="null" disabled>-- Sélectionner un adhérent --</option>
+              <option *ngFor="let user of users" [ngValue]="user.userId">
+                {{ user.name }} ({{ user.username }})
+              </option>
+            </select>
+            <div class="form-hint" *ngIf="users.length === 0">
+              <span class="text-warning">⚠</span> Aucun adhérent disponible.
+            </div>
+          </div>
+
+          <!-- Bouton -->
+          <div class="d-grid">
+            <button
+              class="btn btn-lg btn-submit"
+              type="submit"
+              [disabled]="!isFormValid"
+              [class.disabled]="!isFormValid">
+              <span class="me-2">🔖</span> Créer la réservation
+            </button>
+          </div>
+
+        </form>
       </div>
 
-      <div class="d-grid">
-        <button
-          class="btn btn-success btn-lg"
-          type="submit"
-          [disabled]="!isFormValid">
-          Créer la réservation
-        </button>
-      </div>
-    </form>
+    </div>
   </div>
 </div>

@@ -10,26 +10,29 @@ import { UsersService } from '../_service/users.service';
 })
 export class UsersListComponent implements OnInit {
 
-  users: Users[];
+  users: Users[] = [];
+  loading = true;
+  errorMessage = '';
 
   constructor(private usersService: UsersService,
     private router: Router) { }
 
   ngOnInit(): void {
     this.getUsers();
-    // this.users = [{
-    //   "userId": 1,
-    //   "name": "tarun",
-    //   "username": "tarungowda",
-    //   "role": "STUDENT",
-    //   "password": "sdklfjlakdsf"
-    // }]
   }
 
   private getUsers() {
-    this.usersService.getUsersList().subscribe(data =>{
-      this.users = data;
-      console.log(this.users);
+    this.loading = true;
+    this.errorMessage = '';
+    this.usersService.getUsersList().subscribe({
+      next: data => {
+        this.users = data;
+        this.loading = false;
+      },
+      error: err => {
+        this.loading = false;
+        this.errorMessage = this.extractErrorMessage(err);
+      }
     });
   }
 
@@ -41,4 +44,14 @@ export class UsersListComponent implements OnInit {
     this.router.navigate(['update-user', userId ]);
   }
 
+  retry() {
+    this.getUsers();
+  }
+
+  private extractErrorMessage(err: any): string {
+    if (err.status === 0) return 'Le serveur est injoignable. Vérifiez que le backend est démarré.';
+    if (err.error?.message) return err.error.message;
+    if (typeof err.error === 'string') return err.error;
+    return `Erreur ${err.status} : une erreur inattendue est survenue.`;
+  }
 }

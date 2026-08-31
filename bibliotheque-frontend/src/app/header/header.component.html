@@ -1,52 +1,86 @@
 <header>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-      <a class="navbar-brand" style="color: rgb(241, 223, 223);" href="#">Library Management System</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid px-3 px-lg-4">
+      <a class="navbar-brand fw-bold d-flex align-items-center gap-2" routerLink="/">
+        <span class="brand-icon">📚</span>
+        <span class="brand-text">BiblioGest</span>
+      </a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent"
+        aria-expanded="false"
+        aria-label="Menu">
         <span class="navbar-toggler-icon"></span>
       </button>
+
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
+          <!-- Admin nav -->
           <li class="nav-item">
-            <a routerLink="/books" routerLinkActive="active" class="nav-link" *ngIf="userService.roleMatch(['Admin'])">Book List</a>
+            <a routerLink="/books" routerLinkActive="active" class="nav-link" *ngIf="userService.roleMatch(['Admin'])">
+              📖 Livres
+            </a>
           </li>
-
           <li class="nav-item">
-            <a routerLink="/create-book" routerLinkActive="active" class="nav-link" *ngIf="userService.roleMatch(['Admin'])">Add Book</a>
+            <a routerLink="/create-book" routerLinkActive="active" class="nav-link" *ngIf="userService.roleMatch(['Admin'])">
+              ➕ Ajouter
+            </a>
           </li>
-
           <li class="nav-item">
-            <a routerLink="/users" routerLinkActive="active" class="nav-link" *ngIf="userService.roleMatch(['Admin'])">User List</a>
+            <a routerLink="/users" routerLinkActive="active" class="nav-link" *ngIf="userService.roleMatch(['Admin'])">
+              👥 Adhérents
+            </a>
           </li>
-
           <li class="nav-item">
-            <a routerLink="/register-user" routerLinkActive="active" class="nav-link" *ngIf="userService.roleMatch(['Admin'])">Register User</a>
+            <a routerLink="/register-user" routerLinkActive="active" class="nav-link" *ngIf="userService.roleMatch(['Admin'])">
+              📝 Inscription
+            </a>
           </li>
 
+          <!-- User nav -->
           <li class="nav-item">
-            <a routerLink="/borrow-book" routerLinkActive="active" class="nav-link" *ngIf="userService.roleMatch(['User'])">Borrow Books</a>
+            <a routerLink="/borrow-book" routerLinkActive="active" class="nav-link" *ngIf="userService.roleMatch(['User'])">
+              📖 Emprunts
+            </a>
           </li>
-
           <li class="nav-item">
-            <a routerLink="/return-book" routerLinkActive="active" class="nav-link" *ngIf="userService.roleMatch(['User'])">Return Books</a>
+            <a routerLink="/return-book" routerLinkActive="active" class="nav-link" *ngIf="userService.roleMatch(['User'])">
+              📤 Retours
+            </a>
           </li>
 
+          <!-- Commun -->
           <li class="nav-item">
-            <a routerLink="/reservations" routerLinkActive="active" class="nav-link" *ngIf="userService.roleMatch(['Admin', 'User'])">Réservations</a>
+            <a routerLink="/reservations" routerLinkActive="active" class="nav-link" *ngIf="userService.roleMatch(['Admin', 'User'])">
+              🗓️ Réservations
+            </a>
           </li>
 
-          <li class="nav-item right-text" *ngIf="isLoggedIn()">
-            <div class="nav-link disabled text-right">
-              <strong>
-                Hey {{name}}
-              </strong>
-            </div>
+          <!-- User info -->
+          <li class="nav-item ms-lg-auto" *ngIf="isLoggedIn()">
+            <span class="nav-link user-greeting d-flex align-items-center gap-2">
+              <span class="user-avatar">👤</span>
+              <span class="user-info">
+                <strong class="d-block">{{ name }}</strong>
+                <small class="text-muted" style="font-size: 0.7rem;">{{ getUserRole() }}</small>
+              </span>
+            </span>
           </li>
-
         </ul>
-        <button *ngIf="!isLoggedIn()" type="button" class="btn btn-success" routerLink="/login">Login</button>
-        <button *ngIf="isLoggedIn()" type="button" class="btn btn-danger" (click)="logout()">Logout</button>
+
+        <!-- Auth buttons -->
+        <div class="d-flex align-items-center gap-2">
+          <button *ngIf="!isLoggedIn()" type="button" class="btn btn-login" routerLink="/login">
+            Connexion
+          </button>
+          <button *ngIf="isLoggedIn()" type="button" class="btn btn-logout" (click)="logout()">
+            Déconnexion
+          </button>
+        </div>
       </div>
     </div>
   </nav>

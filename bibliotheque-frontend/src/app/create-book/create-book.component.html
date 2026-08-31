@@ -1,27 +1,74 @@
-<div class="container col-md-6 offset-mid-3">
-    <h3 class="text-center"> Add Book </h3>
-    <form (ngSubmit) = "onSubmit()" autocomplete="off">
+<div class="page-wrapper">
+  <div class="row justify-content-center">
+    <div class="col-12 col-sm-10 col-md-8 col-lg-6">
 
-        <div class="form-group">
-            <label style="margin-bottom: 10px"> Book Name </label>
-            <input type="text" class="form-control" style="margin-bottom: 10px" id="bookName" [(ngModel)] = "book.bookName" name="bookName">
+      <!-- Header -->
+      <div class="page-header text-center">
+        <h2 class="page-title justify-content-center">
+          <span class="page-title-icon">➕</span>
+          Ajouter un Livre
+        </h2>
+        <p class="page-subtitle">Enrichissez le catalogue de la bibliothèque</p>
+      </div>
+
+      <!-- Messages -->
+      <div *ngIf="errorMessage" class="toast-message toast-error">
+        <div class="d-flex align-items-center">
+          <span class="toast-icon">⚠️</span>
+          <span>{{ errorMessage }}</span>
         </div>
+        <button class="btn-close" (click)="errorMessage = ''" aria-label="Fermer"></button>
+      </div>
 
-        <div class="form-group">
-            <label style="margin-bottom: 10px"> Author </label>
-            <input type="text" class="form-control" style="margin-bottom: 10px" id="bookAuthor" [(ngModel)] = "book.bookAuthor" name="bookAuthor">
+      <div *ngIf="successMessage" class="toast-message toast-success">
+        <div class="d-flex align-items-center">
+          <span class="toast-icon">✅</span>
+          <span>{{ successMessage }}</span>
         </div>
+        <button class="btn-close" (click)="successMessage = ''" aria-label="Fermer"></button>
+      </div>
 
-        <div class="form-group">
-            <label style="margin-bottom: 10px"> Genre </label>
-            <input type="text" class="form-control" style="margin-bottom: 10px" id="bookGenre" [(ngModel)] = "book.bookGenre" name="bookGenre">
-        </div>
+      <!-- Formulaire -->
+      <div class="form-card">
+        <form (ngSubmit)="onSubmit()" autocomplete="off">
 
-        <div class="form-group">
-            <label style="margin-bottom: 10px"> Number of Copies </label>
-            <input type="text" class="form-control" style="margin-bottom: 10px" id="noOfCopies" [(ngModel)] = "book.noOfCopies" name="noOfCopies">
-        </div>
+          <div class="mb-3">
+            <label for="bookName" class="form-label">📖 Nom du livre</label>
+            <input type="text" class="form-control" id="bookName"
+              [(ngModel)]="book.bookName" name="bookName"
+              placeholder="Ex: Le Petit Prince">
+          </div>
 
-        <button class="btn btn-success" type="submit"> Submit </button>
-    </form>
+          <div class="mb-3">
+            <label for="bookAuthor" class="form-label">✍️ Auteur</label>
+            <input type="text" class="form-control" id="bookAuthor"
+              [(ngModel)]="book.bookAuthor" name="bookAuthor"
+              placeholder="Ex: Antoine de Saint-Exupéry">
+          </div>
+
+          <div class="mb-3">
+            <label for="bookGenre" class="form-label">🏷️ Genre</label>
+            <input type="text" class="form-control" id="bookGenre"
+              [(ngModel)]="book.bookGenre" name="bookGenre"
+              placeholder="Ex: Roman">
+          </div>
+
+          <div class="mb-4">
+            <label for="noOfCopies" class="form-label">📚 Nombre de copies</label>
+            <input type="number" class="form-control" id="noOfCopies"
+              [(ngModel)]="book.noOfCopies" name="noOfCopies"
+              placeholder="Ex: 5" min="0">
+          </div>
+
+          <div class="d-grid">
+            <button class="btn btn-submit" type="submit" [disabled]="loading">
+              <span *ngIf="!loading">💾 Enregistrer le livre</span>
+              <span *ngIf="loading">⏳ Création en cours...</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
 </div>

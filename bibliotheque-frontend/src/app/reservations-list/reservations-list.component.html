@@ -1,40 +1,55 @@
-<!-- Liste vide -->
-<div *ngIf="reservations.length === 0" class="alert alert-info text-center">
-  Aucune réservation trouvée.
+<!-- Liste vide — état élégant -->
+<div *ngIf="reservations.length === 0" class="empty-state text-center py-5">
+  <div class="empty-icon mb-3">📚</div>
+  <h4 class="text-muted fw-semibold">Aucune réservation</h4>
+  <p class="text-muted small">Il n'y a aucune réservation pour le moment.<br>Créez-en une nouvelle ci-dessous.</p>
 </div>
 
 <!-- Tableau responsive -->
-<div *ngIf="reservations.length > 0" class="table-responsive">
-  <table class="table table-success table-striped table-hover">
-    <thead class="table-dark">
-      <tr>
-        <th>Livre</th>
-        <th>Adhérent</th>
-        <th>Statut</th>
-        <th>Réservation</th>
-        <th>Expiration</th>
-        <th class="text-center">Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let r of reservations">
-        <td>{{ r.livreNom }}</td>
-        <td>{{ r.adherentNom }}</td>
-        <td>
-          <span [class]="getStatutClass(r.statut)">{{ r.statut }}</span>
-        </td>
-        <td>{{ r.dateReservation }}</td>
-        <td>{{ r.dateExpiration }}</td>
-        <td class="text-center">
-          <button
-            *ngIf="canCancel(r.statut)"
-            class="btn btn-danger btn-sm"
-            (click)="confirmAnnuler(r)">
-            Annuler
-          </button>
-          <span *ngIf="!canCancel(r.statut)" class="text-muted">—</span>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+<div *ngIf="reservations.length > 0" class="table-wrapper">
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead>
+        <tr>
+          <th scope="col" class="ps-3">Livre</th>
+          <th scope="col">Adhérent</th>
+          <th scope="col">Statut</th>
+          <th scope="col" class="d-none d-sm-table-cell">Réservation</th>
+          <th scope="col" class="d-none d-sm-table-cell">Expiration</th>
+          <th scope="col" class="text-center pe-3">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of reservations; let i = index" class="table-row-hover"
+            [style.animation-delay]="(i * 0.04) + 's'">
+          <td class="ps-3">
+            <span class="fw-semibold">{{ r.livreNom }}</span>
+          </td>
+          <td>{{ r.adherentNom }}</td>
+          <td>
+            <span [class]="getStatutClass(r.statut)">
+              {{ formatStatut(r.statut) }}
+            </span>
+          </td>
+          <td class="d-none d-sm-table-cell text-muted small">
+            {{ r.dateReservation }}
+          </td>
+          <td class="d-none d-sm-table-cell text-muted small">
+            {{ r.dateExpiration }}
+          </td>
+          <td class="text-center pe-3">
+            <button
+              *ngIf="canCancel(r.statut)"
+              class="btn btn-outline-danger btn-sm btn-action"
+              (click)="confirmAnnuler(r)"
+              title="Annuler cette réservation">
+              <span class="d-none d-md-inline">Annuler</span>
+              <span class="d-md-none">✕</span>
+            </button>
+            <span *ngIf="!canCancel(r.statut)" class="text-muted small">—</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>

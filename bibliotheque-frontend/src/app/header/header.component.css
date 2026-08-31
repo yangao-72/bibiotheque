@@ -1,4 +1,152 @@
-.right-text {
-    margin-left: 1000px;
-    font-size: 17px;
+/* ============================================
+   Header — Design Violet/Indigo
+   ============================================ */
+
+:host {
+  --primary: #6366f1;
+  --primary-dark: #4f46e5;
+  --primary-light: #818cf8;
+  --primary-bg: #eef2ff;
+  --sidebar-bg: #1e1b4b;
+  --surface: #ffffff;
+  --border: #e2e8f0;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+}
+
+.navbar {
+  background: linear-gradient(135deg, #1e1b4b, #312e81) !important;
+  box-shadow: 0 2px 12px rgba(30, 27, 75, 0.3);
+  padding: 0.6rem 0;
+  border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.brand-icon {
+  font-size: 1.4rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.brand-text {
+  font-size: 1.15rem;
+  letter-spacing: 0.02em;
+  background: linear-gradient(135deg, #ffffff, #c7d2fe);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.nav-link {
+  font-size: 0.88rem;
+  padding: 0.5rem 0.85rem !important;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  background: rgba(99, 102, 241, 0.2);
+  color: #fff !important;
+}
+
+.nav-link.active {
+  background: var(--primary);
+  color: #fff !important;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+.user-greeting {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.9) !important;
+  cursor: default;
+  padding: 0.4rem 0.75rem !important;
+}
+
+.user-avatar {
+  font-size: 1.1rem;
+  width: 32px;
+  height: 32px;
+  background: rgba(99, 102, 241, 0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-info {
+  line-height: 1.2;
+}
+
+.user-info strong {
+  font-size: 0.85rem;
+}
+
+/* --- Boutons auth --- */
+.btn-login {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.btn-login:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+  color: white;
+}
+
+.btn-logout {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.btn-logout:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #fca5a5;
+}
+
+/* --- Responsive --- */
+@media (max-width: 991px) {
+  .navbar-collapse {
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(99, 102, 241, 0.2);
+    margin-top: 0.5rem;
+  }
+
+  .nav-link {
+    padding: 0.6rem 0.85rem !important;
+  }
+
+  .user-greeting {
+    padding: 0.5rem 0.75rem !important;
+  }
+
+  .ms-lg-auto {
+    margin-top: 0.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .brand-text {
+    font-size: 1rem;
+  }
+
+  .nav-link {
+    font-size: 0.82rem;
+    padding: 0.5rem 0.65rem !important;
+  }
 }
