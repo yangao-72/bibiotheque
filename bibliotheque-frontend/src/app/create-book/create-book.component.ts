@@ -21,10 +21,44 @@ export class CreateBookComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  // --- Validation ---
+
+  get isFormValid(): boolean {
+    return !!(
+      this.book.bookName?.trim() &&
+      this.book.bookAuthor?.trim() &&
+      this.book.bookGenre?.trim() &&
+      this.book.noOfCopies != null &&
+      this.book.noOfCopies > 0
+    );
+  }
+
+  validate(): string[] {
+    const errors: string[] = [];
+    if (!this.book.bookName?.trim()) errors.push('Le nom du livre est obligatoire.');
+    if (!this.book.bookAuthor?.trim()) errors.push('L\'auteur est obligatoire.');
+    if (!this.book.bookGenre?.trim()) errors.push('Le genre est obligatoire.');
+    if (this.book.noOfCopies == null || this.book.noOfCopies <= 0) {
+      errors.push('Le nombre de copies doit être supérieur à 0.');
+    }
+    return errors;
+  }
+
+  // --- Soumission ---
+
   saveBook() {
-    this.loading = true;
     this.errorMessage = '';
     this.successMessage = '';
+
+    // Validation côté client
+    const validationErrors = this.validate();
+    if (validationErrors.length > 0) {
+      this.errorMessage = validationErrors.join(' ');
+      return;
+    }
+
+    this.loading = true;
+
     this.booksService.createBook(this.book).subscribe({
       next: () => {
         this.successMessage = 'Livre créé avec succès.';

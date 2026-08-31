@@ -11,7 +11,7 @@
         <p class="page-subtitle">Enrichissez le catalogue de la bibliothèque</p>
       </div>
 
-      <!-- Messages -->
+      <!-- Toast erreur -->
       <div *ngIf="errorMessage" class="toast-message toast-error">
         <div class="d-flex align-items-center">
           <span class="toast-icon"><i class="fas fa-exclamation-circle"></i></span>
@@ -20,6 +20,7 @@
         <button class="btn-close" (click)="errorMessage = ''" aria-label="Fermer"></button>
       </div>
 
+      <!-- Toast succès -->
       <div *ngIf="successMessage" class="toast-message toast-success">
         <div class="d-flex align-items-center">
           <span class="toast-icon"><i class="fas fa-check-circle"></i></span>
@@ -32,39 +33,47 @@
       <div class="form-card">
         <form (ngSubmit)="onSubmit()" autocomplete="off">
 
+          <!-- Nom du livre -->
           <div class="mb-3">
-            <label for="bookName" class="form-label"><i class="fas fa-book me-1"></i> Nom du livre</label>
+            <label for="bookName" class="form-label"><i class="fas fa-book me-1"></i> Nom du livre <span class="required">*</span></label>
             <input type="text" class="form-control" id="bookName"
               [(ngModel)]="book.bookName" name="bookName"
               placeholder="Ex: Le Petit Prince">
           </div>
 
+          <!-- Auteur -->
           <div class="mb-3">
-            <label for="bookAuthor" class="form-label"><i class="fas fa-pen-fancy me-1"></i> Auteur</label>
+            <label for="bookAuthor" class="form-label"><i class="fas fa-pen-fancy me-1"></i> Auteur <span class="required">*</span></label>
             <input type="text" class="form-control" id="bookAuthor"
               [(ngModel)]="book.bookAuthor" name="bookAuthor"
               placeholder="Ex: Antoine de Saint-Exupéry">
           </div>
 
+          <!-- Genre -->
           <div class="mb-3">
-            <label for="bookGenre" class="form-label"><i class="fas fa-tag me-1"></i> Genre</label>
+            <label for="bookGenre" class="form-label"><i class="fas fa-tag me-1"></i> Genre <span class="required">*</span></label>
             <input type="text" class="form-control" id="bookGenre"
               [(ngModel)]="book.bookGenre" name="bookGenre"
               placeholder="Ex: Roman">
           </div>
 
+          <!-- Copies -->
           <div class="mb-4">
-            <label for="noOfCopies" class="form-label"><i class="fas fa-layer-group me-1"></i> Nombre de copies</label>
+            <label for="noOfCopies" class="form-label"><i class="fas fa-layer-group me-1"></i> Nombre de copies <span class="required">*</span></label>
             <input type="number" class="form-control" id="noOfCopies"
               [(ngModel)]="book.noOfCopies" name="noOfCopies"
-              placeholder="Ex: 5" min="0">
+              placeholder="Ex: 5" min="1">
           </div>
 
-          <div class="d-grid">
-            <button class="btn btn-submit" type="submit" [disabled]="loading">
-              <i *ngIf="!loading" class="fas fa-save me-2"></i>
+          <!-- Boutons -->
+          <div class="form-actions">
+            <button type="button" class="btn-cancel" (click)="goToBooksList()">
+              <i class="fas fa-times"></i> Annuler
+            </button>
+            <button class="btn-submit" type="submit" [disabled]="loading || !isFormValid">
+              <i *ngIf="!loading" class="fas fa-save"></i>
               <span *ngIf="loading" class="spinner-small"></span>
-              {{ loading ? 'Création en cours...' : 'Enregistrer le livre' }}
+              {{ loading ? 'Création...' : 'Enregistrer' }}
             </button>
           </div>
         </form>
