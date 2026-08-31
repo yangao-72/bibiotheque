@@ -45,11 +45,14 @@
       </div>
 
       <div class="form-actions">
-        <button type="button" class="btn-cancel" (click)="goToUsersList()"><i class="fas fa-times me-1"></i> Annuler</button>
+        <button type="button" class="btn-cancel" (click)="goToUsersList()">
+          <i class="fas fa-times"></i> Annuler
+        </button>
         <button type="submit" class="btn-submit" [disabled]="saving">
           <span *ngIf="saving" class="spinner-small"></span>
-          <i *ngIf="!saving" class="fas fa-plus me-1"></i>
-          {{ saving ? 'Création...' : "Créer l'adhérent" }}
+          <i *ngIf="!saving" class="fas fa-check"></i>
+          {{ saving ? 'Enregistrement...' : 'Valider' }}
+          Valider
         </button>
       </div>
     </form>
