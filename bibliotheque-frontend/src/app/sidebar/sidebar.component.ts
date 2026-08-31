@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserAuthService } from '../_service/user-auth.service';
 import { UsersService } from '../_service/users.service';
@@ -10,6 +10,7 @@ import { UsersService } from '../_service/users.service';
 })
 export class SidebarComponent implements OnInit {
 
+  @Input() isOpen = false;
   @Output() toggleSidebar = new EventEmitter<void>();
 
   name = '';
