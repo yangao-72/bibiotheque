@@ -1,5 +1,5 @@
 /* ============================================
-   Reservations List — Design Violet/Indigo
+   Reservations List — Design Violet/Indigo + Dark Mode
    ============================================ */
 
 /* --- Tableau --- */
@@ -9,6 +9,7 @@
   border: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
   background: var(--surface);
+  transition: background-color 0.3s, border-color 0.3s;
 }
 
 .table {
@@ -43,12 +44,13 @@
 }
 
 .table tbody tr:hover {
-  background: var(--primary-bg);
+  background: rgba(99, 102, 241, 0.04);
 }
 
 .table tbody td {
   padding: 0.9rem 0.85rem;
   vertical-align: middle;
+  color: var(--text-primary);
 }
 
 @keyframes fadeInRow {
@@ -159,6 +161,7 @@
   background: var(--surface);
   border-radius: var(--radius);
   border: 1px solid var(--border);
+  transition: background-color 0.3s, border-color 0.3s;
 }
 
 .empty-icon {
@@ -177,6 +180,48 @@
   color: var(--text-muted);
   font-size: 0.9rem;
   line-height: 1.6;
+}
+
+/* --- Dark mode badges --- */
+.dark-mode .statut-en-attente {
+  background: #78350f;
+  color: #fcd34d;
+  border-color: #b45309;
+}
+
+.dark-mode .statut-disponible {
+  background: #064e3b;
+  color: #6ee7b7;
+  border-color: #047857;
+}
+
+.dark-mode .statut-annulee {
+  background: #334155;
+  color: #94a3b8;
+  border-color: #475569;
+}
+
+.dark-mode .statut-expiree {
+  background: #7f1d1d;
+  color: #fca5a5;
+  border-color: #991b1b;
+}
+
+.dark-mode .statut-honoree {
+  background: #312e81;
+  color: #a5b4fc;
+  border-color: #4338ca;
+}
+
+.dark-mode .btn-action {
+  background: #7f1d1d;
+  border-color: #991b1b;
+  color: #fca5a5;
+}
+
+.dark-mode .btn-action:hover {
+  background: #dc2626;
+  color: white;
 }
 
 /* --- Responsive --- */

@@ -1,38 +1,15 @@
 /* ============================================
-   Réservations — Design System Violet/Indigo
+   Réservations — Design System Violet/Indigo + Dark Mode
    ============================================ */
-
-/* --- Variables design --- */
-:host {
-  --primary: #6366f1;
-  --primary-dark: #4f46e5;
-  --primary-light: #818cf8;
-  --primary-bg: #eef2ff;
-  --sidebar-bg: #1e1b4b;
-  --surface: #ffffff;
-  --surface-hover: #f8fafc;
-  --border: #e2e8f0;
-  --text-primary: #1e293b;
-  --text-secondary: #64748b;
-  --text-muted: #94a3b8;
-  --success: #22c55e;
-  --warning: #f59e0b;
-  --danger: #ef4444;
-  --info: #3b82f6;
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
-  --radius: 12px;
-  --radius-sm: 8px;
-}
 
 /* --- Page layout --- */
 .reservations-page {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem 1.5rem;
-  background: #f8fafc;
+  background: var(--surface-hover);
   min-height: calc(100vh - 56px);
+  transition: background-color 0.3s;
 }
 
 /* --- Header --- */
@@ -223,6 +200,7 @@
   border: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
   margin-bottom: 1.5rem;
+  transition: background-color 0.3s, border-color 0.3s;
 }
 
 .filter-section .form-label {
@@ -238,6 +216,7 @@
   font-size: 0.9rem;
   transition: all 0.2s;
   background-color: var(--surface);
+  color: var(--text-primary);
 }
 
 .form-select:focus {

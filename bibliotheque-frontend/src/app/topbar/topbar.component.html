@@ -17,6 +17,11 @@
 
   <!-- Right side -->
   <div class="topbar-actions">
+    <!-- Dark Mode Toggle -->
+    <button class="btn-theme" (click)="toggleDarkMode()" [title]="isDarkMode ? 'Mode clair' : 'Mode sombre'">
+      {{ isDarkMode ? '☀️' : '🌙' }}
+    </button>
+
     <!-- Notifications -->
     <div class="notification-wrapper">
       <button class="btn-notification" (click)="toggleNotifications()">

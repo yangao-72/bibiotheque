@@ -28,6 +28,22 @@
   --radius-sm: 8px;
 }
 
+/* ============================================
+   Dark Mode Variables
+   ============================================ */
+
+.dark-mode {
+  --surface: #1e1e2e;
+  --surface-hover: #2a2a3e;
+  --border: #3a3a50;
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
 /* --- Global resets --- */
 * {
   box-sizing: border-box;
@@ -35,10 +51,11 @@
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background: #f8fafc;
+  background: var(--surface-hover);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 /* --- Scrollbar --- */
@@ -48,16 +65,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: var(--surface-hover);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: var(--border);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: var(--text-muted);
 }
 
 /* --- Selection --- */
@@ -88,6 +105,7 @@ a:hover {
   border-radius: var(--radius);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
+  background: var(--surface);
 }
 
 /* --- Buttons --- */
@@ -112,6 +130,8 @@ a:hover {
 .form-select {
   border-radius: var(--radius-sm);
   border-color: var(--border);
+  background: var(--surface);
+  color: var(--text-primary);
   transition: all 0.2s;
 }
 
@@ -119,6 +139,12 @@ a:hover {
 .form-select:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  background: var(--surface);
+  color: var(--text-primary);
+}
+
+.form-control::placeholder {
+  color: var(--text-muted);
 }
 
 /* --- Alerts --- */
@@ -136,6 +162,25 @@ a:hover {
 /* --- Tables --- */
 .table {
   --bs-table-hover-bg: rgba(99, 102, 241, 0.04);
+  color: var(--text-primary);
+}
+
+.table > :not(caption) > * > * {
+  color: var(--text-primary);
+  background-color: var(--surface);
+  border-bottom-color: var(--border);
+}
+
+.table thead {
+  background: linear-gradient(135deg, #1e1b4b, #312e81);
+}
+
+.table thead th {
+  color: #e2e8f0;
+}
+
+.dark-mode .table tbody tr:hover {
+  background: var(--surface-hover);
 }
 
 /* --- Animations --- */
@@ -157,4 +202,222 @@ a:hover {
 /* --- Loading spinner --- */
 .spinner-border {
   color: var(--primary) !important;
+}
+
+/* ============================================
+   Dark Mode — Component Overrides
+   ============================================ */
+
+/* Sidebar stays dark in both modes */
+.sidebar {
+  background: linear-gradient(180deg, #1e1b4b 0%, #312e81 100%);
+}
+
+/* Toast messages */
+.toast-message {
+  color: #fff;
+}
+
+/* Page wrappers */
+.page-wrapper {
+  background: var(--surface-hover);
+}
+
+.page-title {
+  color: var(--text-primary);
+}
+
+.table-wrapper {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.empty-state,
+.error-state {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text-primary);
+}
+
+.empty-state h4,
+.error-state h4 {
+  color: var(--text-primary);
+}
+
+/* Form cards */
+.form-card {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+/* User cards */
+.user-card {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+}
+
+.section-card {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+/* Login card */
+.login-card {
+  background: var(--surface);
+}
+
+/* Dashboard */
+.stat-card {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.quick-actions-card,
+.notifications-card {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+/* Notification dropdown */
+.notification-dropdown {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.notification-list li {
+  border-bottom-color: var(--border);
+}
+
+.notification-list li:hover {
+  background: var(--surface-hover);
+}
+
+/* Toasts */
+.toast-success,
+.toast-error {
+  color: #fff;
+}
+
+/* Dark mode specific text colors */
+.dark-mode .page-title,
+.dark-mode .section-title,
+.dark-mode .stat-label,
+.dark-mode .stat-value {
+  color: var(--text-primary);
+}
+
+.dark-mode .page-subtitle,
+.dark-mode .notif-content p,
+.dark-mode .notif-time {
+  color: var(--text-muted);
+}
+
+.dark-mode .notif-content strong {
+  color: var(--text-primary);
+}
+
+/* Dark mode form inputs */
+.dark-mode .form-input {
+  background: var(--surface-hover);
+  border-color: var(--border);
+  color: var(--text-primary);
+}
+
+.dark-mode .form-input:focus {
+  background: var(--surface);
+  border-color: var(--primary);
+}
+
+.dark-mode .form-label {
+  color: var(--text-secondary);
+}
+
+/* Dark mode buttons */
+.dark-mode .btn-cancel {
+  background: var(--surface-hover);
+  color: var(--text-secondary);
+  border-color: var(--border);
+}
+
+.dark-mode .btn-cancel:hover {
+  background: var(--border);
+}
+
+/* Dark mode action buttons */
+.dark-mode .action-btn {
+  background: var(--surface-hover);
+  border-color: var(--border);
+  color: var(--text-primary);
+}
+
+.dark-mode .action-btn:hover {
+  background: var(--primary-bg);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* Dark mode toast messages */
+.dark-mode .toast-message.toast-error {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+}
+
+.dark-mode .toast-message.toast-success {
+  background: linear-gradient(135deg, #16a34a, #15803d);
+}
+
+/* Dark mode for existing components */
+.dark-mode .btn-retry {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: white;
+}
+
+.dark-mode .btn-borrow,
+.dark-mode .btn-return {
+  background: var(--primary);
+  color: white;
+}
+
+/* Dark mode badges */
+.dark-mode .badge-available {
+  background: #064e3b;
+  color: #6ee7b7;
+  border-color: #10b981;
+}
+
+.dark-mode .badge-unavailable {
+  background: #7f1d1d;
+  color: #fca5a5;
+  border-color: #ef4444;
+}
+
+/* Dark mode role badges */
+.dark-mode .role-admin {
+  background: #312e81;
+  color: #a5b4fc;
+}
+
+.dark-mode .role-user {
+  background: #064e3b;
+  color: #6ee7b7;
+}
+
+/* Dark mode user profile */
+.dark-mode .user-profile {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.dark-mode .btn-logout {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .btn-logout:hover {
+  background: rgba(239, 68, 68, 0.4);
+}
+
+/* Dark mode footer */
+.dark-mode .dashboard-footer {
+  border-top-color: var(--border);
+}
+
+.dark-mode .dashboard-footer p {
+  color: var(--text-muted);
 }

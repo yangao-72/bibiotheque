@@ -5,14 +5,16 @@
 }
 
 .page-header { margin-bottom: 2rem; }
-.page-title { font-size: 1.5rem; font-weight: 700; color: #1e293b; }
+.page-title { font-size: 1.5rem; font-weight: 700; color: var(--text-primary); }
 
 /* Form Card */
 .form-card {
-  background: white;
+  background: var(--surface);
   border-radius: 16px;
   padding: 2rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  transition: background-color 0.3s, border-color 0.3s;
 }
 
 /* Toasts */
@@ -67,18 +69,18 @@
   display: block;
   font-size: 0.85rem;
   font-weight: 600;
-  color: #475569;
+  color: var(--text-secondary);
   margin-bottom: 0.4rem;
 }
 
 .form-input {
   width: 100%;
   padding: 0.65rem 1rem;
-  border: 1.5px solid #e2e8f0;
+  border: 1.5px solid var(--border);
   border-radius: 10px;
   font-size: 0.9rem;
-  color: #1e293b;
-  background: #f8fafc;
+  color: var(--text-primary);
+  background: var(--surface-hover);
   transition: all 0.2s;
   outline: none;
   box-sizing: border-box;
@@ -86,7 +88,7 @@
 
 .form-input:focus {
   border-color: #6366f1;
-  background: white;
+  background: var(--surface);
   box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
 }
 
@@ -100,15 +102,15 @@
 .btn-cancel {
   flex: 1;
   padding: 0.65rem;
-  background: #f1f5f9;
-  color: #475569;
+  background: var(--surface-hover);
+  color: var(--text-secondary);
   border: none;
   border-radius: 10px;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s;
 }
-.btn-cancel:hover { background: #e2e8f0; }
+.btn-cancel:hover { background: var(--border); }
 
 .btn-submit {
   flex: 2;

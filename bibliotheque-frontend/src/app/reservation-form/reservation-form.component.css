@@ -1,5 +1,5 @@
 /* ============================================
-   Reservation Form — Design Violet/Indigo
+   Reservation Form — Design Violet/Indigo + Dark Mode
    ============================================ */
 
 /* --- Formulaire wrapper --- */
@@ -84,6 +84,8 @@
 
 .form-select option {
   padding: 0.5rem;
+  background: var(--surface);
+  color: var(--text-primary);
 }
 
 .form-select-lg {
@@ -187,6 +189,13 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* --- Dark mode disabled button --- */
+.dark-mode .btn-submit.disabled,
+.dark-mode .btn-submit:disabled {
+  background: #475569;
+  color: #94a3b8;
 }
 
 /* --- Responsive --- */

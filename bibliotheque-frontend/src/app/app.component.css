@@ -1,5 +1,5 @@
 /* ============================================
-   App Layout — Sidebar + Topbar
+   App Layout — Sidebar + Topbar + Dark Mode
    ============================================ */
 
 .app-layout {
@@ -18,7 +18,8 @@
 .main-content {
   flex: 1;
   margin-top: 64px;
-  background: #f8fafc;
+  background: var(--surface-hover);
+  transition: background-color 0.3s;
 }
 
 /* Overlay */
