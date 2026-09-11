@@ -435,6 +435,42 @@ Base : `http://localhost:8080`
 | RS-04 | Un ADHERENT ne peut pas réserver au nom d'un autre | `ReservationController.creerReservation` écrase `adherentId` avec l'identité du token |
 | RS-05 | `GET /api/reservations` par un ADHERENT ne renvoie que les siennes | `ReservationController.listerReservations` force le filtre `adherentId` |
 
+### Ce que la matrice ne dit pas, et qui la vidait de son sens
+
+Fermer les cinq endpoints de réservation ne suffit pas si le reste de
+l'application permet de se fabriquer les droits qui les ouvrent. Une relecture
+complète a mis au jour **deux incohérences** entre le code et la user story.
+
+#### 1. La fabrique de comptes était ouverte (critique)
+
+`POST /admin/users` avait son contrôle de rôle **commenté**. Comme la
+configuration se contente de `anyRequest().authenticated()`, tout utilisateur
+connecté pouvait l'appeler — y compris un simple ADHERENT. Le chemin d'attaque,
+reproduit sur l'application réelle :
+
+```
+1. A1 se connecte            → token ADHERENT
+2. POST /admin/users         → 200, avec role = BIBLIOTHECAIRE
+3. Connexion au nouveau compte
+4. GET /api/reservations     → toutes les réservations, de tous les adhérents
+```
+
+RS-02, RS-03 et RS-05 étaient donc contournables en trois requêtes. L'endpoint
+est désormais réservé à `Admin` ou `BIBLIOTHECAIRE`, et cinq tests verrouillent
+le chemin (`EscaladeDePrivilegesTests`).
+
+#### 2. Un token orphelin renvoyait 500 au lieu de 401
+
+`JwtService.loadUserByUsername` faisait `findByUsername(username).get()` sur un
+`Optional`. Sur un résultat vide, cela lève `NoSuchElementException` — et le
+`if (user != null)` qui suivait était du **code mort**, si bien que le
+`UsernameNotFoundException` prévu n'était jamais atteint. Un token correctement
+signé dont le porteur avait disparu de la base remontait donc en **500**, alors
+que RS-01 exige **401** pour un token invalide.
+
+Corrigé par un `orElseThrow`, et le filtre JWT intercepte désormais cette
+exception pour laisser la requête finir en 401.
+
 **401 vs 403** — la distinction est portée par Spring Security :
 *401* = je ne sais pas qui vous êtes (aucune authentification valide) ;
 *403* = je sais qui vous êtes, mais vous n'avez pas le droit.
@@ -458,10 +494,10 @@ rôle réservation ; les comptes créés depuis l'écran d'inscription aussi.
 ### Lancer les tests
 
 ```bash
-# Backend — 32 tests, aucune base requise (H2 en mémoire)
+# Backend — 37 tests, aucune base requise (H2 en mémoire)
 cd bibliotheque-backend && ./mvnw test
 
-# Frontend — 120 tests
+# Frontend — 143 tests
 cd bibliotheque-frontend && npm test -- --watch=false --browsers=ChromeHeadless
 ```
 
@@ -470,6 +506,7 @@ cd bibliotheque-frontend && npm test -- --watch=false --browsers=ChromeHeadless
 | `ReservationServiceRG03Tests` | RG-03 en **test unitaire**, repositories mockés, sans base |
 | `ReservationEndpointIntegrationTests` | `GET /api/reservations` : 401 sans token, 200 avec un token ADHERENT, 403 sur la réservation d'un autre |
 | `ReservationSecuriteTests` | La matrice complète + RS-01 → RS-05, avec de vrais tokens JWT |
+| `EscaladeDePrivilegesTests` | Un ADHERENT ne peut pas se fabriquer de compte BIBLIOTHECAIRE ; un token orphelin donne 401 |
 
 ---
 

@@ -22,8 +22,18 @@ public class AdminController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    /**
+     * Création d'un compte.
+     *
+     * <p>Cet endpoint était ouvert à tout utilisateur authentifié : le contrôle
+     * de rôle avait été commenté. Un simple ADHERENT pouvait donc se créer un
+     * compte BIBLIOTHECAIRE puis, en s'y connectant, lire les réservations de
+     * tout le monde — ce qui vidait de leur sens RS-02, RS-03 et RS-05.
+     * Fermer l'API de réservation sans fermer la fabrique de comptes ne fermait
+     * rien du tout.</p>
+     */
+    @PreAuthorize("hasAnyRole('Admin', 'BIBLIOTHECAIRE')")
     @PostMapping("/users")
-//    @PreAuthorize("hasRole('Admin')")
     public Users addUserByAdmin(@RequestBody Users user) {
 //        Role role = new Role();
 ////        role.setRoleName(UserConstant.DEFAULT_ROLE);

@@ -45,17 +45,19 @@ public class JwtService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Users user = userDao.findByUsername(username).get();
+        // `Optional.get()` sur un résultat vide levait une NoSuchElementException,
+        // et le test de nullité qui suivait était donc du code mort : le
+        // UsernameNotFoundException prévu n'était jamais atteint. Un token
+        // portant un utilisateur supprimé remontait en 500 au lieu de 401.
+        Users user = userDao.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(
+                        "User not found with username: " + username));
 
-        if (user != null) {
-            return new org.springframework.security.core.userdetails.User(
-                    user.getUsername(),
-                    user.getPassword(),
-                    getAuthority(user)
-            );
-        } else {
-            throw new UsernameNotFoundException("User not found with username: " + username);
-        }
+        return new org.springframework.security.core.userdetails.User(
+                user.getUsername(),
+                user.getPassword(),
+                getAuthority(user)
+        );
     }
 
     private Set getAuthority(Users user) {

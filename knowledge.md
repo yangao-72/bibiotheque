@@ -39,7 +39,7 @@ docker compose up --build
 cd bibliotheque-backend
 ./mvnw clean install              # build
 ./mvnw spring-boot:run            # run on port 8080
-./mvnw test                       # 32 tests, H2 in memory, no DB needed
+./mvnw test                       # 37 tests, H2 in memory, no DB needed
 ```
 
 ### Frontend (manual)
@@ -48,7 +48,7 @@ cd bibliotheque-frontend
 npm install
 npm start                         # serves on port 4200
 npm run build                     # production build
-npm test -- --watch=false --browsers=ChromeHeadless   # 120 tests
+npm test -- --watch=false --browsers=ChromeHeadless   # 143 tests
 ```
 
 ### Database
@@ -69,7 +69,9 @@ PostgreSQL, configured via `.env` (copy `.env.example`). Docker exposes on port 
 - **Identity always comes from the token**, never from the request body/params. `ReservationController` overwrites `adherentId` (POST) and forces the `adherentId` filter (GET list) for non-librarians.
 - `estProprietaire()` returns `true` for a missing reservation on purpose, so an unknown id yields 404 (from the service) rather than 403.
 - Ownership check was **removed** from `ReservationService.annulerReservation` (it returned 409 and trusted a query param); it now lives in `@PreAuthorize` and returns 403.
-- `JwtRequestFilter` catches `JwtException` so a forged token returns 401 instead of 500.
+- `JwtRequestFilter` catches `JwtException` so a forged token returns 401 instead of 500, and `UsernameNotFoundException` so a token whose subject was deleted also returns 401.
+- **`POST /admin/users` had its `@PreAuthorize` commented out.** With `anyRequest().authenticated()`, any signed-in ADHERENT could mint themselves a BIBLIOTHECAIRE account and read every reservation — defeating RS-02/03/05 in three requests. Now restricted to `Admin` or `BIBLIOTHECAIRE`; `EscaladeDePrivilegesTests` locks it. **Closing the reservation endpoints is worthless while the account factory is open — check both when auditing.**
+- `JwtService.loadUserByUsername` used `Optional.get()`, so the `if (user != null)` guard below it was dead code and the intended `UsernameNotFoundException` was unreachable. Fixed with `orElseThrow`.
 
 ### Backend tests
 - Profile `test` (`src/test/resources/application-test.properties`) switches the datasource to **H2 in memory** — `./mvnw test` needs no Docker and no PostgreSQL.
