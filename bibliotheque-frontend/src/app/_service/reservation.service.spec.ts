@@ -112,7 +112,7 @@ describe('ReservationService', () => {
     req.flush(mockResponse);
   });
 
-  it('should cancel reservation with userId param', () => {
+  it('should cancel reservation without sending any userId (identity comes from the token)', () => {
     const mockResponse: Reservation = {
       reservationId: 1,
       livreId: 10,
@@ -124,16 +124,15 @@ describe('ReservationService', () => {
       statut: 'ANNULEE'
     };
 
-    service.annulerReservation(1, 11).subscribe(data => {
+    service.annulerReservation(1).subscribe(data => {
       expect(data.statut).toBe('ANNULEE');
     });
 
-    const req = httpMock.expectOne(r =>
-      r.url === `${baseURL}/1/annuler` &&
-      r.params.get('userId') === '11'
-    );
+    const req = httpMock.expectOne(r => r.url === `${baseURL}/1/annuler`);
     expect(req.request.method).toBe('PATCH');
     expect(req.request.body).toBeNull();
+    // RS-04 : aucun identifiant d'utilisateur ne doit transiter dans la requête.
+    expect(req.request.params.has('userId')).toBeFalse();
     req.flush(mockResponse);
   });
 

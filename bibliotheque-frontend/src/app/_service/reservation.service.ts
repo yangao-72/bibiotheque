@@ -29,9 +29,12 @@ export class ReservationService {
     return this.httpClient.post<Reservation>(this.baseURL, request);
   }
 
-  annulerReservation(id: number, userId: number): Observable<Reservation> {
-    const params = new HttpParams().set('userId', userId.toString());
-    return this.httpClient.patch<Reservation>(`${this.baseURL}/${id}/annuler`, null, { params });
+  /**
+   * RS-04 : l'identité de l'appelant est déduite du token côté serveur.
+   * Aucun `userId` n'est transmis — il serait falsifiable.
+   */
+  annulerReservation(id: number): Observable<Reservation> {
+    return this.httpClient.patch<Reservation>(`${this.baseURL}/${id}/annuler`, null);
   }
 
   supprimerReservation(id: number): Observable<void> {

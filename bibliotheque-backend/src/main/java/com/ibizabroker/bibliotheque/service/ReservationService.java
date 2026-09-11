@@ -129,15 +129,14 @@ public class ReservationService {
      * Annuler une réservation.
      * RG-05 : Une réservation ne peut être annulée que si son statut est EN_ATTENTE ou DISPONIBLE.
      * RG-06 : Une réservation ANNULEE, EXPIREE ou HONOREE ne peut plus changer d'état.
+     *
+     * RS-03 : le contrôle « la réservation m'appartient » n'est plus fait ici mais dans la
+     * couche sécurité (@PreAuthorize + ReservationSecurity), afin de répondre 403 et non 409,
+     * et pour permettre au BIBLIOTHECAIRE d'annuler la réservation de n'importe quel adhérent.
      */
-    public ReservationResponse annulerReservation(Integer id, Integer userId) {
+    public ReservationResponse annulerReservation(Integer id) {
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Réservation avec l'id " + id + " introuvable."));
-
-        // Vérification que l'utilisateur ne peut annuler que ses propres réservations
-        if (!reservation.getAdherent().getUserId().equals(userId)) {
-            throw new ConflictException("Vous ne pouvez annuler que vos propres réservations.");
-        }
 
         // RG-06 : Une réservation ANNULEE, EXPIREE ou HONOREE ne peut plus changer d'état
         if (reservation.getStatut() == ReservationStatus.ANNULEE

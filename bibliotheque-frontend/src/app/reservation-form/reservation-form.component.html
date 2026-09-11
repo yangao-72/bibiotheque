@@ -54,8 +54,8 @@
             </div>
           </div>
 
-          <!-- Sélecteur Adhérent -->
-          <div class="mb-4">
+          <!-- Sélecteur Adhérent — réservé au bibliothécaire -->
+          <div class="mb-4" *ngIf="estBibliothecaire">
             <label for="adherentId" class="form-label fw-semibold">
               <span class="label-icon me-1"><i class="fas fa-user"></i></span> Adhérent
             </label>
@@ -72,6 +72,14 @@
             </select>
             <div class="form-hint" *ngIf="users.length === 0">
               <span class="text-warning"><i class="fas fa-exclamation-triangle"></i></span> Aucun adhérent disponible.
+            </div>
+          </div>
+
+          <!-- Un adhérent réserve toujours pour lui-même : l'identité vient du token -->
+          <div class="mb-4" *ngIf="!estBibliothecaire">
+            <div class="form-hint">
+              <span class="label-icon me-1"><i class="fas fa-user-shield"></i></span>
+              La réservation sera enregistrée à votre nom.
             </div>
           </div>
 

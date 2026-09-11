@@ -15,10 +15,12 @@ Application full-stack de gestion de bibliothèque : **Spring Boot** (API REST) 
 **Angular** (interface) + **PostgreSQL** (persistance).
 
 * Deux profils : **Admin** (CRUD livres et utilisateurs) et **User** (emprunter / rendre / réserver).
+* Deux rôles pour le module réservation : **BIBLIOTHECAIRE** et **ADHERENT**.
 * Authentification par **JWT**.
 * Mots de passe chiffrés avec **BCrypt**.
 * Redirection vers une page *forbidden* si le rôle n'a pas accès à l'URL.
 * Module **Réservation** : création, liste filtrable par statut, annulation avec gestion des erreurs métier (409).
+* API de réservation **fermée** : 401 sans token, 403 sans droit, identité issue du token (voir [section 7](#sécurité-des-réservations--rs-01--rs-05)).
 
 ---
 
@@ -122,6 +124,7 @@ bibliothèque/
 │       │   │   ├── WebSecurityConfiguration.java     qui a le droit d'aller où
 │       │   │   ├── JwtRequestFilter.java             lit le header Authorization
 │       │   │   ├── JwtAuthenticationEntryPoint.java  renvoie 401
+│       │   │   ├── ReservationSecurity.java          identité du token + propriété (RS-03/04/05)
 │       │   │   └── CorsConfiguration.java            autorise le front
 │       │   ├── util/JwtUtil.java       fabrique et valide les tokens
 │       │   └── exceptions/
@@ -129,7 +132,12 @@ bibliothèque/
 │       │       ├── BadRequestException.java   -> HTTP 400
 │       │       └── ConflictException.java     -> HTTP 409
 │       ├── main/resources/application.properties     port, URL base, identifiants
-│       └── test/java/...           un seul test : le contexte démarre-t-il ?
+│       ├── test/resources/application-test.properties  profil `test` : base H2 en mémoire
+│       └── test/java/...
+│           ├── BibliothequeApplicationTests.java          le contexte démarre-t-il ?
+│           ├── service/ReservationServiceRG03Tests.java   RG-03, unitaire, repositories mockés
+│           ├── controller/ReservationEndpointIntegrationTests.java  GET /api/reservations : 401 / 200 / 403
+│           └── controller/ReservationSecuriteTests.java    matrice complète + RS-01 → RS-05
 │
 ├── bibliotheque-frontend/          interface Angular — port 4200
 │   ├── package.json                dépendances npm + scripts
@@ -369,17 +377,22 @@ Base : `http://localhost:8080`
 
 ### Réservations — `/api/reservations`
 
-| Verbe | URL | Description |
-|---|---|---|
-| GET | `/api/reservations?statut=X&adherentId=X` | Liste les réservations (filtres optionnels : `EN_ATTENTE`, `DISPONIBLE`, `ANNULEE`, `EXPIREE`, `HONOREE`) |
-| GET | `/api/reservations/{id}` | Détail d'une réservation |
-| POST | `/api/reservations` | Créer une réservation (livre doit être indisponible) |
-| PATCH | `/api/reservations/{id}/annuler?userId=X` | Annuler une réservation (statut `EN_ATTENTE` ou `DISPONIBLE`) |
-| DELETE | `/api/reservations/{id}` | Supprimer une réservation |
+**Tous ces endpoints exigent un token.** La matrice d'autorisations :
+
+| Verbe | URL | Anonyme | ADHERENT | BIBLIOTHECAIRE |
+|---|---|---|---|---|
+| POST | `/api/reservations` | 401 | pour lui-même uniquement | pour n'importe qui |
+| GET | `/api/reservations?statut=X&adherentId=X` | 401 | ses réservations seulement | toutes |
+| GET | `/api/reservations/{id}` | 401 | si elle lui appartient, sinon 403 | toutes |
+| PATCH | `/api/reservations/{id}/annuler` | 401 | si elle lui appartient, sinon 403 | toutes |
+| DELETE | `/api/reservations/{id}` | 401 | **403** | oui |
 
 ```json
 { "livreId": 10, "adherentId": 11 }
 ```
+
+> `adherentId` n'est lu que pour un **BIBLIOTHECAIRE**. Pour un ADHERENT, il est
+> ignoré et remplacé par l'identité du token (RG/RS-04).
 
 **Règles de gestion :**
 - RG-01 : On ne peut réserver qu'un livre indisponible (`noOfCopies == 0`)
@@ -388,6 +401,52 @@ Base : `http://localhost:8080`
 - RG-04 : Date d'expiration = date de réservation + 7 jours
 - RG-05 : Annulation possible uniquement pour les statuts `EN_ATTENTE` ou `DISPONIBLE`
 - RG-06 : Un statut `ANNULEE`, `EXPIREE` ou `HONOREE` ne peut plus changer
+
+### Sécurité des réservations — RS-01 → RS-05
+
+| Réf. | Règle | Où c'est implémenté |
+|---|---|---|
+| RS-01 | Sans token (absent, invalide, expiré) → **401** | `WebSecurityConfiguration` (`anyRequest().authenticated()`), `JwtRequestFilter`, `JwtAuthenticationEntryPoint` |
+| RS-02 | Un ADHERENT sur une action bibliothécaire → **403** | `@PreAuthorize("hasRole('BIBLIOTHECAIRE')")` sur `DELETE` |
+| RS-03 | Un ADHERENT sur la réservation d'un autre → **403** | `@PreAuthorize(... or @reservationSecurity.estProprietaire(#id, authentication))` |
+| RS-04 | Un ADHERENT ne peut pas réserver au nom d'un autre | `ReservationController.creerReservation` écrase `adherentId` avec l'identité du token |
+| RS-05 | `GET /api/reservations` par un ADHERENT ne renvoie que les siennes | `ReservationController.listerReservations` force le filtre `adherentId` |
+
+**401 vs 403** — la distinction est portée par Spring Security :
+*401* = je ne sais pas qui vous êtes (aucune authentification valide) ;
+*403* = je sais qui vous êtes, mais vous n'avez pas le droit.
+
+Le cerveau de ces règles tient dans une seule classe :
+[`ReservationSecurity.java`](bibliotheque-backend/src/main/java/com/ibizabroker/bibliotheque/configuration/ReservationSecurity.java).
+
+### Les rôles
+
+Les rôles `ADHERENT` et `BIBLIOTHECAIRE` **s'ajoutent** aux rôles historiques
+`User` et `Admin` sans les remplacer : un compte porte les deux.
+
+| Profil | Rôles en base | Peut |
+|---|---|---|
+| Administrateur | `Admin` + `BIBLIOTHECAIRE` | gérer livres/adhérents **et** toutes les réservations |
+| Adhérent | `User` + `ADHERENT` | emprunter/rendre **et** gérer ses propres réservations |
+
+Les comptes du jeu de données (`db/seed.sql`) reçoivent automatiquement leur
+rôle réservation ; les comptes créés depuis l'écran d'inscription aussi.
+
+### Lancer les tests
+
+```bash
+# Backend — 32 tests, aucune base requise (H2 en mémoire)
+cd bibliotheque-backend && ./mvnw test
+
+# Frontend — 128 tests
+cd bibliotheque-frontend && npm test -- --watch=false --browsers=ChromeHeadless
+```
+
+| Classe de test | Ce qu'elle prouve |
+|---|---|
+| `ReservationServiceRG03Tests` | RG-03 en **test unitaire**, repositories mockés, sans base |
+| `ReservationEndpointIntegrationTests` | `GET /api/reservations` : 401 sans token, 200 avec un token ADHERENT, 403 sur la réservation d'un autre |
+| `ReservationSecuriteTests` | La matrice complète + RS-01 → RS-05, avec de vrais tokens JWT |
 
 ---
 

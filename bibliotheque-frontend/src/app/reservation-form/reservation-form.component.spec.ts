@@ -30,6 +30,8 @@ describe('ReservationFormComponent', () => {
     component.books = mockBooks;
     component.users = mockUsers;
     component.reservation = new ReservationRequest();
+    // Vue par défaut des tests : celle du BIBLIOTHECAIRE, qui choisit l'adhérent.
+    component.estBibliothecaire = true;
     fixture.detectChanges();
   });
 
@@ -54,6 +56,16 @@ describe('ReservationFormComponent', () => {
     expect(options.length).toBe(3);
     expect(options[1].textContent).toContain('Adhérent A1');
     expect(options[2].textContent).toContain('Adhérent A2');
+  });
+
+  it('should hide the member dropdown for an ADHERENT', () => {
+    component.estBibliothecaire = false;
+    fixture.detectChanges();
+
+    // RS-04 : un adhérent ne choisit pas pour qui il réserve, le serveur le déduit du token.
+    const select = fixture.nativeElement.querySelector('select[name="adherentId"]');
+    expect(select).toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('enregistrée à votre nom');
   });
 
   it('should disable submit button when form is invalid', () => {

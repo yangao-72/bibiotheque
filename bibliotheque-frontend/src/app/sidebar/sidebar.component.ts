@@ -45,6 +45,11 @@ export class SidebarComponent implements OnInit {
     return this.userService.roleMatch(['User']);
   }
 
+  /** Le module réservation est ouvert aux rôles ADHERENT et BIBLIOTHECAIRE. */
+  public peutVoirLesReservations(): boolean {
+    return this.userService.roleMatch(['ADHERENT', 'BIBLIOTHECAIRE']);
+  }
+
   onToggle(): void {
     this.toggleSidebar.emit();
   }

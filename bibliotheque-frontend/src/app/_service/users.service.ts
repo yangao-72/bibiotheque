@@ -27,24 +27,22 @@ export class UsersService {
     });
   }
 
+  /**
+   * Vrai si l'utilisateur connecté possède au moins un des rôles attendus.
+   *
+   * Un compte porte désormais plusieurs rôles (ex. « Admin » + « BIBLIOTHECAIRE ») :
+   * toutes les combinaisons doivent donc être parcourues avant de conclure.
+   */
   public roleMatch(allowedRoles: any): boolean {
-    let isMatch = false;
     const userRoles: any = this.userAuthService.getRoles();
 
-    if (userRoles != null && userRoles) {
-      for (let i = 0; i < userRoles.length; i++) {
-        for (let j = 0; j < allowedRoles.length; j++) {
-          if (userRoles[i].roleName === allowedRoles[j]) {
-            isMatch = true;
-            return isMatch;
-          } else {
-            return isMatch;
-          }
-        }
-      }
+    if (!userRoles || !allowedRoles) {
+      return false;
     }
 
-    return false;
+    return userRoles.some((userRole: any) =>
+      allowedRoles.some((allowedRole: string) => userRole?.roleName === allowedRole)
+    );
   }
 
   getUsersList(): Observable<Users[]> {

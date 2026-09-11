@@ -49,9 +49,13 @@
       <div class="form-group">
         <label class="form-label"><i class="fas fa-user-tag me-1"></i> Rôle</label>
         <select class="form-input" [(ngModel)]="user.role[0].roleName" name="role">
-          <option value="Admin">Administrateur</option>
-          <option value="User">Utilisateur</option>
+          <option value="Admin">Administrateur / Bibliothécaire</option>
+          <option value="User">Adhérent</option>
         </select>
+        <small class="form-text text-muted">
+          L'administrateur gère les livres et voit toutes les réservations ;
+          l'adhérent ne voit que les siennes.
+        </small>
       </div>
 
       <div class="form-actions">

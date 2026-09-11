@@ -71,7 +71,7 @@ describe('RegistrationComponent', () => {
   });
 
   it('should call createUser on valid submit', () => {
-    usersServiceSpy.createUser.and.returnValue(of({ message: 'OK' }));
+    usersServiceSpy.createUser.and.returnValue(of({ message: 'Adhérent créé avec succès.' }));
     component.user.name = 'Jean Dupont';
     component.user.username = 'jdupont';
     component.user.password = 'secret';
@@ -79,6 +79,26 @@ describe('RegistrationComponent', () => {
     expect(usersServiceSpy.createUser).toHaveBeenCalled();
     expect(component.saving).toBeFalse();
     expect(component.successMessage).toContain('succès');
+  });
+
+  it('should pair the "User" profile with the ADHERENT reservation role', () => {
+    usersServiceSpy.createUser.and.returnValue(of({ message: 'OK' }));
+    component.user.name = 'Jean Dupont';
+    component.user.username = 'jdupont';
+    component.user.password = 'secret';
+    component.user.role[0].roleName = 'User';
+    component.onSubmit();
+    expect(component.user.role.map((r: any) => r.roleName)).toEqual(['User', 'ADHERENT']);
+  });
+
+  it('should pair the "Admin" profile with the BIBLIOTHECAIRE reservation role', () => {
+    usersServiceSpy.createUser.and.returnValue(of({ message: 'OK' }));
+    component.user.name = 'Alice Admin';
+    component.user.username = 'aadmin';
+    component.user.password = 'secret';
+    component.user.role[0].roleName = 'Admin';
+    component.onSubmit();
+    expect(component.user.role.map((r: any) => r.roleName)).toEqual(['Admin', 'BIBLIOTHECAIRE']);
   });
 
   it('should show error message on HTTP 409', () => {

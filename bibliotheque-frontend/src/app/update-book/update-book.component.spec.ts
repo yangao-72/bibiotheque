@@ -1,4 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { FormsModule } from '@angular/forms';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 import { UpdateBookComponent } from './update-book.component';
 
@@ -8,9 +12,10 @@ describe('UpdateBookComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ UpdateBookComponent ]
-    })
-    .compileComponents();
+      imports: [HttpClientTestingModule, RouterTestingModule, FormsModule],
+      declarations: [UpdateBookComponent],
+      schemas: [NO_ERRORS_SCHEMA]
+    }).compileComponents();
 
     fixture = TestBed.createComponent(UpdateBookComponent);
     component = fixture.componentInstance;

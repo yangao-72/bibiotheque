@@ -55,7 +55,7 @@
 
           <!-- Commun -->
           <li class="nav-item">
-            <a routerLink="/reservations" routerLinkActive="active" class="nav-link" *ngIf="userService.roleMatch(['Admin', 'User'])">
+            <a routerLink="/reservations" routerLinkActive="active" class="nav-link" *ngIf="userService.roleMatch(['ADHERENT', 'BIBLIOTHECAIRE'])">
               🗓️ Réservations
             </a>
           </li>

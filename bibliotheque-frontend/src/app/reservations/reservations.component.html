@@ -121,7 +121,7 @@
   <div *ngIf="!loading && !errorMessage" class="content-section">
     <app-reservations-list
       [reservations]="reservations"
-      [currentUserRole]="''"
+      [currentUserRole]="estBibliothecaire ? 'BIBLIOTHECAIRE' : 'ADHERENT'"
       (annuler)="onAnnulerReservation($event)">
     </app-reservations-list>
   </div>
@@ -138,6 +138,7 @@
     <app-reservation-form
       [books]="books"
       [users]="users"
+      [estBibliothecaire]="estBibliothecaire"
       [(formError)]="formError"
       [(formSuccess)]="formSuccess"
       [isFormValid]="isFormValid"

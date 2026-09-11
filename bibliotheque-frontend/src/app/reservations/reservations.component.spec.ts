@@ -53,11 +53,14 @@ describe('ReservationsComponent', () => {
       'getReservations', 'createReservation', 'annulerReservation'
     ]);
     booksServiceSpy = jasmine.createSpyObj('BooksService', ['getBooksList']);
-    usersServiceSpy = jasmine.createSpyObj('UsersService', ['getUsersList']);
+    usersServiceSpy = jasmine.createSpyObj('UsersService', ['getUsersList', 'roleMatch']);
 
     reservationServiceSpy.getReservations.and.returnValue(of(mockReservations));
     booksServiceSpy.getBooksList.and.returnValue(of(mockBooks));
     usersServiceSpy.getUsersList.and.returnValue(of(mockUsers));
+    // Par défaut les tests se placent dans le cas du BIBLIOTHECAIRE ;
+    // les tests dédiés à l'ADHERENT renvoient false explicitement.
+    usersServiceSpy.roleMatch.and.returnValue(true);
 
     await TestBed.configureTestingModule({
       imports: [FormsModule],
@@ -290,7 +293,8 @@ describe('ReservationsComponent', () => {
     expect(component.cancelError).toContain('injoignable');
   }));
 
-  it('should compute isFormValid correctly', () => {
+  it('should compute isFormValid correctly for a BIBLIOTHECAIRE', () => {
+    component.estBibliothecaire = true;
     component.newReservation = { livreId: null, adherentId: null } as any;
     expect(component.isFormValid).toBeFalse();
 
@@ -300,6 +304,39 @@ describe('ReservationsComponent', () => {
     component.newReservation.adherentId = 11;
     expect(component.isFormValid).toBeTrue();
   });
+
+  it('should only require a book for an ADHERENT (identity comes from the token)', () => {
+    component.estBibliothecaire = false;
+    component.newReservation = { livreId: null, adherentId: null } as any;
+    expect(component.isFormValid).toBeFalse();
+
+    component.newReservation.livreId = 10;
+    expect(component.isFormValid).toBeTrue();
+  });
+
+  it('should not request the members list when the user is not a BIBLIOTHECAIRE', fakeAsync(() => {
+    usersServiceSpy.roleMatch.and.returnValue(false);
+
+    component.ngOnInit();
+    tick();
+
+    // /admin/users est réservé aux administrateurs : l'appeler renverrait un 403.
+    expect(usersServiceSpy.getUsersList).not.toHaveBeenCalled();
+    expect(component.users).toEqual([]);
+    expect(component.reservations.length).toBe(2);
+    expect(component.errorMessage).toBe('');
+  }));
+
+  it('should cancel a reservation without sending any identifier', fakeAsync(() => {
+    reservationServiceSpy.annulerReservation.and.returnValue(of(mockReservations[0]));
+
+    component.onAnnulerReservation(mockReservations[0]);
+    tick();
+
+    expect(reservationServiceSpy.annulerReservation).toHaveBeenCalledWith(1);
+
+    tick(5000);
+  }));
 
   it('should format statut labels correctly', () => {
     expect(component.formatStatut('EN_ATTENTE')).toBe('En attente');

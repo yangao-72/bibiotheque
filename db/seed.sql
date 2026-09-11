@@ -15,6 +15,17 @@ INSERT INTO role (role_name)
 SELECT 'User'
 WHERE NOT EXISTS (SELECT 1 FROM role WHERE role_name = 'User');
 
+-- Rôles du module réservation (RS-01..RS-05).
+-- Ils s'ajoutent aux rôles historiques `Admin`/`User` sans les remplacer :
+-- un même compte peut porter les deux (ex. admin = Admin + BIBLIOTHECAIRE).
+INSERT INTO role (role_name)
+SELECT 'ADHERENT'
+WHERE NOT EXISTS (SELECT 1 FROM role WHERE role_name = 'ADHERENT');
+
+INSERT INTO role (role_name)
+SELECT 'BIBLIOTHECAIRE'
+WHERE NOT EXISTS (SELECT 1 FROM role WHERE role_name = 'BIBLIOTHECAIRE');
+
 -- Compte administrateur --------------------------------------------------------
 INSERT INTO users (user_id, username, name, password)
 SELECT 1, 'admin', 'Administrateur',
@@ -87,6 +98,25 @@ SELECT 3, r.role_id FROM role r WHERE r.role_name = 'User'
 
 INSERT INTO user_role (user_id, role_id)
 SELECT 4, r.role_id FROM role r WHERE r.role_name = 'User'
+  AND NOT EXISTS (SELECT 1 FROM user_role WHERE user_id = 4 AND role_id = r.role_id);
+
+-- --- Rôles réservation ------------------------------------------------------
+-- admin devient BIBLIOTHECAIRE (accès à toutes les réservations + suppression),
+-- A1, A2 et A3 deviennent ADHERENT (accès à leurs seules réservations).
+INSERT INTO user_role (user_id, role_id)
+SELECT 1, r.role_id FROM role r WHERE r.role_name = 'BIBLIOTHECAIRE'
+  AND NOT EXISTS (SELECT 1 FROM user_role WHERE user_id = 1 AND role_id = r.role_id);
+
+INSERT INTO user_role (user_id, role_id)
+SELECT 2, r.role_id FROM role r WHERE r.role_name = 'ADHERENT'
+  AND NOT EXISTS (SELECT 1 FROM user_role WHERE user_id = 2 AND role_id = r.role_id);
+
+INSERT INTO user_role (user_id, role_id)
+SELECT 3, r.role_id FROM role r WHERE r.role_name = 'ADHERENT'
+  AND NOT EXISTS (SELECT 1 FROM user_role WHERE user_id = 3 AND role_id = r.role_id);
+
+INSERT INTO user_role (user_id, role_id)
+SELECT 4, r.role_id FROM role r WHERE r.role_name = 'ADHERENT'
   AND NOT EXISTS (SELECT 1 FROM user_role WHERE user_id = 4 AND role_id = r.role_id);
 
 -- --- Livres de test (L1 à L5) ----------------------------------------------

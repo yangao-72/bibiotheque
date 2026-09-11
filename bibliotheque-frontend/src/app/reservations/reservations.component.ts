@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
 import { Books } from '../_model/books';
 import { Reservation, ReservationRequest } from '../_model/reservation';
 import { Users } from '../_model/users';
@@ -29,6 +29,9 @@ export class ReservationsComponent implements OnInit {
   formError = '';
   formSuccess = '';
 
+  /** Vrai si l'utilisateur connecté porte le rôle BIBLIOTHECAIRE. */
+  estBibliothecaire = false;
+
   constructor(
     private reservationService: ReservationService,
     private booksService: BooksService,
@@ -36,6 +39,7 @@ export class ReservationsComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.estBibliothecaire = this.usersService.roleMatch(['BIBLIOTHECAIRE']);
     this.loadData();
   }
 
@@ -47,7 +51,9 @@ export class ReservationsComponent implements OnInit {
     forkJoin({
       reservations: this.reservationService.getReservations(this.selectedStatut || undefined),
       books: this.booksService.getBooksList(),
-      users: this.usersService.getUsersList()
+      // La liste des adhérents vient de /admin/users, réservé aux administrateurs.
+      // Un ADHERENT ne la demande pas : il réserve toujours pour lui-même (RS-04).
+      users: this.estBibliothecaire ? this.usersService.getUsersList() : of([] as Users[])
     }).subscribe({
       next: (data) => {
         this.reservations = data.reservations;
@@ -99,9 +105,8 @@ export class ReservationsComponent implements OnInit {
 
   onAnnulerReservation(reservation: Reservation): void {
     this.cancelError = '';
-    const userId = reservation.adherentId;
 
-    this.reservationService.annulerReservation(reservation.reservationId, userId).subscribe({
+    this.reservationService.annulerReservation(reservation.reservationId).subscribe({
       next: () => {
         reservation.statut = 'ANNULEE';
         this.formSuccess = 'Réservation annulée avec succès.';
@@ -131,8 +136,15 @@ export class ReservationsComponent implements OnInit {
     return `Erreur ${err.status} : une erreur inattendue est survenue.`;
   }
 
+  /**
+   * Un BIBLIOTHECAIRE doit désigner l'adhérent pour lequel il réserve.
+   * Un ADHERENT n'a que le livre à choisir : le serveur déduit son identité du token.
+   */
   get isFormValid(): boolean {
-    return this.newReservation.livreId != null && this.newReservation.adherentId != null;
+    if (this.newReservation.livreId == null) {
+      return false;
+    }
+    return this.estBibliothecaire ? this.newReservation.adherentId != null : true;
   }
 
   /** Formate le nom du statut pour l'affichage */

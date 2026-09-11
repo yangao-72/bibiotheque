@@ -12,6 +12,8 @@ export class ReservationFormComponent {
 
   @Input() books: Books[] = [];
   @Input() users: Users[] = [];
+  /** Seul un BIBLIOTHECAIRE choisit l'adhérent ; un ADHERENT réserve pour lui-même (RS-04). */
+  @Input() estBibliothecaire = false;
   @Input() formError = '';
   @Output() formErrorChange = new EventEmitter<string>();
   @Input() formSuccess = '';

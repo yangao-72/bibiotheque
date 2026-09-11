@@ -50,6 +50,10 @@ export class RegistrationComponent implements OnInit {
       return;
     }
 
+    // Le profil choisi détermine deux rôles : le rôle historique (gestion des
+    // livres/adhérents) et le rôle du module réservation (RS-01..RS-05).
+    this.user.role = this.construireRoles(this.user.role[0].roleName);
+
     this.saving = true;
 
     this.usersService.createUser(this.user).subscribe({
@@ -68,6 +72,19 @@ export class RegistrationComponent implements OnInit {
 
   goToUsersList(): void {
     this.router.navigate(['/users']);
+  }
+
+  /**
+   * Associe au profil choisi son rôle « réservation » :
+   *  - Administrateur → Admin + BIBLIOTHECAIRE (voit et gère toutes les réservations)
+   *  - Utilisateur    → User  + ADHERENT       (ne voit que les siennes)
+   */
+  private construireRoles(profil: string): any[] {
+    const roleReservation = profil === 'Admin' ? 'BIBLIOTHECAIRE' : 'ADHERENT';
+    return [
+      { id: 0, roleName: profil },
+      { id: 0, roleName: roleReservation }
+    ];
   }
 
   private extractErrorMessage(err: any): string {

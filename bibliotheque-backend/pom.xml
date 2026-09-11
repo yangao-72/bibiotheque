@@ -70,6 +70,13 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<!-- Base en mémoire pour les tests d'intégration (profil `test`) :
+		     les tests de sécurité tournent sans PostgreSQL. -->
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
