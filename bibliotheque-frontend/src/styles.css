@@ -90,53 +90,44 @@
   border-bottom-color: var(--border);
 }
 
-.table thead {
-  background: linear-gradient(135deg, var(--brand-950), var(--brand-900));
+/* En-tête de tableau clair, comme dans la maquette de référence : un bandeau
+   sombre en haut de chaque table alourdit la page et devient illisible en
+   thème sombre. */
+.table thead th {
+  background: var(--surface-sunken);
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  border-bottom: 1px solid var(--border);
 }
-
-.table thead th { color: var(--neutral-200); }
-
-.dark-mode .table tbody tr:hover { background: var(--surface-hover); }
 
 .spinner-border { color: var(--primary) !important; }
 
 /* =============================================================================
    Surcharges héritées — écrans pas encore repris par le design system.
-   Conservées à l'identique pour éviter toute régression visuelle.
+
+   Depuis que les feuilles de style des composants consomment les tokens, la
+   plupart des anciennes surcharges `.dark-mode .xxx` sont devenues inutiles :
+   les variables basculent d'elles-mêmes. Ne subsistent ici que les règles qui
+   corrigent réellement quelque chose.
    ============================================================================= */
 
-/* La sidebar reste sombre dans les deux thèmes. */
+/* La sidebar suit le thème. Elle restait sombre en permanence, ce qui créait
+   un bloc noir incohérent en thème clair et un aplat sans contraste en sombre. */
 .sidebar {
-  background: linear-gradient(180deg, var(--brand-950) 0%, var(--brand-900) 100%);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
 }
-
-.toast-message { color: #fff; }
 
 .page-wrapper { background: var(--canvas); }
 .page-title { color: var(--text-primary); }
 
-.table-wrapper {
-  background: var(--surface);
-  border-color: var(--border);
-}
-
+.table-wrapper,
 .empty-state,
-.error-state {
-  background: var(--surface);
-  border-color: var(--border);
-  color: var(--text-primary);
-}
-
-.empty-state h4,
-.error-state h4 { color: var(--text-primary); }
-
-.form-card {
-  background: var(--surface);
-  border-color: var(--border);
-}
-
-.user-card { background: linear-gradient(135deg, var(--brand-500), #8b5cf6); }
-
+.error-state,
+.form-card,
 .section-card,
 .login-card,
 .stat-card,
@@ -147,48 +138,52 @@
   border-color: var(--border);
 }
 
+.empty-state,
+.error-state { color: var(--text-primary); }
+
+.empty-state h4,
+.error-state h4 { color: var(--text-primary); }
+
+/* Carte d'identité d'un adhérent : dégradé de marque, texte clair. */
+.user-card {
+  background: linear-gradient(135deg, var(--brand-600), var(--brand-800));
+  color: var(--text-on-brand);
+}
+
 .notification-list li { border-bottom-color: var(--border); }
 .notification-list li:hover { background: var(--surface-hover); }
 
+/* Les anciens bandeaux de message gardent un texte clair sur fond plein. */
+.toast-message,
 .toast-success,
 .toast-error { color: #fff; }
 
-/* --- Thème sombre : écrans hérités --------------------------------------- */
+/* --- Ajustements propres au thème sombre --------------------------------- */
 
-.dark-mode .page-title,
-.dark-mode .section-title,
-.dark-mode .stat-label,
-.dark-mode .stat-value { color: var(--text-primary); }
-
-.dark-mode .page-subtitle,
-.dark-mode .notif-content p,
-.dark-mode .notif-time { color: var(--text-muted); }
-
-.dark-mode .notif-content strong { color: var(--text-primary); }
-
+/* Un champ doit se distinguer de la carte qui le porte : en sombre, on le
+   creuse au lieu de l'éclaircir. */
 .dark-mode .form-input {
-  background: var(--surface-hover);
-  border-color: var(--border);
+  background: var(--surface-sunken);
+  border-color: var(--border-strong);
   color: var(--text-primary);
 }
 
 .dark-mode .form-input:focus {
   background: var(--surface);
   border-color: var(--primary);
+  box-shadow: var(--focus-ring);
 }
-
-.dark-mode .form-label { color: var(--text-secondary); }
 
 .dark-mode .btn-cancel {
   background: var(--surface-hover);
   color: var(--text-secondary);
-  border-color: var(--border);
+  border-color: var(--border-strong);
 }
 .dark-mode .btn-cancel:hover { background: var(--border); }
 
 .dark-mode .action-btn {
   background: var(--surface-hover);
-  border-color: var(--border);
+  border-color: var(--border-strong);
   color: var(--text-primary);
 }
 .dark-mode .action-btn:hover {
@@ -197,50 +192,6 @@
   color: var(--primary);
 }
 
-.dark-mode .toast-message.toast-error {
-  background: linear-gradient(135deg, #dc2626, #b91c1c);
-}
-.dark-mode .toast-message.toast-success {
-  background: linear-gradient(135deg, #16a34a, #15803d);
-}
-
-.dark-mode .btn-retry {
-  background: linear-gradient(135deg, var(--brand-500), var(--brand-600));
-  color: #fff;
-}
-
-.dark-mode .btn-borrow,
-.dark-mode .btn-return {
-  background: var(--primary);
-  color: #fff;
-}
-
-.dark-mode .badge-available {
-  background: #064e3b;
-  color: #6ee7b7;
-  border-color: #10b981;
-}
-
-.dark-mode .badge-unavailable {
-  background: #7f1d1d;
-  color: #fca5a5;
-  border-color: #ef4444;
-}
-
-.dark-mode .role-admin {
-  background: var(--brand-900);
-  color: var(--brand-300);
-}
-
-.dark-mode .role-user {
-  background: #064e3b;
-  color: #6ee7b7;
-}
-
-.dark-mode .user-profile { background: rgba(0, 0, 0, 0.2); }
-
-.dark-mode .btn-logout { background: rgba(255, 255, 255, 0.1); }
-.dark-mode .btn-logout:hover { background: rgba(239, 68, 68, 0.4); }
-
-.dark-mode .dashboard-footer { border-top-color: var(--border); }
-.dark-mode .dashboard-footer p { color: var(--text-muted); }
+.dark-mode .user-profile { background: rgba(0, 0, 0, 0.25); }
+.dark-mode .btn-logout { background: rgba(255, 255, 255, 0.08); }
+.dark-mode .btn-logout:hover { background: rgba(198, 40, 40, 0.35); }

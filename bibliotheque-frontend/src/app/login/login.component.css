@@ -1,75 +1,223 @@
-.login-page {
+/* =============================================================================
+   Connexion — carte en deux volets
+   ============================================================================= */
+
+.login {
   display: grid;
   place-items: center;
   min-height: 100vh;
   padding: var(--space-6);
 }
 
-.login-shell {
-  width: 100%;
-  max-width: var(--content-max);
-}
-
-/* --- Panneau formulaire --------------------------------------------------- */
-
-.login-panel {
-  width: 100%;
-  max-width: 30rem;
-  margin-inline: auto;
-  padding: var(--space-10);
+.login-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: min(62rem, 100%);
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-xl);
 }
 
-.login-brand {
+/* --- Volet de marque ------------------------------------------------------ */
+
+.login-brandside {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-6);
+  padding: var(--space-8);
+  background: linear-gradient(160deg, var(--brand-500), var(--brand-800));
+  color: var(--text-on-brand);
+  overflow: hidden;
+}
+
+/* Halo diffus, pour que l'aplat ne soit pas plat. */
+.login-brandside::before {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  left: -20%;
+  width: 24rem;
+  height: 24rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.18), transparent 70%);
+  filter: blur(20px);
+  pointer-events: none;
+}
+
+.login-brandside__top {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  margin-bottom: var(--space-8);
 }
 
-.login-brand__icon {
+.login-logo {
   display: grid;
   place-items: center;
-  width: 3rem;
-  height: 3rem;
+  width: 2.5rem;
+  height: 2.5rem;
   border-radius: var(--radius);
-  background: linear-gradient(135deg, var(--brand-600), var(--brand-500));
-  color: var(--text-on-brand);
-  font-size: var(--text-xl);
-  box-shadow: var(--shadow-brand);
+  background: rgba(255, 255, 255, 0.18);
+  font-size: var(--text-base);
 }
 
-.login-brand__name {
-  margin: 0;
-  font-size: var(--text-xl);
+.login-logo__name {
+  font-size: var(--text-lg);
   font-weight: var(--weight-bold);
   letter-spacing: var(--tracking-tight);
 }
 
-.login-brand__tagline {
+.login-brandside__art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4) 0;
+}
+
+/* L'illustration est monochrome sur l'aplat : ses verts d'origine s'y
+   perdraient. On la blanchit et on joue sur l'opacité. */
+.login-brandside__art ::ng-deep svg { filter: brightness(0) invert(1); opacity: 0.92; }
+
+.login-brandside__bottom { position: relative; }
+
+.login-brandside__title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-on-brand);
+}
+
+.login-brandside__text {
   margin: 0;
-  font-size: var(--text-xs);
-  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.login-dots {
+  display: flex;
+  gap: var(--space-2);
+  margin: var(--space-6) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.login-dots li {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.login-dots li.is-active {
+  width: 1.5rem;
+  border-radius: var(--radius-full);
+  background: var(--text-on-brand);
+}
+
+/* --- Volet formulaire ----------------------------------------------------- */
+
+.login-formside {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--space-12) var(--space-10);
 }
 
 .login-title {
   margin: 0 0 var(--space-2);
   font-size: var(--text-3xl);
   font-weight: var(--weight-bold);
+  color: var(--primary);
+  letter-spacing: var(--tracking-tight);
 }
 
-.login-subtitle {
+.login-sub {
   margin: 0 0 var(--space-8);
-  color: var(--text-secondary);
   font-size: var(--text-sm);
+  color: var(--text-secondary);
 }
+
+/* Champs soulignés, comme dans la maquette de référence. */
+.login-field {
+  position: relative;
+  margin-bottom: var(--space-6);
+}
+
+.login-input {
+  width: 100%;
+  padding: var(--space-3) var(--space-8) var(--space-3) 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: var(--text-base);
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+.login-input::placeholder { color: var(--text-muted); }
+
+.login-input:focus {
+  outline: none;
+  border-bottom-color: var(--primary);
+  border-bottom-width: 2px;
+}
+
+/* L'anneau de focus habituel encadrerait un champ sans bordure : ici
+   l'épaississement du trait porte l'information, et on garde un liseré discret. */
+.login-input:focus-visible { box-shadow: 0 2px 0 -1px var(--primary); }
+
+.login-field__icon {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  pointer-events: none;
+}
+
+.login-input:focus ~ .login-field__icon { color: var(--primary); }
+
+.login-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: 0.875rem var(--space-6);
+  margin-top: var(--space-2);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--brand-600), var(--brand-500));
+  color: var(--text-on-brand);
+  font-family: inherit;
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out),
+              transform var(--duration-instant) var(--ease-out);
+}
+
+.login-submit:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--brand-700), var(--brand-600));
+  box-shadow: var(--shadow-brand);
+}
+
+.login-submit:active:not(:disabled) { transform: scale(0.985); }
+.login-submit:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .login-hint {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  margin: var(--space-6) 0 0;
+  margin: var(--space-8) 0 0;
   font-size: var(--text-xs);
   color: var(--text-muted);
 }
@@ -103,46 +251,15 @@
 }
 .login-alert__close:hover { opacity: 1; }
 
-/* --- Colonne illustration ------------------------------------------------- */
+/* --- Responsive ----------------------------------------------------------- */
 
-.login-art {
-  flex-direction: column;
-  gap: var(--space-8);
-}
-
-.login-features {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--space-3) var(--space-6);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.login-features li {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
-  color: var(--text-secondary);
-}
-
-.login-features i {
-  display: grid;
-  place-items: center;
-  width: 1.25rem;
-  height: 1.25rem;
-  border-radius: 50%;
-  background: var(--success-bg);
-  color: var(--success);
-  font-size: 0.65rem;
-}
-
-/* Sous 992px, l'illustration passe sous le formulaire : on la réduit et on
-   masque la liste, qui doublonnerait avec le contenu de la page d'accueil. */
-@media (max-width: 991.98px) {
-  .login-panel { padding: var(--space-8) var(--space-6); }
-  .login-features { display: none; }
+/* Sous 900px la carte passe sur une colonne : le volet de marque garde le logo
+   et le titre, mais perd l'illustration, qui mangerait tout l'écran. */
+@media (max-width: 899.98px) {
+  .login-card { grid-template-columns: 1fr; }
+  .login-brandside { padding: var(--space-6); }
+  .login-brandside__art { display: none; }
+  .login-brandside__title { font-size: var(--text-2xl); }
+  .login-dots { display: none; }
+  .login-formside { padding: var(--space-8) var(--space-6); }
 }

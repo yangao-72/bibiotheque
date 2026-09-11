@@ -165,7 +165,7 @@
 .ds-select {
   appearance: none;
   padding-right: var(--space-10);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%2364748b'%3E%3Cpath d='M4.5 6.5 8 10l3.5-3.5z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%236b7873'%3E%3Cpath d='M4.5 6.5 8 10l3.5-3.5z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right var(--space-3) center;
   background-size: 1.1rem;
@@ -302,7 +302,7 @@
 .ds-badge--danger  { background: var(--danger-bg);  color: var(--danger);  border-color: var(--danger-border); }
 .ds-badge--info    { background: var(--info-bg);    color: var(--info);    border-color: var(--info-border); }
 
-.dark-mode .ds-badge--brand { color: var(--brand-300); border-color: rgba(129, 140, 248, 0.35); }
+.dark-mode .ds-badge--brand { color: var(--brand-300); border-color: rgba(110, 191, 153, 0.35); }
 
 /* Pastille de statut ------------------------------------------------------- */
 .ds-badge__dot {

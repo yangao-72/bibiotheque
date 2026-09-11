@@ -1,58 +1,69 @@
-/* ============================================
-   Sidebar — Design Sombre Violet/Indigo
-   ============================================ */
+/* =============================================================================
+   Sidebar
+   -----------------------------------------------------------------------------
+   Panneau clair qui suit le thème, comme dans la maquette de référence.
+   L'élément actif n'est pas un pavé plein mais un fond léger + un trait vertical
+   vert : la navigation reste calme, et l'attention va au contenu de la page.
+   ============================================================================= */
 
 .sidebar {
   position: fixed;
   top: 0;
   left: 0;
-  width: 260px;
+  width: var(--sidebar-width);
   height: 100vh;
-  background: linear-gradient(180deg, #1e1b4b 0%, #312e81 100%);
   display: flex;
   flex-direction: column;
-  z-index: 1000;
+  z-index: var(--z-sidebar);
   overflow-y: auto;
-  transition: width 0.3s ease;
-  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  transition: transform var(--duration-base) var(--ease-out),
+              background-color var(--duration-base) var(--ease-out);
 }
 
-/* Brand */
+/* --- Marque --------------------------------------------------------------- */
+
 .sidebar-brand {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 1.5rem 1.25rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-5);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .brand-icon {
-  font-size: 1.8rem;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--brand-500), var(--brand-700));
+  color: var(--text-on-brand);
+  font-size: var(--text-base);
+  box-shadow: var(--shadow-brand);
 }
 
 .brand-text h1 {
   margin: 0;
-  font-size: 1.25rem;
-  font-weight: 800;
-  background: linear-gradient(135deg, #ffffff, #c7d2fe);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: 0.02em;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-primary);
 }
 
 .brand-text p {
   margin: 0;
-  font-size: 0.72rem;
-  color: rgba(255, 255, 255, 0.45);
-  letter-spacing: 0.02em;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
 }
 
-/* Navigation */
+/* --- Navigation ----------------------------------------------------------- */
+
 .sidebar-nav {
   flex: 1;
-  padding: 1rem 0;
+  padding: var(--space-4) 0;
 }
 
 .sidebar-nav ul {
@@ -62,73 +73,86 @@
 }
 
 .sidebar-nav li {
-  margin: 0.15rem 0.75rem;
+  margin: 0.15rem var(--space-3);
 }
 
 .nav-item {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.7rem 1rem;
-  border-radius: 10px;
-  color: rgba(255, 255, 255, 0.65);
+  gap: var(--space-3);
+  padding: 0.65rem var(--space-4);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
   text-decoration: none;
-  font-size: 0.88rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
   cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-out),
+              color var(--duration-fast) var(--ease-out);
 }
 
 .nav-item:hover {
-  background: rgba(99, 102, 241, 0.15);
-  color: #fff;
-  transform: translateX(4px);
+  background: var(--surface-hover);
+  color: var(--text-primary);
+  text-decoration: none;
 }
 
 .nav-item.active {
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+  background: var(--primary-bg);
+  color: var(--primary);
+  font-weight: var(--weight-semibold);
+}
+
+/* Trait vertical qui marque l'élément courant. */
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: calc(var(--space-4) * -1 + 2px);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 1.4rem;
+  border-radius: var(--radius-full);
+  background: var(--primary);
 }
 
 .nav-icon {
-  font-size: 1.1rem;
-  width: 24px;
+  width: 1.35rem;
   text-align: center;
   flex-shrink: 0;
+  font-size: var(--text-base);
 }
 
-.nav-label {
-  white-space: nowrap;
-}
+.nav-label { white-space: nowrap; }
 
-/* Footer / User Profile */
+/* --- Pied : profil et déconnexion ---------------------------------------- */
+
 .sidebar-footer {
-  padding: 1rem 1.25rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--border-subtle);
 }
 
 .user-profile {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 12px;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: var(--surface-sunken);
+  border-radius: var(--radius);
 }
 
 .user-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 1rem;
-  color: white;
+  display: grid;
+  place-items: center;
   flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--brand-500), var(--brand-700));
+  color: var(--text-on-brand);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-base);
 }
 
 .user-info {
@@ -139,46 +163,46 @@
 }
 
 .user-name {
-  font-weight: 600;
-  font-size: 0.85rem;
-  color: #fff;
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .user-role {
-  font-size: 0.72rem;
-  color: rgba(255, 255, 255, 0.5);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
 }
 
 .btn-logout {
-  width: 32px;
-  height: 32px;
-  border: none;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
+  display: grid;
+  place-items: center;
   flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-out),
+              color var(--duration-fast) var(--ease-out);
 }
 
 .btn-logout:hover {
-  background: rgba(239, 68, 68, 0.3);
-  transform: scale(1.05);
+  background: var(--danger-bg);
+  color: var(--danger);
 }
 
-/* Responsive */
-@media (max-width: 992px) {
-  .sidebar {
-    transform: translateX(-100%);
-  }
+/* --- Responsive ----------------------------------------------------------- */
 
+@media (max-width: 992px) {
+  .sidebar { transform: translateX(-100%); }
   .sidebar.open {
     transform: translateX(0);
+    box-shadow: var(--shadow-xl);
   }
 }

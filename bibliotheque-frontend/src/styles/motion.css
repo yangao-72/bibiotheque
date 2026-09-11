@@ -76,9 +76,9 @@
 }
 
 @keyframes bg-pulse-ring {
-  0%   { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.45); }
-  70%  { box-shadow: 0 0 0 12px rgba(99, 102, 241, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+  0%   { box-shadow: 0 0 0 0 rgba(23, 128, 76, 0.45); }
+  70%  { box-shadow: 0 0 0 12px rgba(23, 128, 76, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(23, 128, 76, 0); }
 }
 
 /* --- Classes utilitaires -------------------------------------------------- */

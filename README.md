@@ -22,7 +22,7 @@ Application full-stack de gestion de bibliothèque : **Spring Boot** (API REST) 
 * Module **Réservation** : création, liste filtrable par statut, annulation avec gestion des erreurs métier (409).
 * API de réservation **fermée** : 401 sans token, 403 sans droit, identité issue du token (voir [section 7](#sécurité-des-réservations--rs-01--rs-05)).
 * Interface **bilingue** français / anglais, bascule à chaud depuis la barre supérieure.
-* **Design system BiblioGest** : tokens, composants partagés, illustrations SVG, thème clair/sombre.
+* **Design system BiblioGest** : palette verte monochrome, tokens, composants partagés, illustrations SVG, thème clair/sombre.
 
 ---
 
@@ -490,7 +490,41 @@ bibliotheque-frontend/src/styles/
 ```
 
 **La règle** : un composant ne code jamais une couleur ou un espacement en dur,
-il consomme une variable. Changer `--brand-500` change toute l'application.
+il consomme une variable. Changer `--brand-500` change toute l'application — c'est
+exactement ce qui a permis de passer l'interface de l'indigo au vert en ne touchant
+qu'au fichier de tokens, les 132 couleurs autrefois écrites en dur ayant d'abord
+été converties en variables.
+
+#### La couleur
+
+Une seule couleur d'identité : un **vert émeraude**. Les autres teintes sont
+réservées aux statuts (succès, alerte, erreur, information).
+
+| Token | Valeur | Usage |
+|---|---|---|
+| `--brand-500` | `#17804c` | Ton d'identité. Contraste **4,97:1** avec du texte blanc → AA en texte courant, un bouton plein reste lisible sans assombrissement. |
+| `--brand-600` / `--brand-800` | `#12693e` / `#0c4429` | Dégradés, survols, aplats de marque |
+| `--brand-300` | `#6ebf99` | Ton de marque du **thème sombre** |
+
+Le vert sémantique « succès » est volontairement distinct de la marque : sinon
+« succès » et « couleur de l'application » se confondraient, et le statut ne
+dirait plus rien.
+
+#### Le thème sombre
+
+Ce n'est pas le thème clair assombri — les rôles des variables sont réattribués :
+
+1. **Un noir légèrement vert** (`#0b100e`), pas un gris bleuté : sinon la marque
+   verte se détache comme une pièce rapportée.
+2. **La marque s'éclaircit.** `#17804c` sur fond noir tombe à 1,6:1, illisible.
+   Le thème sombre bascule sur `#35b174`, qui remonte à 6,5:1.
+3. **L'élévation passe par la surface, pas par l'ombre.** Une ombre noire sur un
+   fond noir ne se voit pas : chaque niveau (`--surface-sunken` → `--surface` →
+   `--surface-raised`) s'éclaircit d'un cran.
+
+La sidebar suit désormais le thème au lieu de rester sombre en permanence, et
+les en-têtes de tableau sont clairs : un bandeau sombre en haut de chaque table
+devenait illisible une fois le thème sombre activé.
 
 Composants partagés (`src/app/_ui/`) :
 

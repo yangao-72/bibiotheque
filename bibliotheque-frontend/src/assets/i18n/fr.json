@@ -74,7 +74,8 @@
     "forbiddenTitle": "Accès refusé",
     "forbiddenText": "Vous êtes bien authentifié, mais votre rôle ne permet pas d'accéder à cette page.",
     "backToDashboard": "Retour au tableau de bord",
-    "credentialsHint": "Identifiants fournis par l'administrateur."
+    "credentialsHint": "Identifiants fournis par l'administrateur.",
+    "welcome": "Bienvenue !"
   },
   "home": {
     "heroTitle": "Votre bibliothèque, enfin sous contrôle",
@@ -104,7 +105,12 @@
     "newReservation": "Nouvelle réservation",
     "recordLoan": "Enregistrer un emprunt",
     "recordReturn": "Enregistrer un retour",
-    "rights": "© 2026 BiblioGest. Tous droits réservés."
+    "rights": "© 2026 BiblioGest. Tous droits réservés.",
+    "inCatalogue": "au catalogue",
+    "registered": "comptes inscrits",
+    "toReturn": "à rendre",
+    "allStatuses": "tous statuts confondus",
+    "identityHint": "Vous êtes connecté. Retrouvez ici vos réservations et vos emprunts."
   },
   "books": {
     "title": "Livres",

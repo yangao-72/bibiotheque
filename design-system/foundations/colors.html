@@ -5,7 +5,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>BiblioGest — Couleurs</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <style>
 /* =============================================================================
    BiblioGest — Design tokens
@@ -13,43 +12,46 @@
    Source unique de vérité du design system. Aucune valeur brute (couleur, espace,
    durée) ne doit apparaître ailleurs : les composants consomment ces variables.
 
+   Palette : vert émeraude, monochrome. Une seule couleur d'identité — les autres
+   teintes sont réservées aux statuts (succès, alerte, erreur, information).
+
    Les noms historiques (--primary, --surface, --radius…) sont conservés tels
-   quels pour que les 23 feuilles de style existantes continuent de fonctionner ;
+   quels pour que les feuilles de style existantes continuent de fonctionner ;
    les échelles complètes viennent s'ajouter par-dessus.
    ============================================================================= */
 
 :root {
-  /* --- Rampe de marque : indigo ------------------------------------------- */
-  --brand-50:  #eef2ff;
-  --brand-100: #e0e7ff;
-  --brand-200: #c7d2fe;
-  --brand-300: #a5b4fc;
-  --brand-400: #818cf8;
-  --brand-500: #6366f1;
-  --brand-600: #4f46e5;
-  --brand-700: #4338ca;
-  --brand-800: #3730a3;
-  --brand-900: #312e81;
-  --brand-950: #1e1b4b;
+  /* --- Rampe de marque : émeraude -----------------------------------------
+     --brand-500 est le ton d'identité. Il a été choisi pour offrir un
+     contraste de 4,97:1 avec du texte blanc, soit le niveau AA en texte
+     courant : un bouton plein reste lisible sans assombrissement. */
+  --brand-50:  #ecf7f1;
+  --brand-100: #d1ecdf;
+  --brand-200: #a4d8be;
+  --brand-300: #6ebf99;
+  --brand-400: #3ca173;
+  --brand-500: #17804c;
+  --brand-600: #12693e;
+  --brand-700: #0f5532;
+  --brand-800: #0c4429;
+  --brand-900: #093520;
+  --brand-950: #052115;
 
-  /* --- Rampe neutre : slate ----------------------------------------------- */
+  /* --- Rampe neutre -------------------------------------------------------
+     Légèrement désaturée vers le vert : posés côte à côte, les gris et la
+     marque appartiennent visiblement à la même famille. */
   --neutral-0:   #ffffff;
-  --neutral-50:  #f8fafc;
-  --neutral-100: #f1f5f9;
-  --neutral-200: #e2e8f0;
-  --neutral-300: #cbd5e1;
-  --neutral-400: #94a3b8;
-  --neutral-500: #64748b;
-  --neutral-600: #475569;
-  --neutral-700: #334155;
-  --neutral-800: #1e293b;
-  --neutral-900: #0f172a;
-  --neutral-950: #020617;
-
-  /* --- Accent secondaire : utilisé pour les dégradés décoratifs ----------- */
-  --accent-400: #22d3ee;
-  --accent-500: #06b6d4;
-  --accent-600: #0891b2;
+  --neutral-50:  #f6f8f7;
+  --neutral-100: #eef1f0;
+  --neutral-200: #e1e6e3;
+  --neutral-300: #c8d0cc;
+  --neutral-400: #96a29c;
+  --neutral-500: #6b7873;
+  --neutral-600: #4e5a55;
+  --neutral-700: #3a443f;
+  --neutral-800: #232b27;
+  --neutral-900: #141a17;
+  --neutral-950: #0a0f0d;
 
   /* --- Alias historiques (ne pas renommer) -------------------------------- */
   --primary: var(--brand-500);
@@ -64,7 +66,12 @@
   --surface-raised: var(--neutral-0);   /* éléments flottants (dropdown, modale) */
   --surface-sunken: var(--neutral-100); /* zones en creux (champs, puits) */
   --surface-hover: var(--neutral-50);
-  --overlay: rgba(15, 23, 42, 0.45);    /* voile derrière les modales */
+  --overlay: rgba(10, 15, 13, 0.45);    /* voile derrière les modales */
+
+  /* Surface « inversée » : cartes sombres posées dans une page claire,
+     comme le bloc chronomètre de la maquette de référence. */
+  --surface-invert: #101713;
+  --text-on-invert: var(--neutral-100);
 
   /* --- Bordures ------------------------------------------------------------ */
   --border: var(--neutral-200);
@@ -77,19 +84,22 @@
   --text-muted: var(--neutral-400);
   --text-on-brand: #ffffff;
 
-  /* --- Couleurs sémantiques ------------------------------------------------ */
-  --success: #16a34a;
-  --success-bg: #dcfce7;
-  --success-border: #86efac;
-  --warning: #d97706;
-  --warning-bg: #fef3c7;
-  --warning-border: #fcd34d;
-  --danger: #dc2626;
-  --danger-bg: #fee2e2;
-  --danger-border: #fca5a5;
-  --info: #2563eb;
-  --info-bg: #dbeafe;
-  --info-border: #93c5fd;
+  /* --- Couleurs sémantiques ------------------------------------------------
+     Réservées aux statuts. Le vert sémantique est volontairement distinct de
+     la marque : sans quoi « succès » et « couleur de l'application » se
+     confondraient et le statut ne dirait plus rien. */
+  --success: #0f7a3d;
+  --success-bg: #e3f5e9;
+  --success-border: #9dd9b4;
+  --warning: #b45309;
+  --warning-bg: #fdf3e3;
+  --warning-border: #f2c891;
+  --danger: #c62828;
+  --danger-bg: #fdeaea;
+  --danger-border: #f2b0b0;
+  --info: #1d6fa5;
+  --info-bg: #e6f2f9;
+  --info-border: #a6cee5;
 
   /* --- Échelle typographique (ratio 1.200) --------------------------------- */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
@@ -136,20 +146,22 @@
 
   /* --- Rayons -------------------------------------------------------------- */
   --radius-xs: 6px;
-  --radius-sm: 8px;
-  --radius: 12px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  --radius-sm: 10px;
+  --radius: 14px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
   --radius-full: 999px;
 
-  /* --- Élévations ---------------------------------------------------------- */
-  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.05);
-  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08);
-  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.10);
-  --shadow-lg: 0 8px 24px rgba(15, 23, 42, 0.12);
-  --shadow-xl: 0 16px 40px rgba(15, 23, 42, 0.16);
-  --shadow-brand: 0 8px 24px rgba(99, 102, 241, 0.28);
+  /* --- Élévations ----------------------------------------------------------
+     Ombres très basses en thème clair : la maquette de référence sépare les
+     cartes par la bordure et le fond, pas par l'ombre portée. */
+  --shadow-xs: 0 1px 2px rgba(10, 15, 13, 0.04);
+  --shadow-sm: 0 1px 3px rgba(10, 15, 13, 0.06);
+  --shadow-md: 0 4px 12px rgba(10, 15, 13, 0.08);
+  --shadow-lg: 0 8px 24px rgba(10, 15, 13, 0.10);
+  --shadow-xl: 0 16px 40px rgba(10, 15, 13, 0.14);
+  --shadow-brand: 0 8px 20px rgba(23, 128, 76, 0.28);
 
   /* --- Mouvement ----------------------------------------------------------- */
   --duration-instant: 80ms;
@@ -163,8 +175,8 @@
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* --- Focus --------------------------------------------------------------- */
-  --focus-ring: 0 0 0 3px rgba(99, 102, 241, 0.45);
-  --focus-ring-danger: 0 0 0 3px rgba(220, 38, 38, 0.4);
+  --focus-ring: 0 0 0 3px rgba(23, 128, 76, 0.40);
+  --focus-ring-danger: 0 0 0 3px rgba(198, 40, 40, 0.35);
 
   /* --- Gabarit ------------------------------------------------------------- */
   --sidebar-width: 260px;
@@ -182,49 +194,69 @@
 }
 
 /* =============================================================================
-   Thème sombre — seules les variables sémantiques changent.
-   Les rampes brutes restent identiques : c'est leur affectation qui bascule.
+   Thème sombre
+   -----------------------------------------------------------------------------
+   Ce n'est pas le thème clair assombri : les rôles sont réattribués.
+
+   1. Le fond est un noir légèrement vert, pas un gris bleuté — sinon la marque
+      verte se détache comme une pièce rapportée.
+   2. La marque s'éclaircit (--brand-300) : un vert profond sur fond noir est
+      illisible. Le contraste passe de 1,6:1 à 6,5:1.
+   3. Les surfaces s'éclaircissent avec l'élévation, au lieu de porter une ombre
+      — une ombre noire sur un fond noir ne se voit pas.
    ============================================================================= */
 
 .dark-mode {
-  --canvas: #14141f;
-  --surface: #1e1e2e;
-  --surface-raised: #26263a;
-  --surface-sunken: #17172480;
-  --surface-hover: #2a2a3e;
-  --overlay: rgba(2, 6, 23, 0.7);
+  --canvas: #0b100e;
+  --surface: #131a16;
+  --surface-raised: #1b241f;
+  --surface-sunken: #0e1411;
+  --surface-hover: #1e2823;
+  --overlay: rgba(5, 8, 7, 0.72);
 
-  --border: #3a3a50;
-  --border-strong: #4a4a63;
-  --border-subtle: #2a2a3e;
+  --surface-invert: #1b241f;
+  --text-on-invert: var(--neutral-100);
 
-  --text-primary: var(--neutral-200);
-  --text-secondary: var(--neutral-400);
-  --text-muted: var(--neutral-500);
+  --border: #26322c;
+  --border-strong: #34443c;
+  --border-subtle: #1c2620;
 
-  --primary-bg: rgba(99, 102, 241, 0.16);
+  --text-primary: #e6ece9;
+  --text-secondary: #9aa8a1;
+  --text-muted: #74827c;
 
-  --success: #4ade80;
-  --success-bg: rgba(34, 197, 94, 0.16);
-  --success-border: rgba(74, 222, 128, 0.4);
-  --warning: #fbbf24;
-  --warning-bg: rgba(245, 158, 11, 0.16);
-  --warning-border: rgba(251, 191, 36, 0.4);
-  --danger: #f87171;
-  --danger-bg: rgba(239, 68, 68, 0.16);
-  --danger-border: rgba(248, 113, 113, 0.4);
-  --info: #60a5fa;
-  --info-bg: rgba(59, 130, 246, 0.16);
-  --info-border: rgba(96, 165, 250, 0.4);
+  /* La marque s'éclaircit pour rester lisible sur fond sombre. */
+  --primary: #35b174;
+  --primary-dark: #2b9962;
+  --primary-light: #5bc890;
+  --primary-bg: rgba(53, 177, 116, 0.14);
+  --sidebar-bg: #0d1310;
 
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.45);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.55);
-  --shadow-xl: 0 16px 40px rgba(0, 0, 0, 0.6);
-  --shadow-brand: 0 8px 24px rgba(99, 102, 241, 0.35);
+  /* Sémantique éclaircie de la même façon. */
+  --success: #4ecb87;
+  --success-bg: rgba(78, 203, 135, 0.14);
+  --success-border: rgba(78, 203, 135, 0.35);
+  --warning: #e8a556;
+  --warning-bg: rgba(232, 165, 86, 0.14);
+  --warning-border: rgba(232, 165, 86, 0.35);
+  --danger: #ef7a7a;
+  --danger-bg: rgba(239, 122, 122, 0.14);
+  --danger-border: rgba(239, 122, 122, 0.35);
+  --info: #6bb2dd;
+  --info-bg: rgba(107, 178, 221, 0.14);
+  --info-border: rgba(107, 178, 221, 0.35);
 
-  --focus-ring: 0 0 0 3px rgba(129, 140, 248, 0.55);
+  /* Ombres presque inopérantes sur fond noir : on les garde discrètes et on
+     s'appuie sur l'éclaircissement des surfaces pour marquer l'élévation. */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.55);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 10px 28px rgba(0, 0, 0, 0.65);
+  --shadow-xl: 0 18px 46px rgba(0, 0, 0, 0.7);
+  --shadow-brand: 0 8px 24px rgba(53, 177, 116, 0.3);
+
+  --focus-ring: 0 0 0 3px rgba(91, 200, 144, 0.5);
+  --focus-ring-danger: 0 0 0 3px rgba(239, 122, 122, 0.45);
 }
 /* =============================================================================
    BiblioGest — Base
@@ -451,9 +483,9 @@ img, svg { max-width: 100%; height: auto; vertical-align: middle; }
 }
 
 @keyframes bg-pulse-ring {
-  0%   { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.45); }
-  70%  { box-shadow: 0 0 0 12px rgba(99, 102, 241, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+  0%   { box-shadow: 0 0 0 0 rgba(23, 128, 76, 0.45); }
+  70%  { box-shadow: 0 0 0 12px rgba(23, 128, 76, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(23, 128, 76, 0); }
 }
 
 /* --- Classes utilitaires -------------------------------------------------- */
@@ -519,6 +551,210 @@ img, svg { max-width: 100%; height: auto; vertical-align: middle; }
 
   .hover-lift:hover { transform: none; }
   .press-scale:active { transform: none; }
+}
+/* =============================================================================
+   BiblioGest — Fonds décoratifs
+   -----------------------------------------------------------------------------
+   Tout est généré en CSS/SVG : aucune image binaire, aucun appel réseau, donc
+   l'application reste identique hors-ligne et dans le conteneur Docker.
+
+   Les fonds sont toujours `aria-hidden` par construction (pseudo-éléments) et
+   `pointer-events: none` : ils ne capturent jamais le clic.
+   ============================================================================= */
+
+/* --- Aurore : nappes de couleur qui dérivent lentement -------------------- */
+
+.bg-mesh {
+  position: relative;
+  isolation: isolate;
+  background-color: var(--canvas);
+}
+
+.bg-mesh::before {
+  content: '';
+  position: absolute;
+  inset: -20%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(38% 44% at 18% 22%, rgba(23, 128, 76, 0.26), transparent 70%),
+    radial-gradient(34% 40% at 82% 18%, rgba(110, 191, 153, 0.28), transparent 70%),
+    radial-gradient(42% 46% at 72% 82%, rgba(60, 161, 115, 0.24), transparent 70%),
+    radial-gradient(30% 36% at 28% 78%, rgba(15, 85, 50, 0.16), transparent 70%);
+  filter: blur(28px);
+  animation: bg-drift 26s var(--ease-in-out) infinite;
+}
+
+.dark-mode .bg-mesh::before {
+  background:
+    radial-gradient(38% 44% at 18% 22%, rgba(53, 177, 116, 0.26), transparent 70%),
+    radial-gradient(34% 40% at 82% 18%, rgba(23, 128, 76, 0.34), transparent 70%),
+    radial-gradient(42% 46% at 72% 82%, rgba(15, 85, 50, 0.46), transparent 70%),
+    radial-gradient(30% 36% at 28% 78%, rgba(110, 191, 153, 0.14), transparent 70%);
+}
+
+/* --- Blobs flottants ------------------------------------------------------ */
+
+.bg-blobs { position: relative; isolation: isolate; }
+
+.bg-blobs::before,
+.bg-blobs::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 50%;
+  filter: blur(52px);
+  opacity: 0.55;
+}
+
+.bg-blobs::before {
+  width: 26rem;
+  height: 26rem;
+  top: -8rem;
+  right: -6rem;
+  background: radial-gradient(circle, var(--brand-400), transparent 68%);
+  animation: bg-float 11s var(--ease-in-out) infinite;
+}
+
+.bg-blobs::after {
+  width: 20rem;
+  height: 20rem;
+  bottom: -7rem;
+  left: -5rem;
+  background: radial-gradient(circle, var(--brand-300), transparent 68%);
+  animation: bg-float 14s var(--ease-in-out) infinite reverse;
+}
+
+/* --- Grille de points : structure discrète derrière le contenu ------------ */
+
+.bg-grid { position: relative; isolation: isolate; }
+
+.bg-grid::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(circle, var(--border-strong) 1px, transparent 1px);
+  background-size: 26px 26px;
+  opacity: 0.4;
+  /* Estompe la grille vers les bords : elle ne doit jamais concurrencer le texte. */
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 40%, transparent 100%);
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 40%, transparent 100%);
+}
+
+/* --- Grain : casse les aplats de dégradé (effet « banding ») -------------- */
+
+.bg-noise { position: relative; isolation: isolate; }
+
+.bg-noise::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.045;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* --- Rayonnage : motif de tranches de livres, clin d'œil au métier -------- */
+
+.bg-shelf { position: relative; isolation: isolate; }
+
+.bg-shelf::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.14;
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--brand-500) 0 6px,
+    transparent 6px 13px,
+    var(--brand-300) 13px 17px,
+    transparent 17px 27px,
+    var(--brand-400) 27px 31px,
+    transparent 31px 44px
+  );
+  -webkit-mask-image: linear-gradient(to top, #000, transparent 58%);
+  mask-image: linear-gradient(to top, #000, transparent 58%);
+}
+
+/* --- Bandeau de marque : en-têtes de page -------------------------------- */
+
+.bg-brand-band {
+  background: linear-gradient(135deg, var(--brand-600), var(--brand-500) 45%, var(--brand-400));
+  color: var(--text-on-brand);
+}
+
+/* --- Composite plein écran : pages d'authentification et d'accueil -------- */
+
+.bg-hero {
+  position: relative;
+  isolation: isolate;
+  background-color: var(--canvas);
+  overflow: hidden;
+}
+
+.bg-hero::before {
+  content: '';
+  position: absolute;
+  inset: -25%;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(40% 48% at 16% 20%, rgba(23, 128, 76, 0.34), transparent 68%),
+    radial-gradient(36% 42% at 84% 16%, rgba(110, 191, 153, 0.34), transparent 68%),
+    radial-gradient(46% 50% at 76% 84%, rgba(60, 161, 115, 0.30), transparent 68%);
+  filter: blur(34px);
+  animation: bg-drift 30s var(--ease-in-out) infinite;
+}
+
+.bg-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.dark-mode .bg-hero::before {
+  background:
+    radial-gradient(40% 48% at 16% 20%, rgba(53, 177, 116, 0.22), transparent 68%),
+    radial-gradient(36% 42% at 84% 16%, rgba(23, 128, 76, 0.30), transparent 68%),
+    radial-gradient(46% 50% at 76% 84%, rgba(15, 85, 50, 0.42), transparent 68%);
+}
+
+/* Le grain se voit beaucoup plus sur fond sombre : on le réduit. */
+.dark-mode .bg-hero::after,
+.dark-mode .bg-noise::after {
+  opacity: 0.03;
+  mix-blend-mode: soft-light;
+}
+
+/* La grille de points devient trop insistante sur fond noir. */
+.dark-mode .bg-grid::before { opacity: 0.22; }
+
+/* --- Verre dépoli : panneaux posés sur un fond animé --------------------- */
+
+.surface-glass {
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: blur(16px) saturate(150%);
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+}
+
+/* Repli pour les navigateurs sans color-mix : on retombe sur une surface opaque. */
+@supports not (background: color-mix(in srgb, red 50%, blue)) {
+  .surface-glass {
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
 }
 /* =============================================================================
    BiblioGest — Composants partagés
@@ -687,7 +923,7 @@ img, svg { max-width: 100%; height: auto; vertical-align: middle; }
 .ds-select {
   appearance: none;
   padding-right: var(--space-10);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%2364748b'%3E%3Cpath d='M4.5 6.5 8 10l3.5-3.5z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%236b7873'%3E%3Cpath d='M4.5 6.5 8 10l3.5-3.5z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right var(--space-3) center;
   background-size: 1.1rem;
@@ -824,7 +1060,7 @@ img, svg { max-width: 100%; height: auto; vertical-align: middle; }
 .ds-badge--danger  { background: var(--danger-bg);  color: var(--danger);  border-color: var(--danger-border); }
 .ds-badge--info    { background: var(--info-bg);    color: var(--info);    border-color: var(--info-border); }
 
-.dark-mode .ds-badge--brand { color: var(--brand-300); border-color: rgba(129, 140, 248, 0.35); }
+.dark-mode .ds-badge--brand { color: var(--brand-300); border-color: rgba(110, 191, 153, 0.35); }
 
 /* Pastille de statut ------------------------------------------------------- */
 .ds-badge__dot {
@@ -1222,7 +1458,6 @@ img, svg { max-width: 100%; height: auto; vertical-align: middle; }
 }
 .ds-spinner--lg { width: 2.25rem; height: 2.25rem; border-width: 3px; }
 
-/* --- Mise en page de la fiche --- */
 body { padding: 2rem; }
 .doc-title { font-size: var(--text-2xl); font-weight: var(--weight-bold); margin-bottom: .25rem; }
 .doc-sub { color: var(--text-secondary); font-size: var(--text-sm); margin-bottom: 2rem; }
@@ -1236,36 +1471,45 @@ body { padding: 2rem; }
 .sw { display: flex; flex-direction: column; gap: .35rem; }
 .sw__chip { display: block; height: 3rem; border-radius: var(--radius-sm); border: 1px solid var(--border); }
 .sw code { font-size: .7rem; color: var(--text-secondary); }
+.doc-note { margin-top: 1rem; font-size: var(--text-sm); color: var(--text-secondary); max-width: 44rem; }
 
 </style>
 </head>
 <body>
 
 <h1 class="doc-title">Couleurs</h1>
-<p class="doc-sub">Une rampe de marque, une rampe neutre, quatre couleurs sémantiques.
-Les composants ne consomment jamais une valeur brute : ils passent par un alias.</p>
+<p class="doc-sub">Une seule couleur d'identité : un vert émeraude. Les autres teintes sont
+réservées aux statuts. Les composants ne consomment jamais une valeur brute, toujours un alias.</p>
 
 <section class="doc-section">
-  <p class="doc-label">Marque — indigo</p>
+  <p class="doc-label">Marque — émeraude</p>
   <div class="sw-grid"><div class="sw"><span class="sw__chip" style="background:var(--brand-50)"></span><code>--brand-50</code></div><div class="sw"><span class="sw__chip" style="background:var(--brand-100)"></span><code>--brand-100</code></div><div class="sw"><span class="sw__chip" style="background:var(--brand-200)"></span><code>--brand-200</code></div><div class="sw"><span class="sw__chip" style="background:var(--brand-300)"></span><code>--brand-300</code></div><div class="sw"><span class="sw__chip" style="background:var(--brand-400)"></span><code>--brand-400</code></div><div class="sw"><span class="sw__chip" style="background:var(--brand-500)"></span><code>--brand-500</code></div><div class="sw"><span class="sw__chip" style="background:var(--brand-600)"></span><code>--brand-600</code></div><div class="sw"><span class="sw__chip" style="background:var(--brand-700)"></span><code>--brand-700</code></div><div class="sw"><span class="sw__chip" style="background:var(--brand-800)"></span><code>--brand-800</code></div><div class="sw"><span class="sw__chip" style="background:var(--brand-900)"></span><code>--brand-900</code></div><div class="sw"><span class="sw__chip" style="background:var(--brand-950)"></span><code>--brand-950</code></div></div>
+  <p class="doc-note"><strong>--brand-500</strong> est le ton d'identité. Il offre un contraste de
+  4,97:1 avec du texte blanc, soit le niveau AA en texte courant : un bouton plein reste lisible
+  sans avoir à l'assombrir.</p>
 </section>
 
 <section class="doc-section">
-  <p class="doc-label">Neutres — slate</p>
+  <p class="doc-label">Neutres</p>
   <div class="sw-grid"><div class="sw"><span class="sw__chip" style="background:var(--neutral-0)"></span><code>--neutral-0</code></div><div class="sw"><span class="sw__chip" style="background:var(--neutral-50)"></span><code>--neutral-50</code></div><div class="sw"><span class="sw__chip" style="background:var(--neutral-100)"></span><code>--neutral-100</code></div><div class="sw"><span class="sw__chip" style="background:var(--neutral-200)"></span><code>--neutral-200</code></div><div class="sw"><span class="sw__chip" style="background:var(--neutral-300)"></span><code>--neutral-300</code></div><div class="sw"><span class="sw__chip" style="background:var(--neutral-400)"></span><code>--neutral-400</code></div><div class="sw"><span class="sw__chip" style="background:var(--neutral-500)"></span><code>--neutral-500</code></div><div class="sw"><span class="sw__chip" style="background:var(--neutral-600)"></span><code>--neutral-600</code></div><div class="sw"><span class="sw__chip" style="background:var(--neutral-700)"></span><code>--neutral-700</code></div><div class="sw"><span class="sw__chip" style="background:var(--neutral-800)"></span><code>--neutral-800</code></div><div class="sw"><span class="sw__chip" style="background:var(--neutral-900)"></span><code>--neutral-900</code></div><div class="sw"><span class="sw__chip" style="background:var(--neutral-950)"></span><code>--neutral-950</code></div></div>
+  <p class="doc-note">Légèrement désaturés vers le vert : posés côte à côte, gris et marque
+  appartiennent visiblement à la même famille.</p>
 </section>
 
 <section class="doc-section">
-  <p class="doc-label">Sémantique</p>
+  <p class="doc-label">Sémantique — réservée aux statuts</p>
   <div class="sw-grid"><div class="sw"><span class="sw__chip" style="background:var(--success)"></span><code>--success</code></div><div class="sw"><span class="sw__chip" style="background:var(--warning)"></span><code>--warning</code></div><div class="sw"><span class="sw__chip" style="background:var(--danger)"></span><code>--danger</code></div><div class="sw"><span class="sw__chip" style="background:var(--info)"></span><code>--info</code></div></div>
+  <p class="doc-note">Le vert sémantique <em>succès</em> est volontairement distinct de la marque :
+  sinon « succès » et « couleur de l'application » se confondraient, et le statut ne dirait plus rien.</p>
 </section>
 
 <section class="doc-section">
-  <p class="doc-label">Alias de surface — bascule en thème sombre</p>
+  <p class="doc-label">Surfaces — basculent en thème sombre</p>
   <div class="sw-grid">
     <div class="sw"><span class="sw__chip" style="background:var(--canvas)"></span><code>--canvas</code></div>
     <div class="sw"><span class="sw__chip" style="background:var(--surface)"></span><code>--surface</code></div>
     <div class="sw"><span class="sw__chip" style="background:var(--surface-sunken)"></span><code>--surface-sunken</code></div>
+    <div class="sw"><span class="sw__chip" style="background:var(--surface-invert)"></span><code>--surface-invert</code></div>
     <div class="sw"><span class="sw__chip" style="background:var(--border)"></span><code>--border</code></div>
   </div>
 </section>

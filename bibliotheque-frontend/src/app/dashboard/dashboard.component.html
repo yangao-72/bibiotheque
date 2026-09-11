@@ -1,140 +1,146 @@
-<div class="dashboard">
-  <!-- Welcome -->
-  <div class="welcome-section">
-    <h1>{{ 'dashboard.welcomeName' | translate: { name: userName } }} <i class="fas fa-hand-wave" aria-hidden="true"></i></h1>
-    <p>{{ 'dashboard.welcomeText' | translate }}</p>
+<div class="dash">
+
+  <!-- En-tête -->
+  <header class="dash-head anim-rise">
+    <div>
+      <h1 class="dash-head__title">{{ 'dashboard.title' | translate }}</h1>
+      <p class="dash-head__sub">
+        {{ 'dashboard.welcomeName' | translate: { name: userName } }}
+        — {{ 'dashboard.welcomeText' | translate }}
+      </p>
+    </div>
+    <div class="dash-head__actions" *ngIf="isAdmin">
+      <button type="button" class="ds-btn ds-btn--primary" (click)="navigateTo('/create-book')">
+        <i class="fas fa-plus" aria-hidden="true"></i>
+        {{ 'nav.addBook' | translate }}
+      </button>
+      <button type="button" class="ds-btn ds-btn--secondary" (click)="navigateTo('/reservations')">
+        <i class="fas fa-calendar-plus" aria-hidden="true"></i>
+        {{ 'dashboard.newReservation' | translate }}
+      </button>
+    </div>
+  </header>
+
+  <!-- Chargement -->
+  <div class="dash-grid" *ngIf="loading" aria-busy="true">
+    <span class="sr-only">{{ 'dashboard.loading' | translate }}</span>
+    <div class="ds-skeleton ds-skeleton--card" *ngFor="let s of skeletonCards"></div>
   </div>
 
-  <!-- Loading -->
-  <div *ngIf="loading" class="loading-state">
-    <div class="spinner-ring"></div>
-    <p>{{ 'dashboard.loading' | translate }}</p>
+  <!-- Erreur -->
+  <div class="dash-error anim-rise-sm" *ngIf="errorMessage && !loading" role="alert">
+    <i class="fas fa-circle-exclamation" aria-hidden="true"></i>
+    <span>{{ errorMessage | translate }}</span>
+    <button type="button" class="ds-btn ds-btn--secondary ds-btn--sm" (click)="loadStats()">
+      <i class="fas fa-rotate-right" aria-hidden="true"></i>
+      {{ 'common.retry' | translate }}
+    </button>
   </div>
 
-  <!-- Error -->
-  <div *ngIf="errorMessage && !loading" class="error-state">
-    <div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div>
-    <p>{{ errorMessage | translate }}</p>
-  </div>
+  <ng-container *ngIf="!loading && !errorMessage">
 
-  <!-- Content -->
-  <div *ngIf="!loading && !errorMessage" class="dashboard-content">
-    <!-- Main Column -->
-    <div class="main-column">
+    <!-- Compteurs. La première carte est pleine : elle porte la mesure la plus
+         structurante, les suivantes restent calmes. -->
+    <div class="dash-grid anim-stagger" *ngIf="isAdmin">
+      <button type="button" class="stat stat--feature" (click)="navigateTo('/books')">
+        <span class="stat__label">{{ 'dashboard.books' | translate }}</span>
+        <span class="stat__value">{{ stats.livres }}</span>
+        <span class="stat__foot">
+          <i class="fas fa-book" aria-hidden="true"></i>
+          {{ 'dashboard.inCatalogue' | translate }}
+        </span>
+        <span class="stat__go" aria-hidden="true"><i class="fas fa-arrow-up-right-from-square"></i></span>
+      </button>
 
-      <!-- Stats Cards -->
-      <div class="stats-grid" *ngIf="isAdmin">
-        <div class="stat-card stat-livres" (click)="navigateTo('/books')">
-          <div class="stat-icon"><i class="fas fa-book"></i></div>
-          <div class="stat-info">
-            <span class="stat-label">{{ 'dashboard.books' | translate }}</span>
-            <span class="stat-value">{{ stats.livres }}</span>
-          </div>
-        </div>
+      <button type="button" class="stat" (click)="navigateTo('/users')">
+        <span class="stat__label">{{ 'dashboard.members' | translate }}</span>
+        <span class="stat__value">{{ stats.adherents }}</span>
+        <span class="stat__foot">
+          <i class="fas fa-users" aria-hidden="true"></i>
+          {{ 'dashboard.registered' | translate }}
+        </span>
+        <span class="stat__go" aria-hidden="true"><i class="fas fa-arrow-up-right-from-square"></i></span>
+      </button>
 
-        <div class="stat-card stat-adherents" (click)="navigateTo('/users')">
-          <div class="stat-icon"><i class="fas fa-users"></i></div>
-          <div class="stat-info">
-            <span class="stat-label">{{ 'dashboard.members' | translate }}</span>
-            <span class="stat-value">{{ stats.adherents }}</span>
-          </div>
-        </div>
+      <button type="button" class="stat" (click)="navigateTo('/borrow-book')">
+        <span class="stat__label">{{ 'dashboard.loansInProgress' | translate }}</span>
+        <span class="stat__value">{{ stats.emprunts }}</span>
+        <span class="stat__foot">
+          <i class="fas fa-right-left" aria-hidden="true"></i>
+          {{ 'dashboard.toReturn' | translate }}
+        </span>
+        <span class="stat__go" aria-hidden="true"><i class="fas fa-arrow-up-right-from-square"></i></span>
+      </button>
 
-        <div class="stat-card stat-emprunts" (click)="navigateTo('/borrow-book')">
-          <div class="stat-icon"><i class="fas fa-book-reader"></i></div>
-          <div class="stat-info">
-            <span class="stat-label">{{ 'dashboard.loansInProgress' | translate }}</span>
-            <span class="stat-value">{{ stats.emprunts }}</span>
-          </div>
-        </div>
-
-        <div class="stat-card stat-reservations" (click)="navigateTo('/reservations')">
-          <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
-          <div class="stat-info">
-            <span class="stat-label">{{ 'dashboard.reservations' | translate }}</span>
-            <span class="stat-value">{{ stats.reservations }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick Actions -->
-      <div class="quick-actions-card" *ngIf="isAdmin">
-        <h3><i class="fas fa-bolt" aria-hidden="true"></i> {{ 'dashboard.quickActions' | translate }}</h3>
-        <div class="actions-list">
-          <button class="action-btn" (click)="navigateTo('/create-book')">
-            <i class="fas fa-plus-circle" aria-hidden="true"></i> {{ 'nav.addBook' | translate }}
-          </button>
-          <button class="action-btn" (click)="navigateTo('/reservations')">
-            <i class="fas fa-calendar-plus" aria-hidden="true"></i> {{ 'dashboard.newReservation' | translate }}
-          </button>
-          <button class="action-btn" (click)="navigateTo('/register-user')">
-            <i class="fas fa-user-plus" aria-hidden="true"></i> {{ 'nav.addMember' | translate }}
-          </button>
-        </div>
-      </div>
-
-      <!-- User quick actions -->
-      <div class="quick-actions-card" *ngIf="!isAdmin">
-        <h3><i class="fas fa-bolt" aria-hidden="true"></i> {{ 'dashboard.quickActions' | translate }}</h3>
-        <div class="actions-list">
-          <button class="action-btn" (click)="navigateTo('/borrow-book')">
-            <i class="fas fa-book-reader" aria-hidden="true"></i> {{ 'dashboard.recordLoan' | translate }}
-          </button>
-          <button class="action-btn" (click)="navigateTo('/return-book')">
-            <i class="fas fa-undo-alt" aria-hidden="true"></i> {{ 'dashboard.recordReturn' | translate }}
-          </button>
-          <button class="action-btn" (click)="navigateTo('/reservations')">
-            <i class="fas fa-calendar-plus" aria-hidden="true"></i> {{ 'dashboard.newReservation' | translate }}
-          </button>
-        </div>
-      </div>
+      <button type="button" class="stat" (click)="navigateTo('/reservations')">
+        <span class="stat__label">{{ 'dashboard.reservations' | translate }}</span>
+        <span class="stat__value">{{ stats.reservations }}</span>
+        <span class="stat__foot">
+          <i class="fas fa-calendar-check" aria-hidden="true"></i>
+          {{ 'dashboard.allStatuses' | translate }}
+        </span>
+        <span class="stat__go" aria-hidden="true"><i class="fas fa-arrow-up-right-from-square"></i></span>
+      </button>
     </div>
 
-    <!-- Side Column -->
-    <div class="side-column">
-      <!-- Notifications -->
-      <div class="notifications-card">
-        <h3><i class="fas fa-bell" aria-hidden="true"></i> {{ 'topbar.notifications' | translate }}</h3>
-        <ul class="notif-list">
-          <li>
-            <span class="notif-dot red"></span>
-            <div>
-              <strong>3 retours en retard</strong>
-              <p>Certains livres ne sont pas encore retournés.</p>
-            </div>
-            <span class="notif-time">il y a 1h</span>
-          </li>
-          <li>
-            <span class="notif-dot orange"></span>
-            <div>
-              <strong>5 réservations en attente</strong>
-              <p>Des réservations nécessitent votre attention.</p>
-            </div>
-            <span class="notif-time">il y a 3h</span>
-          </li>
-          <li>
-            <span class="notif-dot blue"></span>
-            <div>
-              <strong>Nouveau membre</strong>
-              <p>Marie Dupont a rejoint la bibliothèque.</p>
-            </div>
-            <span class="notif-time">il y a 5h</span>
-          </li>
-          <li>
-            <span class="notif-dot green"></span>
-            <div>
-              <strong>Sauvegarde terminée</strong>
-              <p>La sauvegarde quotidienne a réussi.</p>
-            </div>
-            <span class="notif-time">il y a 1j</span>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </div>
+    <div class="dash-cols">
 
-  <!-- Footer -->
-  <footer class="dashboard-footer">
+      <!-- Actions rapides -->
+      <section class="ds-card anim-rise">
+        <div class="ds-card__header">
+          <h2 class="ds-card__title">
+            <i class="fas fa-bolt" aria-hidden="true"></i>
+            {{ 'dashboard.quickActions' | translate }}
+          </h2>
+        </div>
+        <div class="ds-card__body">
+          <div class="quick" *ngIf="isAdmin">
+            <button type="button" class="quick__item" (click)="navigateTo('/create-book')">
+              <span class="quick__icon"><i class="fas fa-plus" aria-hidden="true"></i></span>
+              {{ 'nav.addBook' | translate }}
+            </button>
+            <button type="button" class="quick__item" (click)="navigateTo('/register-user')">
+              <span class="quick__icon"><i class="fas fa-user-plus" aria-hidden="true"></i></span>
+              {{ 'nav.addMember' | translate }}
+            </button>
+            <button type="button" class="quick__item" (click)="navigateTo('/reservations')">
+              <span class="quick__icon"><i class="fas fa-calendar-plus" aria-hidden="true"></i></span>
+              {{ 'dashboard.newReservation' | translate }}
+            </button>
+          </div>
+
+          <div class="quick" *ngIf="!isAdmin">
+            <button type="button" class="quick__item" (click)="navigateTo('/borrow-book')">
+              <span class="quick__icon"><i class="fas fa-book-open-reader" aria-hidden="true"></i></span>
+              {{ 'dashboard.recordLoan' | translate }}
+            </button>
+            <button type="button" class="quick__item" (click)="navigateTo('/return-book')">
+              <span class="quick__icon"><i class="fas fa-rotate-left" aria-hidden="true"></i></span>
+              {{ 'dashboard.recordReturn' | translate }}
+            </button>
+            <button type="button" class="quick__item" (click)="navigateTo('/reservations')">
+              <span class="quick__icon"><i class="fas fa-calendar-plus" aria-hidden="true"></i></span>
+              {{ 'dashboard.newReservation' | translate }}
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Carte d'identité, sur fond inversé comme dans la maquette -->
+      <section class="ident anim-rise">
+        <span class="ident__badge">{{ roleKey | translate }}</span>
+        <p class="ident__name">{{ userName }}</p>
+        <p class="ident__hint">{{ 'dashboard.identityHint' | translate }}</p>
+        <button type="button" class="ident__cta" (click)="navigateTo('/reservations')">
+          <i class="fas fa-calendar-check" aria-hidden="true"></i>
+          {{ 'nav.reservations' | translate }}
+        </button>
+      </section>
+
+    </div>
+  </ng-container>
+
+  <footer class="dash-foot">
     <p>{{ 'dashboard.rights' | translate }}</p>
   </footer>
 </div>

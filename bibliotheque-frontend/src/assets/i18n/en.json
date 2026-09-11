@@ -74,7 +74,8 @@
     "forbiddenTitle": "Access denied",
     "forbiddenText": "You are signed in, but your role does not grant access to this page.",
     "backToDashboard": "Back to dashboard",
-    "credentialsHint": "Credentials are provided by your administrator."
+    "credentialsHint": "Credentials are provided by your administrator.",
+    "welcome": "Welcome!"
   },
   "home": {
     "heroTitle": "Your library, finally under control",
@@ -104,7 +105,12 @@
     "newReservation": "New reservation",
     "recordLoan": "Record a loan",
     "recordReturn": "Record a return",
-    "rights": "© 2026 BiblioGest. All rights reserved."
+    "rights": "© 2026 BiblioGest. All rights reserved.",
+    "inCatalogue": "in the catalogue",
+    "registered": "registered accounts",
+    "toReturn": "to return",
+    "allStatuses": "all statuses",
+    "identityHint": "You are signed in. Find your reservations and loans here."
   },
   "books": {
     "title": "Books",

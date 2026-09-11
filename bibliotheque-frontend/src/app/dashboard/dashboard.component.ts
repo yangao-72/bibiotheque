@@ -14,7 +14,8 @@ import { ReservationService } from '../_service/reservation.service';
 export class DashboardComponent implements OnInit {
 
   userName = '';
-  userRole = '';
+  /** Clé de traduction du rôle affiché. */
+  roleKey = 'roles.member';
   isAdmin = false;
 
   stats = {
@@ -27,6 +28,9 @@ export class DashboardComponent implements OnInit {
   loading = true;
   errorMessage = '';
 
+  /** Nombre de cartes de squelette affichées pendant le chargement. */
+  readonly skeletonCards = Array.from({ length: 4 });
+
   constructor(
     private booksService: BooksService,
     private usersService: UsersService,
@@ -37,10 +41,12 @@ export class DashboardComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.userName = this.userAuthService.getName() || 'Utilisateur';
-    const roles: any[] = this.userAuthService.getRoles();
-    this.userRole = roles?.includes('Admin') ? 'Administrateur' : 'Utilisateur';
-    this.isAdmin = roles?.includes('Admin');
+    this.userName = this.userAuthService.getName() || '';
+    // `getRoles()` renvoie des objets { roleName }, pas des chaînes : un
+    // `includes('Admin')` y était toujours faux, et l'administrateur se voyait
+    // servir le tableau de bord adhérent.
+    this.isAdmin = this.usersService.roleMatch(['Admin', 'BIBLIOTHECAIRE']);
+    this.roleKey = this.isAdmin ? 'roles.librarian' : 'roles.member';
     this.loadStats();
   }
 
