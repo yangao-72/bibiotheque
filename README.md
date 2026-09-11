@@ -510,14 +510,27 @@ Le vert sémantique « succès » est volontairement distinct de la marque : sin
 « succès » et « couleur de l'application » se confondraient, et le statut ne
 dirait plus rien.
 
+Le texte se lit sur trois niveaux, **tous conformes AA** sur le fond le plus
+clair de l'application :
+
+| Token | Contraste sur `--canvas` |
+|---|---|
+| `--text-primary` | 13,6:1 |
+| `--text-secondary` | 6,8:1 |
+| `--text-muted` | 4,5:1 |
+
+Le gris le plus clair de la rampe (`--neutral-400`, 2,6:1) est réservé aux
+traits et aux icônes décoratives : **il ne porte jamais de texte**.
+
 #### Le thème sombre
 
 Ce n'est pas le thème clair assombri — les rôles des variables sont réattribués :
 
 1. **Un noir légèrement vert** (`#0b100e`), pas un gris bleuté : sinon la marque
    verte se détache comme une pièce rapportée.
-2. **La marque s'éclaircit.** `#17804c` sur fond noir tombe à 1,6:1, illisible.
-   Le thème sombre bascule sur `#35b174`, qui remonte à 6,5:1.
+2. **La marque s'éclaircit.** `#17804c` sur le fond sombre ne donne que 3,86:1,
+   sous le seuil AA de 4,5:1. Le thème sombre bascule sur `#35b174`, qui
+   remonte à 6,5:1.
 3. **L'élévation passe par la surface, pas par l'ombre.** Une ombre noire sur un
    fond noir ne se voit pas : chaque niveau (`--surface-sunken` → `--surface` →
    `--surface-raised`) s'éclaircit d'un cran.

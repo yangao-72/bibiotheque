@@ -80,7 +80,7 @@ PostgreSQL, configured via `.env` (copy `.env.example`). Docker exposes on port 
 ### Design system & i18n (frontend)
 - **Tokens** in `src/styles/tokens.css` — brand/neutral ramps, semantic colors, type & space scales, radii, elevations, motion, focus ring.
 - **Palette is a single emerald green.** `--brand-500` = `#17804c`, picked for 4.97:1 against white text (AA body copy) so filled buttons need no darkening. Semantic "success" is deliberately a *different* green from the brand — otherwise "success" and "the app's colour" would be indistinguishable.
-- **Dark theme is a re-assignment, not a dimming**: near-black with a green undertone (`#0b100e`); the brand lightens to `#35b174` (1.6:1 → 6.5:1 on dark); elevation is carried by lightening the surface, not by shadows (a black shadow on a black ground is invisible).
+- **Dark theme is a re-assignment, not a dimming**: near-black with a green undertone (`#0b100e`); the brand lightens to `#35b174` (3.86:1 → 6.5:1 on dark; 3.86 fails AA body copy); elevation is carried by lightening the surface, not by shadows (a black shadow on a black ground is invisible).
 - The sidebar follows the theme (it used to stay dark in both), and table headers are light (a dark band per table became unreadable in dark mode).
 - The whole app was recoloured indigo → green by editing **only** `tokens.css`, after first converting 132 hardcoded hex values and 26 rgba literals in component stylesheets into token references. Keep it that way: a hardcoded colour breaks the next re-theme.
 - Historical variable names (`--primary`, `--surface`, `--radius`…) are kept as aliases so the 23 legacy component stylesheets keep working. **Never rename them.**
