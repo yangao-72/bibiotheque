@@ -1,14 +1,18 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
+import { FormsModule } from '@angular/forms';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
+
 import { ReservationsComponent } from './reservations.component';
 import { ReservationService } from '../_service/reservation.service';
 import { BooksService } from '../_service/books.service';
 import { UsersService } from '../_service/users.service';
+import { ToastService } from '../_ui/toast/toast.service';
+import { ConfirmService } from '../_ui/confirm-dialog/confirm.service';
 import { Reservation } from '../_model/reservation';
 import { Books } from '../_model/books';
 import { Users } from '../_model/users';
-import { FormsModule } from '@angular/forms';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 describe('ReservationsComponent', () => {
   let component: ReservationsComponent;
@@ -16,29 +20,40 @@ describe('ReservationsComponent', () => {
   let reservationServiceSpy: jasmine.SpyObj<ReservationService>;
   let booksServiceSpy: jasmine.SpyObj<BooksService>;
   let usersServiceSpy: jasmine.SpyObj<UsersService>;
+  let toastServiceSpy: jasmine.SpyObj<ToastService>;
+  let confirmServiceSpy: jasmine.SpyObj<ConfirmService>;
 
-  const mockReservations: Reservation[] = [
-    {
-      reservationId: 1,
-      livreId: 10,
-      livreNom: 'L1 - Livre disponible',
-      adherentId: 11,
-      adherentNom: 'Adhérent principal (A1)',
-      dateReservation: '21-08-2026',
-      dateExpiration: '28-08-2026',
-      statut: 'EN_ATTENTE'
-    },
-    {
-      reservationId: 2,
-      livreId: 11,
-      livreNom: 'L2 - Livre emprunté 1',
-      adherentId: 13,
-      adherentNom: 'Emprunteur (A3)',
-      dateReservation: '21-08-2026',
-      dateExpiration: '28-08-2026',
-      statut: 'ANNULEE'
-    }
-  ];
+  /**
+   * Données neuves à chaque test : le composant écrit `reservation.statut` lors
+   * d'une annulation, une constante partagée serait donc polluée d'un test à
+   * l'autre.
+   */
+  function buildReservations(): Reservation[] {
+    return [
+      {
+        reservationId: 1,
+        livreId: 10,
+        livreNom: 'L1 - Livre disponible',
+        adherentId: 11,
+        adherentNom: 'Adhérent principal (A1)',
+        dateReservation: '21-08-2026',
+        dateExpiration: '28-08-2026',
+        statut: 'EN_ATTENTE'
+      },
+      {
+        reservationId: 2,
+        livreId: 11,
+        livreNom: 'L2 - Livre emprunté 1',
+        adherentId: 13,
+        adherentNom: 'Emprunteur (A3)',
+        dateReservation: '21-08-2026',
+        dateExpiration: '28-08-2026',
+        statut: 'ANNULEE'
+      }
+    ];
+  }
+
+  let mockReservations: Reservation[];
 
   const mockBooks: Books[] = [
     { bookId: 10, bookName: 'L1', bookAuthor: 'Auteur', bookGenre: 'Test', noOfCopies: 0 }
@@ -49,11 +64,15 @@ describe('ReservationsComponent', () => {
   ];
 
   beforeEach(async () => {
+    mockReservations = buildReservations();
+
     reservationServiceSpy = jasmine.createSpyObj('ReservationService', [
       'getReservations', 'createReservation', 'annulerReservation'
     ]);
     booksServiceSpy = jasmine.createSpyObj('BooksService', ['getBooksList']);
     usersServiceSpy = jasmine.createSpyObj('UsersService', ['getUsersList', 'roleMatch']);
+    toastServiceSpy = jasmine.createSpyObj('ToastService', ['success', 'error', 'showText']);
+    confirmServiceSpy = jasmine.createSpyObj('ConfirmService', ['ask']);
 
     reservationServiceSpy.getReservations.and.returnValue(of(mockReservations));
     booksServiceSpy.getBooksList.and.returnValue(of(mockBooks));
@@ -61,14 +80,17 @@ describe('ReservationsComponent', () => {
     // Par défaut les tests se placent dans le cas du BIBLIOTHECAIRE ;
     // les tests dédiés à l'ADHERENT renvoient false explicitement.
     usersServiceSpy.roleMatch.and.returnValue(true);
+    confirmServiceSpy.ask.and.returnValue(Promise.resolve(true));
 
     await TestBed.configureTestingModule({
-      imports: [FormsModule],
+      imports: [FormsModule, TranslateModule.forRoot()],
       declarations: [ReservationsComponent],
       providers: [
         { provide: ReservationService, useValue: reservationServiceSpy },
         { provide: BooksService, useValue: booksServiceSpy },
-        { provide: UsersService, useValue: usersServiceSpy }
+        { provide: UsersService, useValue: usersServiceSpy },
+        { provide: ToastService, useValue: toastServiceSpy },
+        { provide: ConfirmService, useValue: confirmServiceSpy }
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA]
     }).compileComponents();
@@ -81,6 +103,8 @@ describe('ReservationsComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  // --- Chargement ----------------------------------------------------------
+
   it('should load reservations, books and users on init', fakeAsync(() => {
     component.ngOnInit();
     tick();
@@ -92,46 +116,65 @@ describe('ReservationsComponent', () => {
     expect(component.errorMessage).toBe('');
   }));
 
-  it('should display spinner when loading is true', () => {
+  it('should not request the members list when the user is not a BIBLIOTHECAIRE', fakeAsync(() => {
+    usersServiceSpy.roleMatch.and.returnValue(false);
+
+    component.ngOnInit();
+    tick();
+
+    // /admin/users est réservé aux administrateurs : l'appeler renverrait un 403.
+    expect(usersServiceSpy.getUsersList).not.toHaveBeenCalled();
+    expect(component.users).toEqual([]);
+    expect(component.reservations.length).toBe(2);
+    expect(component.errorMessage).toBe('');
+  }));
+
+  it('should show a skeleton placeholder while loading', () => {
     spyOn(component, 'loadData');
     component.loading = true;
-    component.reservations = [];
-    component.errorMessage = '';
     fixture.detectChanges();
 
-    const spinner = fixture.nativeElement.querySelector('.spinner-border');
-    expect(spinner).toBeTruthy();
-
-    const loadingText = fixture.nativeElement.querySelector('.loading-state');
-    expect(loadingText.textContent).toContain('Chargement');
+    const skeleton = fixture.nativeElement.querySelector('.ds-skeleton');
+    expect(skeleton).toBeTruthy();
   });
 
-  it('should display error message when API fails', fakeAsync(() => {
+  // --- Erreurs -------------------------------------------------------------
+
+  it('should expose a translation key when the API fails', fakeAsync(() => {
     reservationServiceSpy.getReservations.and.returnValue(
       throwError(() => ({ status: 500, error: { message: 'Erreur serveur' } }))
     );
-    booksServiceSpy.getBooksList.and.returnValue(of(mockBooks));
-    usersServiceSpy.getUsersList.and.returnValue(of(mockUsers));
 
     component.ngOnInit();
     tick();
 
-    expect(component.errorMessage).toContain('Erreur serveur');
+    expect(component.errorMessage).toBe('errors.server');
     expect(component.loading).toBeFalse();
   }));
 
-  it('should display server unreachable message on network error', fakeAsync(() => {
-    reservationServiceSpy.getReservations.and.returnValue(
-      throwError(() => ({ status: 0 }))
-    );
-    booksServiceSpy.getBooksList.and.returnValue(of([]));
-    usersServiceSpy.getUsersList.and.returnValue(of([]));
+  it('should expose the network error key when the server is unreachable', fakeAsync(() => {
+    reservationServiceSpy.getReservations.and.returnValue(throwError(() => ({ status: 0 })));
 
     component.ngOnInit();
     tick();
 
-    expect(component.errorMessage).toContain('Le serveur est injoignable');
+    expect(component.errorMessage).toBe('errors.network');
   }));
+
+  it('should show a retry button on error', fakeAsync(() => {
+    reservationServiceSpy.getReservations.and.returnValue(
+      throwError(() => ({ status: 500, error: {} }))
+    );
+
+    component.ngOnInit();
+    tick();
+    fixture.detectChanges();
+
+    const retryBtn = fixture.nativeElement.querySelector('.load-error .ds-btn');
+    expect(retryBtn).toBeTruthy();
+  }));
+
+  // --- Filtre --------------------------------------------------------------
 
   it('should filter by statut', fakeAsync(() => {
     component.ngOnInit();
@@ -143,7 +186,7 @@ describe('ReservationsComponent', () => {
     expect(reservationServiceSpy.getReservations).toHaveBeenCalledWith('EN_ATTENTE');
   }));
 
-  it('should clear statut filter when "all" selected', fakeAsync(() => {
+  it('should clear the statut filter when "all" is selected', fakeAsync(() => {
     component.ngOnInit();
     tick();
 
@@ -153,37 +196,10 @@ describe('ReservationsComponent', () => {
     expect(reservationServiceSpy.getReservations).toHaveBeenCalledWith(undefined);
   }));
 
-  it('should show retry button on error', fakeAsync(() => {
-    reservationServiceSpy.getReservations.and.returnValue(
-      throwError(() => ({ status: 500, error: {} }))
-    );
-    booksServiceSpy.getBooksList.and.returnValue(of([]));
-    usersServiceSpy.getUsersList.and.returnValue(of([]));
+  // --- Création ------------------------------------------------------------
 
-    component.ngOnInit();
-    tick();
-    fixture.detectChanges();
-
-    const retryBtn = fixture.nativeElement.querySelector('.toast-error .btn-outline-light');
-    expect(retryBtn).toBeTruthy();
-    expect(retryBtn.textContent).toContain('Réessayer');
-  }));
-
-  it('should call createReservation on form submit', fakeAsync(() => {
-    const newRes: Reservation = {
-      reservationId: 3,
-      livreId: 10,
-      livreNom: 'L1',
-      adherentId: 11,
-      adherentNom: 'A1',
-      dateReservation: '28-08-2026',
-      dateExpiration: '04-09-2026',
-      statut: 'EN_ATTENTE'
-    };
-    reservationServiceSpy.createReservation.and.returnValue(of(newRes));
-    reservationServiceSpy.getReservations.and.returnValue(of(mockReservations));
-    booksServiceSpy.getBooksList.and.returnValue(of(mockBooks));
-    usersServiceSpy.getUsersList.and.returnValue(of(mockUsers));
+  it('should create a reservation and raise a success toast', fakeAsync(() => {
+    reservationServiceSpy.createReservation.and.returnValue(of(mockReservations[0]));
 
     component.ngOnInit();
     tick();
@@ -194,104 +210,78 @@ describe('ReservationsComponent', () => {
     tick();
 
     expect(reservationServiceSpy.createReservation).toHaveBeenCalled();
-    expect(component.formSuccess).toContain('succès');
+    expect(toastServiceSpy.success).toHaveBeenCalledWith('reservations.created');
     expect(component.newReservation.livreId).toBeNull();
-
-    tick(5000);
   }));
 
-  it('should show form error on 409 conflict', fakeAsync(() => {
+  it('should surface the business message returned on a 409 conflict', fakeAsync(() => {
     reservationServiceSpy.createReservation.and.returnValue(
-      throwError(() => ({
-        status: 409,
-        error: { message: 'RG-01 : livre disponible' }
-      }))
+      throwError(() => ({ status: 409, error: { message: 'RG-01 : livre disponible' } }))
     );
 
     component.newReservation.livreId = 10;
-    component.newReservation.adherentId = 11;
     component.onCreateReservation();
     tick();
 
-    expect(component.formError).toContain('RG-01');
+    // Les règles RG-01..RG-06 sont rédigées par le serveur : on les affiche telles quelles.
+    expect(toastServiceSpy.showText).toHaveBeenCalledWith('error', 'RG-01 : livre disponible');
   }));
 
-  it('should show form error on 404 not found', fakeAsync(() => {
+  it('should fall back to a translated message when the server gives none', fakeAsync(() => {
     reservationServiceSpy.createReservation.and.returnValue(
-      throwError(() => ({
-        status: 404,
-        error: { message: 'Livre introuvable' }
-      }))
-    );
-
-    component.newReservation.livreId = 999;
-    component.newReservation.adherentId = 11;
-    component.onCreateReservation();
-    tick();
-
-    expect(component.formError).toContain('Livre introuvable');
-  }));
-
-  it('should show form error on 400 bad request', fakeAsync(() => {
-    reservationServiceSpy.createReservation.and.returnValue(
-      throwError(() => ({
-        status: 400,
-        error: { message: 'Champ manquant' }
-      }))
+      throwError(() => ({ status: 403, error: null }))
     );
 
     component.newReservation.livreId = 10;
-    component.newReservation.adherentId = 11;
     component.onCreateReservation();
     tick();
 
-    expect(component.formError).toContain('Champ manquant');
+    expect(toastServiceSpy.error).toHaveBeenCalledWith('errors.forbidden', { status: 403 });
   }));
 
-  it('should update reservation statut after cancel', fakeAsync(() => {
-    const updatedRes = { ...mockReservations[0], statut: 'ANNULEE' };
-    reservationServiceSpy.annulerReservation.and.returnValue(of(updatedRes));
-    reservationServiceSpy.getReservations.and.returnValue(of(mockReservations));
-    booksServiceSpy.getBooksList.and.returnValue(of(mockBooks));
-    usersServiceSpy.getUsersList.and.returnValue(of(mockUsers));
+  // --- Annulation ----------------------------------------------------------
 
-    component.ngOnInit();
+  it('should ask for confirmation before cancelling', fakeAsync(() => {
+    reservationServiceSpy.annulerReservation.and.returnValue(of(mockReservations[0]));
+
+    component.onAnnulerReservation(mockReservations[0]);
     tick();
 
-    component.onAnnulerReservation(component.reservations[0]);
-    tick();
-
-    expect(component.reservations[0].statut).toBe('ANNULEE');
-    expect(component.formSuccess).toContain('annulée');
-
-    tick(5000);
+    expect(confirmServiceSpy.ask).toHaveBeenCalled();
   }));
 
-  it('should show cancel error message on 409 conflict', fakeAsync(() => {
+  it('should cancel a reservation without sending any identifier', fakeAsync(() => {
+    reservationServiceSpy.annulerReservation.and.returnValue(of(mockReservations[0]));
+
+    component.onAnnulerReservation(mockReservations[0]);
+    tick();
+
+    // RS-04 : l'identité vient du token, aucun userId ne transite.
+    expect(reservationServiceSpy.annulerReservation).toHaveBeenCalledWith(1);
+    expect(toastServiceSpy.success).toHaveBeenCalledWith('reservations.cancelled');
+  }));
+
+  it('should do nothing when the confirmation is declined', fakeAsync(() => {
+    confirmServiceSpy.ask.and.returnValue(Promise.resolve(false));
+
+    component.onAnnulerReservation(mockReservations[0]);
+    tick();
+
+    expect(reservationServiceSpy.annulerReservation).not.toHaveBeenCalled();
+  }));
+
+  it('should surface the business message when cancelling is refused', fakeAsync(() => {
     reservationServiceSpy.annulerReservation.and.returnValue(
-      throwError(() => ({
-        status: 409,
-        error: { message: 'RG-06 : ne peut plus changer' }
-      }))
-    );
-
-    const reservation = { ...mockReservations[0] };
-    component.onAnnulerReservation(reservation);
-    tick();
-
-    expect(component.cancelError).toContain('RG-06');
-  }));
-
-  it('should show cancel error message on network error', fakeAsync(() => {
-    reservationServiceSpy.annulerReservation.and.returnValue(
-      throwError(() => ({ status: 0 }))
+      throwError(() => ({ status: 409, error: { message: 'RG-06 : ne peut plus changer' } }))
     );
 
     component.onAnnulerReservation(mockReservations[0]);
     tick();
 
-    expect(component.cancelError).toContain('injoignable');
+    expect(toastServiceSpy.showText).toHaveBeenCalledWith('error', 'RG-06 : ne peut plus changer');
   }));
+
+  // --- Validation du formulaire -------------------------------------------
 
   it('should compute isFormValid correctly for a BIBLIOTHECAIRE', () => {
     component.estBibliothecaire = true;
@@ -314,35 +304,13 @@ describe('ReservationsComponent', () => {
     expect(component.isFormValid).toBeTrue();
   });
 
-  it('should not request the members list when the user is not a BIBLIOTHECAIRE', fakeAsync(() => {
-    usersServiceSpy.roleMatch.and.returnValue(false);
+  // --- Compteurs -----------------------------------------------------------
 
-    component.ngOnInit();
-    tick();
+  it('should count reservations by statut', () => {
+    component.reservations = mockReservations;
 
-    // /admin/users est réservé aux administrateurs : l'appeler renverrait un 403.
-    expect(usersServiceSpy.getUsersList).not.toHaveBeenCalled();
-    expect(component.users).toEqual([]);
-    expect(component.reservations.length).toBe(2);
-    expect(component.errorMessage).toBe('');
-  }));
-
-  it('should cancel a reservation without sending any identifier', fakeAsync(() => {
-    reservationServiceSpy.annulerReservation.and.returnValue(of(mockReservations[0]));
-
-    component.onAnnulerReservation(mockReservations[0]);
-    tick();
-
-    expect(reservationServiceSpy.annulerReservation).toHaveBeenCalledWith(1);
-
-    tick(5000);
-  }));
-
-  it('should format statut labels correctly', () => {
-    expect(component.formatStatut('EN_ATTENTE')).toBe('En attente');
-    expect(component.formatStatut('DISPONIBLE')).toBe('Disponible');
-    expect(component.formatStatut('ANNULEE')).toBe('Annulée');
-    expect(component.formatStatut('EXPIREE')).toBe('Expirée');
-    expect(component.formatStatut('HONOREE')).toBe('Honorée');
+    expect(component.getCountByStatut('EN_ATTENTE')).toBe(1);
+    expect(component.getCountByStatut('ANNULEE')).toBe(1);
+    expect(component.getCountByStatut('HONOREE')).toBe(0);
   });
 });

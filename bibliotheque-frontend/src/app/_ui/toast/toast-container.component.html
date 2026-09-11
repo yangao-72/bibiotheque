@@ -1,0 +1,21 @@
+<div class="ds-toast-stack" aria-live="polite" aria-atomic="false">
+  <div *ngFor="let toast of toasts | async; trackBy: trackById"
+       class="ds-toast"
+       [ngClass]="['ds-toast--' + toast.kind, toast.leaving ? 'is-leaving' : '']"
+       role="status">
+    <span class="ds-toast__icon" aria-hidden="true">
+      <i class="fas" [ngClass]="icon(toast.kind)"></i>
+    </span>
+    <div class="ds-toast__body">
+      <p class="ds-toast__text">
+        {{ toast.translate ? (toast.text | translate: toast.params) : toast.text }}
+      </p>
+    </div>
+    <button type="button"
+            class="ds-toast__close"
+            (click)="dismiss(toast.id)"
+            [attr.aria-label]="'common.close' | translate">
+      <i class="fas fa-xmark" aria-hidden="true"></i>
+    </button>
+  </div>
+</div>

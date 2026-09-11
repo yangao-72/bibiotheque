@@ -39,6 +39,9 @@ export class ReservationFormComponent {
     }
   }
 
+  /* Les messages de succès et d'erreur sont désormais rendus par le service de
+     toasts, au niveau de l'écran parent. Les entrées `formError`/`formSuccess`
+     restent exposées pour ne pas casser le contrat du composant. */
   closeFormError(): void {
     this.formError = '';
     this.formErrorChange.emit('');

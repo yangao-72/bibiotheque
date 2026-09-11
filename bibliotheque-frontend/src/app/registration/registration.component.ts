@@ -35,18 +35,21 @@ export class RegistrationComponent implements OnInit {
     this.successMessage = '';
 
     // Client-side validation
+    // Les validations côté client renvoient des clés de traduction ; les messages
+    // métier du serveur, eux, sont affichés tels quels (le pipe `translate`
+    // restitue une chaîne inconnue à l'identique).
     if (!this.user.name || !this.user.name.trim()) {
-      this.errorMessage = 'Veuillez renseigner le nom complet.';
+      this.errorMessage = 'validation.nameRequired';
       return;
     }
 
     if (!this.user.username || !this.user.username.trim()) {
-      this.errorMessage = 'Veuillez renseigner le nom d\'utilisateur.';
+      this.errorMessage = 'validation.usernameRequired';
       return;
     }
 
     if (!this.user.password || !this.user.password.trim()) {
-      this.errorMessage = 'Veuillez renseigner le mot de passe.';
+      this.errorMessage = 'validation.passwordRequired';
       return;
     }
 
@@ -59,7 +62,7 @@ export class RegistrationComponent implements OnInit {
     this.usersService.createUser(this.user).subscribe({
       next: (response: any) => {
         this.saving = false;
-        this.successMessage = response?.message || 'Adhérent créé avec succès.';
+        this.successMessage = response?.message || 'members.created';
         // Auto-navigate after delay
         setTimeout(() => this.goToUsersList(), 1800);
       },
@@ -88,9 +91,9 @@ export class RegistrationComponent implements OnInit {
   }
 
   private extractErrorMessage(err: any): string {
-    // Network error — backend down
+    // Erreur réseau — backend injoignable
     if (err.status === 0) {
-      return 'Le serveur est injoignable. Vérifiez que le backend est démarré.';
+      return 'errors.network';
     }
 
     // Extract message from backend response
@@ -100,20 +103,20 @@ export class RegistrationComponent implements OnInit {
 
     switch (err.status) {
       case 400:
-        return backendMessage || 'Champ obligatoire manquant ou données invalides.';
+        return backendMessage || 'errors.badRequest';
       case 404:
-        return backendMessage || 'Ressource introuvable.';
+        return backendMessage || 'errors.notFound';
       case 409:
-        return backendMessage || 'Conflit : cet identifiant est déjà utilisé.';
+        return backendMessage || 'errors.conflict';
       case 403:
-        return 'Accès interdit. Vous n\'avez pas les droits nécessaires.';
+        return 'errors.forbidden';
       case 500:
-        return 'Erreur interne du serveur. Réessayez plus tard.';
+        return 'errors.server';
       default:
         if (backendMessage && typeof backendMessage === 'string') {
           return backendMessage;
         }
-        return `Une erreur est survenue (code ${err.status || 'inconnu'}).`;
+        return `errors.unknown|${err.status || '?'}`;
     }
   }
 }

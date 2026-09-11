@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 import { LoginComponent } from './login.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -12,7 +13,7 @@ describe('LoginComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, RouterTestingModule, FormsModule],
+      imports: [TranslateModule.forRoot(), HttpClientTestingModule, RouterTestingModule, FormsModule],
       declarations: [LoginComponent],
       schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();

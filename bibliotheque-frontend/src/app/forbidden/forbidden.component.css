@@ -1,4 +1,35 @@
 .forbidden {
-    margin-top: 200px;
-    font-size: 50px;
+  display: grid;
+  place-items: center;
+  min-height: 100%;
+  padding: var(--space-8);
+}
+
+.forbidden__panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: min(32rem, 100%);
+  padding: var(--space-10);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+}
+
+.forbidden__art {
+  max-width: 14rem;
+  margin-bottom: var(--space-6);
+}
+
+.forbidden__title {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+}
+
+.forbidden__text {
+  margin: 0 0 var(--space-8);
+  max-width: 26rem;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
 }

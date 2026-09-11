@@ -1,3 +1,43 @@
-<div class="container">
-    <p class="home">Welcome to Online Library System</p>
+<div class="home bg-hero">
+  <section class="home-hero ds-split">
+
+    <!-- Texte -->
+    <div class="anim-rise">
+      <span class="home-eyebrow">
+        <span class="home-eyebrow__dot" aria-hidden="true"></span>
+        {{ 'app.name' | translate }}
+      </span>
+      <h1 class="home-title">{{ 'home.heroTitle' | translate }}</h1>
+      <p class="home-text">{{ 'home.heroText' | translate }}</p>
+      <a routerLink="/login" class="ds-btn ds-btn--primary ds-btn--lg">
+        <i class="fas fa-arrow-right-to-bracket" aria-hidden="true"></i>
+        {{ 'home.getStarted' | translate }}
+      </a>
+    </div>
+
+    <!-- Illustration -->
+    <div class="ds-split__art anim-fade">
+      <app-illustration name="shelf"></app-illustration>
+    </div>
+
+  </section>
+
+  <!-- Trois piliers -->
+  <section class="home-features anim-stagger">
+    <article class="home-feature hover-lift">
+      <span class="home-feature__icon home-feature__icon--brand" aria-hidden="true"><i class="fas fa-book"></i></span>
+      <h2 class="home-feature__title">{{ 'home.featureCatalogTitle' | translate }}</h2>
+      <p class="home-feature__text">{{ 'home.featureCatalogText' | translate }}</p>
+    </article>
+    <article class="home-feature hover-lift">
+      <span class="home-feature__icon home-feature__icon--success" aria-hidden="true"><i class="fas fa-right-left"></i></span>
+      <h2 class="home-feature__title">{{ 'home.featureLoansTitle' | translate }}</h2>
+      <p class="home-feature__text">{{ 'home.featureLoansText' | translate }}</p>
+    </article>
+    <article class="home-feature hover-lift">
+      <span class="home-feature__icon home-feature__icon--warning" aria-hidden="true"><i class="fas fa-calendar-check"></i></span>
+      <h2 class="home-feature__title">{{ 'home.featureReservationsTitle' | translate }}</h2>
+      <p class="home-feature__text">{{ 'home.featureReservationsText' | translate }}</p>
+    </article>
+  </section>
 </div>

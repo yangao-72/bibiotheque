@@ -1,0 +1,40 @@
+<ng-container *ngIf="request | async as req">
+  <div class="ds-overlay" (click)="answer(false)">
+    <div class="ds-modal"
+         role="alertdialog"
+         aria-modal="true"
+         [attr.aria-labelledby]="'confirm-title'"
+         [attr.aria-describedby]="'confirm-text'"
+         (click)="$event.stopPropagation()">
+
+      <div class="ds-modal__body">
+        <span class="ds-modal__icon"
+              [ngClass]="req.danger ? 'ds-modal__icon--danger' : 'ds-modal__icon--info'"
+              aria-hidden="true">
+          <i class="fas" [ngClass]="req.danger ? 'fa-triangle-exclamation' : 'fa-circle-question'"></i>
+        </span>
+        <div>
+          <h2 class="ds-modal__title" id="confirm-title">
+            {{ req.titleKey | translate: req.params }}
+          </h2>
+          <p class="ds-modal__text" id="confirm-text">
+            {{ req.textKey | translate: req.params }}
+          </p>
+        </div>
+      </div>
+
+      <div class="ds-modal__footer">
+        <button type="button" class="ds-btn ds-btn--secondary" (click)="answer(false)">
+          {{ (req.cancelKey || 'common.cancel') | translate }}
+        </button>
+        <button #confirmButton
+                type="button"
+                class="ds-btn"
+                [ngClass]="req.danger ? 'ds-btn--danger' : 'ds-btn--primary'"
+                (click)="answer(true)">
+          {{ (req.confirmKey || 'common.confirm') | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-container>

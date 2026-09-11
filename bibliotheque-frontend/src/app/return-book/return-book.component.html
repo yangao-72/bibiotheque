@@ -6,7 +6,7 @@
       <span class="page-title-icon"><i class="fas fa-undo-alt"></i></span>
       Retourner un Livre
     </h2>
-    <p class="page-subtitle">Consultez vos emprunts en cours et retournez un livre</p>
+    <p class="page-subtitle">{{ 'borrow.myLoans' | translate }}</p>
   </div>
 
   <!-- Messages -->
@@ -29,24 +29,24 @@
   <!-- Chargement -->
   <div *ngIf="loading" class="loading-state text-center">
     <div class="spinner-border" role="status">
-      <span class="visually-hidden">Chargement...</span>
+      <span class="visually-hidden">{{ 'common.loading' | translate }}</span>
     </div>
-    <p class="mt-3 text-muted">Chargement des emprunts...</p>
+    <p class="mt-3 text-muted">{{ 'borrow.loadingLoans' | translate }}</p>
   </div>
 
   <!-- Liste vide -->
   <div *ngIf="!loading && borrow.length === 0 && !errorMessage" class="empty-state text-center">
     <div class="empty-icon"><i class="fas fa-undo-alt"></i></div>
-    <h4>Aucun emprunt en cours</h4>
-    <p>Vous n'avez aucun livre à retourner pour le moment.</p>
+    <h4>{{ 'borrow.noLoan' | translate }}</h4>
+    <p>{{ 'borrow.noLoanText' | translate }}</p>
   </div>
 
   <!-- Erreur avec réessayer -->
   <div *ngIf="!loading && errorMessage && borrow.length === 0" class="error-state text-center">
     <div class="error-icon"><i class="fas fa-plug"></i></div>
-    <h4>Impossible de charger les emprunts</h4>
+    <h4>{{ 'borrow.loadLoansFailed' | translate }}</h4>
     <p class="text-muted">{{ errorMessage }}</p>
-    <button class="btn btn-retry" (click)="retry()"><i class="fas fa-sync-alt"></i> Réessayer</button>
+    <button class="btn btn-retry" (click)="retry()"><i class="fas fa-sync-alt"></i> {{ 'common.retry' | translate }}</button>
   </div>
 
   <!-- Tableau -->
@@ -55,11 +55,11 @@
       <table class="table align-middle">
         <thead>
           <tr>
-            <th class="ps-3">Livre</th>
-            <th>Date d'emprunt</th>
-            <th class="d-none d-sm-table-cell">Date de retour</th>
-            <th class="d-none d-sm-table-cell">Échéance</th>
-            <th class="text-center pe-3">Action</th>
+            <th class="ps-3">{{ 'reservations.book' | translate }}</th>
+            <th>{{ 'borrow.issueDate' | translate }}</th>
+            <th class="d-none d-sm-table-cell">{{ 'borrow.returnDate' | translate }}</th>
+            <th class="d-none d-sm-table-cell">{{ 'borrow.dueDate' | translate }}</th>
+            <th class="text-center pe-3">{{ 'common.actions' | translate }}</th>
           </tr>
         </thead>
         <tbody>
@@ -68,7 +68,7 @@
             <td>{{ b.issueDate }}</td>
             <td class="d-none d-sm-table-cell">
               <span *ngIf="b.returnDate" class="text-success"><i class="fas fa-check-circle"></i> {{ b.returnDate }}</span>
-              <span *ngIf="!b.returnDate" class="text-warning"><i class="fas fa-hourglass-half"></i> En cours</span>
+              <span *ngIf="!b.returnDate" class="text-warning"><i class="fas fa-hourglass-half"></i> {{ 'borrow.ongoing' | translate }}</span>
             </td>
             <td class="d-none d-sm-table-cell">{{ b.dueDate }}</td>
             <td class="text-center pe-3">

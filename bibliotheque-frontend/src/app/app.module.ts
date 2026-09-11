@@ -30,6 +30,26 @@ import { ReservationFormComponent } from './reservation-form/reservation-form.co
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { TopbarComponent } from './topbar/topbar.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { HttpClient } from '@angular/common/http';
+import { APP_INITIALIZER } from '@angular/core';
+import { LanguageService } from './_service/language.service';
+import { IllustrationComponent } from './_ui/illustration/illustration.component';
+import { ToastContainerComponent } from './_ui/toast/toast-container.component';
+import { ConfirmDialogComponent } from './_ui/confirm-dialog/confirm-dialog.component';
+import { EmptyStateComponent } from './_ui/empty-state/empty-state.component';
+import { LanguageSwitcherComponent } from './_ui/language-switcher/language-switcher.component';
+
+/** Charge les fichiers de traduction depuis src/assets/i18n/<langue>.json. */
+export function createTranslateLoader(http: HttpClient): TranslateLoader {
+  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+}
+
+/** Applique la langue mémorisée avant le premier rendu. */
+export function initLanguage(languageService: LanguageService): () => void {
+  return () => languageService.init();
+}
 
 @NgModule({
   declarations: [
@@ -55,13 +75,26 @@ import { DashboardComponent } from './dashboard/dashboard.component';
     SidebarComponent,
     TopbarComponent,
     DashboardComponent,
+    IllustrationComponent,
+    ToastContainerComponent,
+    ConfirmDialogComponent,
+    EmptyStateComponent,
+    LanguageSwitcherComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
     FormsModule,
-    RouterModule
+    RouterModule,
+    TranslateModule.forRoot({
+      defaultLanguage: 'fr',
+      loader: {
+        provide: TranslateLoader,
+        useFactory: createTranslateLoader,
+        deps: [HttpClient]
+      }
+    })
   ],
   providers: [
     AuthGuard,
@@ -71,7 +104,13 @@ import { DashboardComponent } from './dashboard/dashboard.component';
       multi: true
     },
     UsersService,
-    BooksService
+    BooksService,
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initLanguage,
+      deps: [LanguageService],
+      multi: true
+    }
    ],
   bootstrap: [AppComponent]
 })

@@ -1,155 +1,148 @@
-.login-container {
-  min-height: 80vh;
+.login-page {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: var(--space-6);
+}
+
+.login-shell {
+  width: 100%;
+  max-width: var(--content-max);
+}
+
+/* --- Panneau formulaire --------------------------------------------------- */
+
+.login-panel {
+  width: 100%;
+  max-width: 30rem;
+  margin-inline: auto;
+  padding: var(--space-10);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+}
+
+.login-brand {
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 2rem 1rem;
+  gap: var(--space-3);
+  margin-bottom: var(--space-8);
 }
 
-.login-card {
-  width: 100%;
-  max-width: 420px;
-  background: var(--surface);
-  border-radius: 20px;
-  padding: 2.5rem 2rem;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
-  border: 1px solid var(--border);
-  transition: background-color 0.3s, border-color 0.3s;
+.login-brand__icon {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--brand-600), var(--brand-500));
+  color: var(--text-on-brand);
+  font-size: var(--text-xl);
+  box-shadow: var(--shadow-brand);
 }
 
-/* Logo */
-.login-logo {
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-.logo-icon {
-  font-size: 2.5rem;
-  display: block;
-  margin-bottom: 0.5rem;
-}
-
-.login-logo h1 {
-  font-size: 1.6rem;
-  font-weight: 800;
-  color: var(--text-primary);
+.login-brand__name {
   margin: 0;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+}
+
+.login-brand__tagline {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.login-title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-bold);
 }
 
 .login-subtitle {
-  color: var(--text-muted);
-  font-size: 0.85rem;
-  margin: 0.25rem 0 0;
-}
-
-/* Toast */
-.toast-error {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 10px;
-  color: #dc2626;
-  font-weight: 500;
-  font-size: 0.85rem;
-  margin-bottom: 1.5rem;
-  animation: slideDown 0.3s ease-out;
-}
-
-.toast-close {
-  margin-left: auto;
-  background: none;
-  border: none;
-  font-size: 1rem;
-  cursor: pointer;
-  color: inherit;
-  opacity: 0.6;
-}
-.toast-close:hover { opacity: 1; }
-
-@keyframes slideDown {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Form */
-.form-group { margin-bottom: 1.25rem; }
-
-.form-label {
-  display: block;
-  font-size: 0.85rem;
-  font-weight: 600;
+  margin: 0 0 var(--space-8);
   color: var(--text-secondary);
-  margin-bottom: 0.4rem;
+  font-size: var(--text-sm);
 }
 
-.form-input {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  font-size: 0.9rem;
-  color: var(--text-primary);
-  background: var(--surface-hover);
-  transition: all 0.2s;
-  outline: none;
-  box-sizing: border-box;
-}
-
-.form-input:focus {
-  border-color: #6366f1;
-  background: var(--surface);
-  box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
-}
-
-/* Button */
-.btn-login {
-  width: 100%;
+.login-hint {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: opacity 0.2s, transform 0.1s;
-}
-
-.btn-login:hover { opacity: 0.9; transform: translateY(-1px); }
-.btn-login:active { transform: translateY(0); }
-.btn-login:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-
-.spinner-small {
-  width: 18px;
-  height: 18px;
-  border: 2px solid rgba(255,255,255,0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-}
-
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* Hint */
-.login-hint {
-  text-align: center;
-  font-size: 0.78rem;
+  gap: var(--space-2);
+  margin: var(--space-6) 0 0;
+  font-size: var(--text-xs);
   color: var(--text-muted);
-  margin-top: 1.25rem;
 }
 
-/* Responsive */
-@media (max-width: 480px) {
-  .login-card { padding: 2rem 1.25rem; }
+/* --- Alerte --------------------------------------------------------------- */
+
+.login-alert {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+  padding: var(--space-3) var(--space-4);
+  background: var(--danger-bg);
+  border: 1px solid var(--danger-border);
+  border-radius: var(--radius-sm);
+  color: var(--danger);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
+.login-alert span { flex: 1; }
+
+.login-alert__close {
+  padding: var(--space-1);
+  background: none;
+  border: 0;
+  color: inherit;
+  opacity: 0.7;
+  cursor: pointer;
+  border-radius: var(--radius-xs);
+}
+.login-alert__close:hover { opacity: 1; }
+
+/* --- Colonne illustration ------------------------------------------------- */
+
+.login-art {
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.login-features {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3) var(--space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.login-features li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text-secondary);
+}
+
+.login-features i {
+  display: grid;
+  place-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background: var(--success-bg);
+  color: var(--success);
+  font-size: 0.65rem;
+}
+
+/* Sous 992px, l'illustration passe sous le formulaire : on la réduit et on
+   masque la liste, qui doublonnerait avec le contenu de la page d'accueil. */
+@media (max-width: 991.98px) {
+  .login-panel { padding: var(--space-8) var(--space-6); }
+  .login-features { display: none; }
 }

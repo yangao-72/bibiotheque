@@ -1,73 +1,91 @@
-<div class="form-container">
-  <!-- Background animation -->
-  <div class="bg-animation">
-    <div class="bg-circle bg-circle-1"></div>
-    <div class="bg-circle bg-circle-2"></div>
-    <div class="bg-circle bg-circle-3"></div>
-  </div>
+<div class="registration bg-grid">
+  <div class="registration__shell ds-split">
 
-  <!-- Header -->
-  <div class="page-header">
-    <h2 class="page-title"><i class="fas fa-user-plus me-2"></i> Ajouter un adhérent</h2>
-  </div>
+    <!-- Formulaire -->
+    <div class="ds-card anim-rise">
+      <div class="ds-card__body">
+        <header class="ds-page-header">
+          <div>
+            <h1 class="ds-page-header__title">
+              <span class="ds-page-header__icon" aria-hidden="true"><i class="fas fa-user-plus"></i></span>
+              {{ 'members.addTitle' | translate }}
+            </h1>
+            <p class="ds-page-header__subtitle">{{ 'members.addSubtitle' | translate }}</p>
+          </div>
+        </header>
 
-  <!-- Toast succès -->
-  <div *ngIf="successMessage" class="toast-success">
-    <i class="fas fa-check-circle"></i> {{ successMessage }}
-  </div>
+        <!-- Messages : annoncés aux lecteurs d'écran -->
+        <div *ngIf="successMessage" class="reg-alert reg-alert--success anim-rise-sm" role="status">
+          <i class="fas fa-circle-check" aria-hidden="true"></i>
+          <span>{{ successMessage | translate }}</span>
+        </div>
 
-  <!-- Toast erreur -->
-  <div *ngIf="errorMessage" class="toast-error">
-    <div class="toast-error-content">
-      <i class="fas fa-exclamation-circle"></i>
-      <span>{{ errorMessage }}</span>
+        <div *ngIf="errorMessage" class="reg-alert reg-alert--error anim-rise-sm" role="alert">
+          <i class="fas fa-circle-exclamation" aria-hidden="true"></i>
+          <span>{{ errorMessage | translate }}</span>
+          <button type="button" class="reg-alert__close" (click)="errorMessage = ''"
+                  [attr.aria-label]="'common.close' | translate">
+            <i class="fas fa-xmark" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <form (ngSubmit)="onSubmit()" autocomplete="off" novalidate>
+
+          <div class="ds-field">
+            <label class="ds-label ds-label--required" for="reg-name">{{ 'members.name' | translate }}</label>
+            <div class="ds-input-group">
+              <span class="ds-input-group__icon" aria-hidden="true"><i class="fas fa-user"></i></span>
+              <input id="reg-name" type="text" class="ds-input"
+                     [(ngModel)]="user.name" name="name" placeholder="Jean Dupont">
+            </div>
+          </div>
+
+          <div class="ds-field">
+            <label class="ds-label ds-label--required" for="reg-username">{{ 'members.username' | translate }}</label>
+            <div class="ds-input-group">
+              <span class="ds-input-group__icon" aria-hidden="true"><i class="fas fa-at"></i></span>
+              <input id="reg-username" type="text" class="ds-input"
+                     [(ngModel)]="user.username" name="username" placeholder="jdupont">
+            </div>
+          </div>
+
+          <div class="ds-field">
+            <label class="ds-label ds-label--required" for="reg-password">{{ 'members.password' | translate }}</label>
+            <div class="ds-input-group">
+              <span class="ds-input-group__icon" aria-hidden="true"><i class="fas fa-lock"></i></span>
+              <input id="reg-password" type="password" class="ds-input"
+                     [(ngModel)]="user.password" name="password" placeholder="••••••••"
+                     autocomplete="new-password">
+            </div>
+          </div>
+
+          <div class="ds-field">
+            <label class="ds-label" for="reg-role">{{ 'members.role' | translate }}</label>
+            <select id="reg-role" class="ds-select" [(ngModel)]="user.role[0].roleName" name="role">
+              <option value="Admin">{{ 'members.profileAdmin' | translate }}</option>
+              <option value="User">{{ 'members.profileMember' | translate }}</option>
+            </select>
+            <span class="ds-hint">{{ 'members.profileHint' | translate }}</span>
+          </div>
+
+          <div class="registration__actions">
+            <button type="button" class="ds-btn ds-btn--secondary" (click)="goToUsersList()">
+              {{ 'common.cancel' | translate }}
+            </button>
+            <button type="submit" class="ds-btn ds-btn--primary" [disabled]="saving">
+              <span *ngIf="saving" class="ds-spinner" aria-hidden="true"></span>
+              <i *ngIf="!saving" class="fas fa-check" aria-hidden="true"></i>
+              {{ (saving ? 'common.saving' : 'common.submit') | translate }}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
-    <button class="toast-close" (click)="errorMessage = ''"><i class="fas fa-times"></i></button>
-  </div>
 
-  <!-- Formulaire -->
-  <div class="form-card">
-    <form (ngSubmit)="onSubmit()" autocomplete="off">
-      <div class="form-group">
-        <label class="form-label"><i class="fas fa-user me-1"></i> Nom complet</label>
-        <input type="text" class="form-input" placeholder="Ex: Jean Dupont"
-               [(ngModel)]="user.name" name="name">
-      </div>
+    <!-- Illustration -->
+    <div class="ds-split__art anim-fade">
+      <app-illustration name="member"></app-illustration>
+    </div>
 
-      <div class="form-group">
-        <label class="form-label"><i class="fas fa-at me-1"></i> Nom d'utilisateur</label>
-        <input type="text" class="form-input" placeholder="Ex: jeffyangao"
-               [(ngModel)]="user.username" name="username">
-      </div>
-
-      <div class="form-group">
-        <label class="form-label"><i class="fas fa-lock me-1"></i> Mot de passe</label>
-        <input type="password" class="form-input" placeholder="••••••••"
-               [(ngModel)]="user.password" name="password">
-      </div>
-
-      <div class="form-group">
-        <label class="form-label"><i class="fas fa-user-tag me-1"></i> Rôle</label>
-        <select class="form-input" [(ngModel)]="user.role[0].roleName" name="role">
-          <option value="Admin">Administrateur / Bibliothécaire</option>
-          <option value="User">Adhérent</option>
-        </select>
-        <small class="form-text text-muted">
-          L'administrateur gère les livres et voit toutes les réservations ;
-          l'adhérent ne voit que les siennes.
-        </small>
-      </div>
-
-      <div class="form-actions">
-        <button type="button" class="btn-cancel" (click)="goToUsersList()">
-          <i class="fas fa-times"></i> Annuler
-        </button>
-        <button type="submit" class="btn-submit" [disabled]="saving">
-          <span *ngIf="saving" class="spinner-small"></span>
-          <i *ngIf="!saving" class="fas fa-check"></i>
-          {{ saving ? 'Enregistrement...' : 'Valider' }}
-        </button>
-      </div>
-    </form>
   </div>
 </div>

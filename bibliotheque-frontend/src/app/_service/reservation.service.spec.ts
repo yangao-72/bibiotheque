@@ -3,6 +3,7 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { ReservationService } from './reservation.service';
 import { Reservation, ReservationRequest } from '../_model/reservation';
 import { environment } from '../../environments/environment';
+import { TranslateModule } from '@ngx-translate/core';
 
 describe('ReservationService', () => {
   let service: ReservationService;
@@ -11,7 +12,7 @@ describe('ReservationService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
+      imports: [TranslateModule.forRoot(), HttpClientTestingModule],
       providers: [ReservationService]
     });
     service = TestBed.inject(ReservationService);

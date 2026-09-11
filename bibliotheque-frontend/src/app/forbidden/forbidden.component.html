@@ -1,3 +1,11 @@
-<div class="container">
-    <p class="forbidden text-center">You do not have access to this page.</p>
+<div class="forbidden bg-hero">
+  <div class="forbidden__panel surface-glass anim-pop">
+    <app-illustration name="locked" class="forbidden__art"></app-illustration>
+    <h1 class="forbidden__title">{{ 'auth.forbiddenTitle' | translate }}</h1>
+    <p class="forbidden__text">{{ 'auth.forbiddenText' | translate }}</p>
+    <a routerLink="/" class="ds-btn ds-btn--primary">
+      <i class="fas fa-arrow-left" aria-hidden="true"></i>
+      {{ 'auth.backToDashboard' | translate }}
+    </a>
+  </div>
 </div>

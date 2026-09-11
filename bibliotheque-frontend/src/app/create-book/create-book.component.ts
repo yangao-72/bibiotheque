@@ -35,11 +35,11 @@ export class CreateBookComponent implements OnInit {
 
   validate(): string[] {
     const errors: string[] = [];
-    if (!this.book.bookName?.trim()) errors.push('Le nom du livre est obligatoire.');
-    if (!this.book.bookAuthor?.trim()) errors.push('L\'auteur est obligatoire.');
-    if (!this.book.bookGenre?.trim()) errors.push('Le genre est obligatoire.');
+    if (!this.book.bookName?.trim()) errors.push('validation.bookNameRequired');
+    if (!this.book.bookAuthor?.trim()) errors.push('validation.bookAuthorRequired');
+    if (!this.book.bookGenre?.trim()) errors.push('validation.bookGenreRequired');
     if (this.book.noOfCopies == null || this.book.noOfCopies <= 0) {
-      errors.push('Le nombre de copies doit être supérieur à 0.');
+      errors.push('validation.copiesPositive');
     }
     return errors;
   }
@@ -51,9 +51,12 @@ export class CreateBookComponent implements OnInit {
     this.successMessage = '';
 
     // Validation côté client
+    // On n'affiche que la première règle enfreinte : concaténer plusieurs
+    // messages donne une phrase illisible, et l'utilisateur corrige de toute
+    // façon un champ à la fois.
     const validationErrors = this.validate();
     if (validationErrors.length > 0) {
-      this.errorMessage = validationErrors.join(' ');
+      this.errorMessage = validationErrors[0];
       return;
     }
 
@@ -61,7 +64,7 @@ export class CreateBookComponent implements OnInit {
 
     this.booksService.createBook(this.book).subscribe({
       next: () => {
-        this.successMessage = 'Livre créé avec succès.';
+        this.successMessage = 'books.created';
         this.loading = false;
         setTimeout(() => this.goToBooksList(), 1500);
       },
@@ -81,9 +84,11 @@ export class CreateBookComponent implements OnInit {
   }
 
   private extractErrorMessage(err: any): string {
-    if (err.status === 0) return 'Le serveur est injoignable. Vérifiez que le backend est démarré.';
+    // Clé de traduction pour les cas génériques, message du serveur tel quel
+    // quand il en fournit un (le pipe `translate` laisse passer l'inconnu).
+    if (err.status === 0) return 'errors.network';
     if (err.error?.message) return err.error.message;
-    if (typeof err.error === 'string') return err.error;
-    return `Erreur ${err.status} : une erreur inattendue est survenue.`;
+    if (typeof err.error === 'string' && err.error.trim()) return err.error;
+    return 'errors.server';
   }
 }

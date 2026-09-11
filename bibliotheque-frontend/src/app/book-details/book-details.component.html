@@ -2,9 +2,9 @@
 <table class="table table-info table-striped">
     <thead>
         <tr>
-            <th> User ID </th>
-            <th> Issue Date </th>
-            <th> Return Date </th>
+            <th> {{ 'borrow.userId' | translate }} </th>
+            <th> {{ 'borrow.issueDate' | translate }} </th>
+            <th> {{ 'borrow.returnDate' | translate }} </th>
         </tr>
     </thead>
     <tbody>
@@ -16,7 +16,7 @@
                 <td> {{ borrower.returnDate }} </td>
             </div>
             <div *ngIf="borrower.returnDate === null">
-                <td> Book not returned yet </td>
+                <td> {{ 'borrow.notReturnedYet' | translate }} </td>
             </div>
         </tr>
     </tbody>

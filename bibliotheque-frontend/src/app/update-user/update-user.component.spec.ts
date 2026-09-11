@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 import { UpdateUserComponent } from './update-user.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 describe('UpdateUserComponent', () => {
   let component: UpdateUserComponent;
@@ -12,7 +13,7 @@ describe('UpdateUserComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, RouterTestingModule, FormsModule],
+      imports: [TranslateModule.forRoot(), HttpClientTestingModule, RouterTestingModule, FormsModule],
       declarations: [UpdateUserComponent],
       schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();

@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 import { UpdateBookComponent } from './update-book.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 describe('UpdateBookComponent', () => {
   let component: UpdateBookComponent;
@@ -12,7 +13,7 @@ describe('UpdateBookComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, RouterTestingModule, FormsModule],
+      imports: [TranslateModule.forRoot(), HttpClientTestingModule, RouterTestingModule, FormsModule],
       declarations: [UpdateBookComponent],
       schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();

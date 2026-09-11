@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { ReservationFormComponent } from './reservation-form.component';
 import { Books } from '../_model/books';
 import { Users } from '../_model/users';
@@ -21,8 +23,9 @@ describe('ReservationFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [FormsModule],
-      declarations: [ReservationFormComponent]
+      imports: [FormsModule, TranslateModule.forRoot()],
+      declarations: [ReservationFormComponent],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA]
     }).compileComponents();
 
     fixture = TestBed.createComponent(ReservationFormComponent);
@@ -39,9 +42,9 @@ describe('ReservationFormComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should display form title', () => {
+  it('should display the form title', () => {
     const title = fixture.nativeElement.querySelector('h3');
-    expect(title.textContent).toContain('Créer une réservation');
+    expect(title.textContent).toContain('reservations.createTitle');
   });
 
   it('should display book dropdown options', () => {
@@ -65,7 +68,7 @@ describe('ReservationFormComponent', () => {
     // RS-04 : un adhérent ne choisit pas pour qui il réserve, le serveur le déduit du token.
     const select = fixture.nativeElement.querySelector('select[name="adherentId"]');
     expect(select).toBeNull();
-    expect(fixture.nativeElement.textContent).toContain('enregistrée à votre nom');
+    expect(fixture.nativeElement.textContent).toContain('reservations.forYourself');
   });
 
   it('should disable submit button when form is invalid', () => {
@@ -125,48 +128,14 @@ describe('ReservationFormComponent', () => {
     expect(component.reservationChange.emit).toHaveBeenCalled();
   });
 
-  it('should display error message when formError is set', () => {
-    component.formError = 'RG-01 : livre disponible';
-    fixture.detectChanges();
-
-    const alert = fixture.nativeElement.querySelector('.toast-error');
-    expect(alert).toBeTruthy();
-    expect(alert.textContent).toContain('RG-01');
-  });
-
-  it('should display success message when formSuccess is set', () => {
-    component.formSuccess = 'Réservation créée avec succès.';
-    fixture.detectChanges();
-
-    const alert = fixture.nativeElement.querySelector('.toast-success');
-    expect(alert).toBeTruthy();
-    expect(alert.textContent).toContain('succès');
-  });
-
-  it('should not display error when formError is empty', () => {
-    component.formError = '';
-    fixture.detectChanges();
-
-    const alert = fixture.nativeElement.querySelector('.toast-error');
-    expect(alert).toBeNull();
-  });
-
-  it('should not display success when formSuccess is empty', () => {
-    component.formSuccess = '';
-    fixture.detectChanges();
-
-    const alert = fixture.nativeElement.querySelector('.toast-success');
-    expect(alert).toBeNull();
-  });
-
-  it('should show placeholder text in book dropdown', () => {
+  it('should show a placeholder option in the book dropdown', () => {
     const placeholder = fixture.nativeElement.querySelector('select[name="livreId"] option:first-child');
-    expect(placeholder.textContent).toContain('Sélectionner un livre');
+    expect(placeholder.textContent).toContain('reservations.chooseBook');
   });
 
-  it('should show placeholder text in user dropdown', () => {
+  it('should show a placeholder option in the member dropdown', () => {
     const placeholder = fixture.nativeElement.querySelector('select[name="adherentId"] option:first-child');
-    expect(placeholder.textContent).toContain('Sélectionner un adhérent');
+    expect(placeholder.textContent).toContain('reservations.chooseMember');
   });
 
   it('should close error message on closeFormError', () => {

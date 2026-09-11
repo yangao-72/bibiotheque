@@ -6,6 +6,7 @@ import { of, throwError } from 'rxjs';
 
 import { CreateBookComponent } from './create-book.component';
 import { BooksService } from '../_service/books.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 describe('CreateBookComponent', () => {
   let component: CreateBookComponent;
@@ -16,7 +17,7 @@ describe('CreateBookComponent', () => {
     const spy = jasmine.createSpyObj('BooksService', ['createBook']);
 
     await TestBed.configureTestingModule({
-      imports: [
+      imports: [TranslateModule.forRoot(), 
         FormsModule,
         HttpClientTestingModule,
         RouterTestingModule
@@ -131,6 +132,6 @@ describe('CreateBookComponent', () => {
     component.book.bookGenre = 'Genre';
     component.book.noOfCopies = 3;
     component.onSubmit();
-    expect(component.errorMessage).toContain('injoignable');
+    expect(component.errorMessage).toBe('errors.network');
   });
 });

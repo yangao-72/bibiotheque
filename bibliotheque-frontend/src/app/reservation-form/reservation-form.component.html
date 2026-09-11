@@ -1,100 +1,76 @@
-<div class="reservation-form-wrapper">
-  <div class="row justify-content-center">
-    <div class="col-12 col-sm-10 col-md-8 col-lg-6">
+<div class="ds-card reservation-form anim-rise">
+  <div class="ds-card__body">
+    <div class="ds-split">
 
-      <!-- Titre -->
-      <h3 class="form-title text-center mb-4">
-        <span class="form-title-icon me-2"><i class="fas fa-plus-circle"></i></span>
-        Créer une réservation
-      </h3>
+      <!-- Colonne formulaire -->
+      <div>
+        <h3 class="reservation-form__title">
+          <span class="reservation-form__icon" aria-hidden="true"><i class="fas fa-plus"></i></span>
+          {{ 'reservations.createTitle' | translate }}
+        </h3>
 
-      <!-- Messages animés -->
-      <div class="messages-container">
-        <!-- Erreur -->
-        <div *ngIf="formError" class="toast-message toast-error d-flex align-items-center justify-content-between">
-          <div class="d-flex align-items-center">
-            <span class="toast-icon me-2"><i class="fas fa-exclamation-circle"></i></span>
-            <span><strong>Erreur :</strong> {{ formError }}</span>
-          </div>
-          <button class="btn-close btn-close-white" (click)="closeFormError()" aria-label="Fermer"></button>
-        </div>
+        <form (ngSubmit)="onSubmit()" autocomplete="off" novalidate>
 
-        <!-- Succès -->
-        <div *ngIf="formSuccess" class="toast-message toast-success d-flex align-items-center justify-content-between">
-          <div class="d-flex align-items-center">
-            <span class="toast-icon me-2"><i class="fas fa-check-circle"></i></span>
-            <span>{{ formSuccess }}</span>
-          </div>
-          <button class="btn-close btn-close-white" (click)="closeFormSuccess()" aria-label="Fermer"></button>
-        </div>
-      </div>
-
-      <!-- Formulaire -->
-      <div class="form-card">
-        <form (ngSubmit)="onSubmit()" autocomplete="off">
-
-          <!-- Sélecteur Livre -->
-          <div class="mb-4">
-            <label for="livreId" class="form-label fw-semibold">
-              <span class="label-icon me-1"><i class="fas fa-book"></i></span> Livre
+          <!-- Livre -->
+          <div class="ds-field">
+            <label class="ds-label ds-label--required" for="livreId">
+              {{ 'reservations.book' | translate }}
             </label>
-            <select
-              class="form-select form-select-lg"
-              id="livreId"
-              [ngModel]="reservation.livreId"
-              (ngModelChange)="onLivreChange($event)"
-              name="livreId">
-              <option [ngValue]="null" disabled>-- Sélectionner un livre --</option>
+            <select class="ds-select"
+                    id="livreId"
+                    [ngModel]="reservation.livreId"
+                    (ngModelChange)="onLivreChange($event)"
+                    name="livreId">
+              <option [ngValue]="null" disabled>— {{ 'reservations.chooseBook' | translate }} —</option>
               <option *ngFor="let book of books" [ngValue]="book.bookId">
                 {{ book.bookName }} — {{ book.bookAuthor }}
               </option>
             </select>
-            <div class="form-hint" *ngIf="books.length === 0">
-              <span class="text-warning"><i class="fas fa-exclamation-triangle"></i></span> Aucun livre disponible.
-            </div>
+            <span class="ds-hint" *ngIf="books.length === 0">
+              <i class="fas fa-triangle-exclamation" aria-hidden="true"></i>
+              {{ 'reservations.noBookAvailable' | translate }}
+            </span>
           </div>
 
-          <!-- Sélecteur Adhérent — réservé au bibliothécaire -->
-          <div class="mb-4" *ngIf="estBibliothecaire">
-            <label for="adherentId" class="form-label fw-semibold">
-              <span class="label-icon me-1"><i class="fas fa-user"></i></span> Adhérent
+          <!-- Adhérent — réservé au bibliothécaire (RS-04) -->
+          <div class="ds-field" *ngIf="estBibliothecaire">
+            <label class="ds-label ds-label--required" for="adherentId">
+              {{ 'reservations.member' | translate }}
             </label>
-            <select
-              class="form-select form-select-lg"
-              id="adherentId"
-              [ngModel]="reservation.adherentId"
-              (ngModelChange)="onAdherentChange($event)"
-              name="adherentId">
-              <option [ngValue]="null" disabled>-- Sélectionner un adhérent --</option>
+            <select class="ds-select"
+                    id="adherentId"
+                    [ngModel]="reservation.adherentId"
+                    (ngModelChange)="onAdherentChange($event)"
+                    name="adherentId">
+              <option [ngValue]="null" disabled>— {{ 'reservations.chooseMember' | translate }} —</option>
               <option *ngFor="let user of users" [ngValue]="user.userId">
                 {{ user.name }} ({{ user.username }})
               </option>
             </select>
-            <div class="form-hint" *ngIf="users.length === 0">
-              <span class="text-warning"><i class="fas fa-exclamation-triangle"></i></span> Aucun adhérent disponible.
-            </div>
+            <span class="ds-hint" *ngIf="users.length === 0">
+              <i class="fas fa-triangle-exclamation" aria-hidden="true"></i>
+              {{ 'reservations.noMemberAvailable' | translate }}
+            </span>
           </div>
 
           <!-- Un adhérent réserve toujours pour lui-même : l'identité vient du token -->
-          <div class="mb-4" *ngIf="!estBibliothecaire">
-            <div class="form-hint">
-              <span class="label-icon me-1"><i class="fas fa-user-shield"></i></span>
-              La réservation sera enregistrée à votre nom.
-            </div>
+          <div class="reservation-form__identity" *ngIf="!estBibliothecaire">
+            <i class="fas fa-user-shield" aria-hidden="true"></i>
+            <span>{{ 'reservations.forYourself' | translate }}</span>
           </div>
 
-          <!-- Bouton -->
-          <div class="d-grid">
-            <button
-              class="btn btn-lg btn-submit"
-              type="submit"
-              [disabled]="!isFormValid"
-              [class.disabled]="!isFormValid">
-              <i class="fas fa-calendar-plus me-2"></i> Créer la réservation
-            </button>
-          </div>
-
+          <button type="submit"
+                  class="ds-btn ds-btn--primary ds-btn--lg ds-btn--block"
+                  [disabled]="!isFormValid">
+            <i class="fas fa-calendar-plus" aria-hidden="true"></i>
+            {{ 'reservations.submit' | translate }}
+          </button>
         </form>
+      </div>
+
+      <!-- Colonne illustration -->
+      <div class="ds-split__art">
+        <app-illustration name="reserve"></app-illustration>
       </div>
 
     </div>

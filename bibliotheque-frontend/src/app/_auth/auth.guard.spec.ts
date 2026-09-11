@@ -3,13 +3,14 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 
 import { AuthGuard } from './auth.guard';
+import { TranslateModule } from '@ngx-translate/core';
 
 describe('AuthGuard', () => {
   let guard: AuthGuard;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, RouterTestingModule]
+      imports: [TranslateModule.forRoot(), HttpClientTestingModule, RouterTestingModule]
     });
     guard = TestBed.inject(AuthGuard);
   });

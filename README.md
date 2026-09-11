@@ -21,6 +21,8 @@ Application full-stack de gestion de bibliothèque : **Spring Boot** (API REST) 
 * Redirection vers une page *forbidden* si le rôle n'a pas accès à l'URL.
 * Module **Réservation** : création, liste filtrable par statut, annulation avec gestion des erreurs métier (409).
 * API de réservation **fermée** : 401 sans token, 403 sans droit, identité issue du token (voir [section 7](#sécurité-des-réservations--rs-01--rs-05)).
+* Interface **bilingue** français / anglais, bascule à chaud depuis la barre supérieure.
+* **Design system BiblioGest** : tokens, composants partagés, illustrations SVG, thème clair/sombre.
 
 ---
 
@@ -33,8 +35,9 @@ Application full-stack de gestion de bibliothèque : **Spring Boot** (API REST) 
 5. [Créer le premier compte](#5-créer-le-premier-compte)
 6. [Le trajet d'une donnée : du clic à la base](#6-le-trajet-dune-donnée--du-clic-à-la-base)
 7. [Les API](#7-les-api)
-8. [Rappel Git](#8-rappel-git)
-9. [Captures d'écran](#9-captures-décran)
+8. [Le design system et les langues](#8-le-design-system-et-les-langues)
+9. [Rappel Git](#9-rappel-git)
+10. [Captures d'écran](#10-captures-décran)
 
 ---
 
@@ -145,6 +148,16 @@ bibliothèque/
 │   └── src/
 │       ├── index.html              la seule vraie page HTML
 │       ├── main.ts                 démarre AppModule
+│       ├── styles.css              imports du design system + pont Bootstrap
+│       ├── styles/                 le design system
+│       │   ├── tokens.css              couleurs, échelles, thème sombre
+│       │   ├── base.css                réinitialisations, focus clavier
+│       │   ├── motion.css              animations et courbes
+│       │   ├── backgrounds.css         fonds décoratifs CSS/SVG
+│       │   └── components.css          composants `ds-*`
+│       ├── assets/i18n/            traductions
+│       │   ├── fr.json
+│       │   └── en.json
 │       └── app/
 │           ├── app.module.ts       déclare composants, services, intercepteur
 │           ├── app-routing.module.ts   URL -> composant, + rôles autorisés
@@ -158,11 +171,21 @@ bibliothèque/
 │           ├── _auth/
 │           │   ├── auth.guard.ts         bloque une route selon le rôle
 │           │   └── auth.interceptor.ts   ajoute "Bearer <token>" partout
+│           ├── _ui/                 composants du design system
+│           │   ├── illustration/         7 illustrations SVG inline
+│           │   ├── toast/                notifications flottantes + service
+│           │   ├── confirm-dialog/       modale de confirmation + service
+│           │   ├── empty-state/          état vide illustré
+│           │   └── language-switcher/    bascule français / anglais
 │           ├── reservations/          conteneur : état + appels API + filtre
 │           ├── reservations-list/     tableau avec badges statut + bouton annuler
 │           ├── reservation-form/      formulaire création (dropdowns livre/adhérent)
 │           └── <autres composants>/   un dossier par écran (html / css / ts / spec)
 │
+├── design-system/                  sources des fiches publiées sur claude.ai/design
+│   ├── foundations/                couleurs, typographie, espacement
+│   ├── components/                 boutons, champs, badges, tableau, retours
+│   └── patterns/                   illustrations, fonds, gabarit formulaire
 ├── screenshots/                    captures utilisées plus bas
 ├── SEANCE-1.md                     déroulé de la séance
 └── EPREUVE-SEANCE-1.md             l'épreuve à rendre
@@ -438,7 +461,7 @@ rôle réservation ; les comptes créés depuis l'écran d'inscription aussi.
 # Backend — 32 tests, aucune base requise (H2 en mémoire)
 cd bibliotheque-backend && ./mvnw test
 
-# Frontend — 128 tests
+# Frontend — 120 tests
 cd bibliotheque-frontend && npm test -- --watch=false --browsers=ChromeHeadless
 ```
 
@@ -450,7 +473,78 @@ cd bibliotheque-frontend && npm test -- --watch=false --browsers=ChromeHeadless
 
 ---
 
-## 8. Rappel Git
+## 8. Le design system et les langues
+
+### 8.1 Le design system
+
+Toutes les valeurs visuelles (couleurs, espacements, typographie, élévations,
+durées d'animation) vivent dans un seul endroit :
+
+```
+bibliotheque-frontend/src/styles/
+├── tokens.css        les variables : rampes de couleur, échelles, thème sombre
+├── base.css          réinitialisations, typographie de fond, focus clavier
+├── motion.css        animations et courbes, neutralisées si l'OS le demande
+├── backgrounds.css   fonds décoratifs générés en CSS/SVG
+└── components.css    composants réutilisables, préfixés `ds-`
+```
+
+**La règle** : un composant ne code jamais une couleur ou un espacement en dur,
+il consomme une variable. Changer `--brand-500` change toute l'application.
+
+Composants partagés (`src/app/_ui/`) :
+
+| Composant | Rôle |
+|---|---|
+| `app-illustration` | 7 illustrations SVG inline, sans image binaire ni appel réseau |
+| `app-toast-container` + `ToastService` | Notifications flottantes ; les erreurs ne s'effacent pas seules |
+| `app-confirm-dialog` + `ConfirmService` | Remplace `window.confirm()` : traduisible, accessible, aux couleurs de l'app |
+| `app-empty-state` | État vide illustré, avec l'action qui permet d'en sortir |
+| `app-language-switcher` | Bascule de langue de la barre supérieure |
+
+La galerie du design system est publiée sur **claude.ai/design** (projet
+« BiblioGest — Design System ») : fondations, composants, motifs et illustrations.
+Les sources des fiches sont dans [`design-system/`](design-system/).
+
+### 8.2 Les langues
+
+L'interface est disponible en **français** (par défaut) et en **anglais**, avec
+bascule à chaud — aucun rechargement, aucune URL différente.
+
+```
+bibliotheque-frontend/src/assets/i18n/
+├── fr.json
+└── en.json
+```
+
+* Technologie : `@ngx-translate/core`, chargement des fichiers via HTTP.
+* Le choix est mémorisé dans le `localStorage` et survit à la déconnexion.
+* À la première visite, la langue du navigateur est suivie si elle est supportée.
+* L'attribut `lang` de la page suit la langue affichée (césure, synthèse vocale).
+
+**Ajouter une langue** : créez `src/assets/i18n/<code>.json` à partir de `fr.json`,
+puis ajoutez l'entrée dans `LanguageService.AVAILABLE`.
+
+**Ajouter un texte** : ajoutez la clé dans **les deux** fichiers, puis utilisez
+`{{ 'ma.cle' | translate }}` dans le template. Les messages métier renvoyés par le
+serveur (RG-01…RG-06) traversent le pipe sans être modifiés : ils restent affichés
+tels quels.
+
+> ⚠️ Les messages d'erreur du **backend** sont rédigés en français dans le code Java.
+> Les traduire supposerait de renvoyer des codes d'erreur plutôt que des phrases —
+> ce n'est pas fait à ce stade.
+
+### 8.3 Accessibilité
+
+* Anneau de focus visible au clavier uniquement (`:focus-visible`).
+* Lien d'évitement en première tabulation.
+* Toutes les animations sont neutralisées sous `prefers-reduced-motion`.
+* Les icônes décoratives sont `aria-hidden`, les boutons-icônes ont un `aria-label`.
+* Le statut d'une réservation n'est jamais porté par la couleur seule : pastille + texte.
+
+---
+
+## 9. Rappel Git
 
 Le cycle complet, dans l'ordre, à savoir refaire sans regarder :
 
@@ -489,7 +583,7 @@ Quelques réflexes :
 
 ---
 
-## 9. Captures d'écran
+## 10. Captures d'écran
 
 ### Accueil et connexion
 

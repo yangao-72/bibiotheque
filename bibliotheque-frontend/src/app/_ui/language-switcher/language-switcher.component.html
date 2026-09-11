@@ -1,0 +1,28 @@
+<div class="lang">
+  <button type="button"
+          class="lang__trigger"
+          (click)="toggle($event)"
+          [attr.aria-label]="'topbar.chooseLanguage' | translate"
+          [attr.aria-expanded]="isOpen"
+          aria-haspopup="listbox">
+    <span class="lang__flag" aria-hidden="true">{{ current.flag }}</span>
+    <span class="lang__code">{{ current.code | uppercase }}</span>
+    <i class="fas fa-chevron-down lang__caret" aria-hidden="true"></i>
+  </button>
+
+  <ul class="lang__menu anim-rise-sm" *ngIf="isOpen" role="listbox"
+      [attr.aria-label]="'topbar.language' | translate">
+    <li *ngFor="let language of languages" role="none">
+      <button type="button"
+              class="lang__option"
+              role="option"
+              [class.is-active]="language.code === current.code"
+              [attr.aria-selected]="language.code === current.code"
+              (click)="select(language.code)">
+        <span class="lang__flag" aria-hidden="true">{{ language.flag }}</span>
+        <span>{{ language.label }}</span>
+        <i class="fas fa-check lang__check" *ngIf="language.code === current.code" aria-hidden="true"></i>
+      </button>
+    </li>
+  </ul>
+</div>

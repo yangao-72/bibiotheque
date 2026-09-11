@@ -1,120 +1,62 @@
-/* UsersList — Design Violet/Indigo + Dark Mode */
-.page-wrapper {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem;
-  background: var(--surface-hover);
-  min-height: calc(100vh - 56px);
-  transition: background-color 0.3s;
+.users-page {
+  min-height: 100%;
+  padding: var(--space-8);
 }
 
-.page-header { text-align: left; margin-bottom: 2rem; }
-.page-title {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: var(--text-primary);
+.user-cell {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-}
-.page-title-icon {
-  width: 40px; height: 40px;
-  background: linear-gradient(135deg, #6366f1, #4f46e5);
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.2rem; color: white;
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
-}
-.page-subtitle { font-size: 0.95rem; color: var(--text-secondary); margin: 0; }
-
-/* Messages */
-.toast-message {
-  padding: 1rem 1.25rem; border-radius: 8px; margin-bottom: 0.75rem;
-  color: #fff; font-size: 0.9rem; animation: slideIn 0.35s ease-out;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  display: flex; align-items: center; justify-content: space-between;
-}
-.toast-error { background: linear-gradient(135deg, #ef4444, #dc2626); }
-.toast-success { background: linear-gradient(135deg, #22c55e, #16a34a); }
-.toast-icon { font-size: 1.1rem; margin-right: 0.5rem; }
-@keyframes slideIn {
-  from { opacity: 0; transform: translateY(-12px); }
-  to { opacity: 1; transform: translateY(0); }
+  gap: var(--space-3);
 }
 
-/* Chargement */
-.loading-state { padding: 4rem 0; }
-.loading-state .spinner-border {
-  width: 3rem; height: 3rem; border-width: 0.25rem; color: #6366f1 !important;
+.user-cell__avatar {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--brand-500), var(--brand-700));
+  color: var(--text-on-brand);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
 }
 
-/* Empty / Error state */
-.empty-state, .error-state {
-  padding: 4rem 1.5rem; background: var(--surface); border-radius: 12px;
-  border: 1px solid var(--border);
-  transition: background-color 0.3s, border-color 0.3s;
-}
-.empty-icon, .error-icon { font-size: 4rem; opacity: 0.6; margin-bottom: 1rem; }
-.empty-state h4, .error-state h4 { color: var(--text-primary); font-weight: 600; }
-.empty-state p, .error-state p { color: var(--text-muted); font-size: 0.9rem; }
-.btn-retry {
-  background: linear-gradient(135deg, #6366f1, #4f46e5); color: white;
-  border: none; padding: 0.6rem 1.5rem; border-radius: 8px;
-  font-weight: 500; transition: all 0.2s;
-}
-.btn-retry:hover {
-  background: linear-gradient(135deg, #4f46e5, #4338ca);
-  transform: translateY(-1px); box-shadow: 0 2px 8px rgba(99,102,241,0.3);
-  color: white;
+.user-cell__name { font-weight: var(--weight-medium); }
+
+.user-cell__username {
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
 }
 
-/* Tableau */
-.table-wrapper {
-  border-radius: 12px; overflow: hidden; border: 1px solid var(--border);
-  box-shadow: var(--shadow-sm); background: var(--surface);
-  transition: background-color 0.3s, border-color 0.3s;
-}
-.table { margin-bottom: 0; font-size: 0.9rem; }
-.table thead { background: linear-gradient(135deg, #1e1b4b, #312e81); }
-.table thead th {
-  color: #e2e8f0; font-weight: 600; font-size: 0.8rem;
-  text-transform: uppercase; letter-spacing: 0.05em; border: none; padding: 1rem 0.85rem;
-}
-.table tbody tr {
-  transition: all 0.15s; animation: fadeInRow 0.3s ease-out both;
-  border-bottom: 1px solid var(--border);
-}
-.table tbody tr:last-child { border-bottom: none; }
-.table tbody tr:hover { background: rgba(99, 102, 241, 0.04); }
-.table tbody td { padding: 0.9rem 0.85rem; vertical-align: middle; color: var(--text-primary); }
-@keyframes fadeInRow {
-  from { opacity: 0; transform: translateX(-8px); }
-  to { opacity: 1; transform: translateX(0); }
+.user-actions {
+  display: inline-flex;
+  gap: var(--space-1);
 }
 
-/* Role badges */
-.role-badge {
-  padding: 0.3em 0.75em; border-radius: 20px; font-size: 0.8rem; font-weight: 600;
+.users-error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  background: var(--danger-bg);
+  border: 1px solid var(--danger-border);
+  border-radius: var(--radius-lg);
+  color: var(--danger);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
 }
-.role-admin { background: #eef2ff; color: #4338ca; border: 1px solid #818cf8; }
-.role-user { background: #ecfdf5; color: #065f46; border: 1px solid #6ee7b7; }
 
-/* Actions */
-.btn-action {
-  border-radius: 8px; font-size: 0.85rem; padding: 0.35rem 0.6rem;
-  border: 1px solid var(--border); background: var(--surface-hover); transition: all 0.2s;
-}
-.btn-action:hover { transform: translateY(-1px); }
-.btn-view:hover { background: #eef2ff; border-color: #6366f1; }
-.btn-edit:hover { background: #fef3c7; border-color: #f59e0b; }
+.users-error span { flex: 1; min-width: 12rem; }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .page-wrapper { padding: 1.5rem 1rem; }
-  .page-title { font-size: 1.4rem; }
-  .table { font-size: 0.85rem; }
-}
-@media (max-width: 576px) {
-  .page-title { font-size: 1.25rem; }
-  .page-title-icon { width: 36px; height: 36px; font-size: 1rem; }
+/* Plusieurs rôles par compte : on les espace pour qu'ils restent lisibles. */
+td .ds-badge + .ds-badge { margin-left: var(--space-1); }
+
+.text-end { text-align: right; }
+
+@media (max-width: 767.98px) {
+  .users-page { padding: var(--space-5) var(--space-4); }
 }

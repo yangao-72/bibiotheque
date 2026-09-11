@@ -1,124 +1,93 @@
-<div class="reservations-page">
+<div class="reservations-page bg-grid">
 
-  <!-- Header -->
-  <div class="page-header">
-    <h2 class="page-title">
-      <span class="page-title-icon"><i class="fas fa-calendar-check"></i></span>
-      Gestion des Réservations
-    </h2>
-    <p class="page-subtitle">Consultez, créez et gérez les réservations de livres</p>
-  </div>
-
-  <!-- Stats Cards -->
-  <div class="stats-grid" *ngIf="!loading">
-    <div class="stat-card">
-      <div class="stat-icon primary"><i class="fas fa-chart-bar"></i></div>
-      <div class="stat-content">
-        <div class="stat-label">Total</div>
-        <div class="stat-value">{{ reservations.length }}</div>
-      </div>
+  <!-- En-tête -->
+  <header class="ds-page-header anim-rise">
+    <div>
+      <h1 class="ds-page-header__title">
+        <span class="ds-page-header__icon" aria-hidden="true"><i class="fas fa-calendar-check"></i></span>
+        {{ 'reservations.title' | translate }}
+      </h1>
+      <p class="ds-page-header__subtitle">
+        {{ (estBibliothecaire ? 'reservations.subtitle' : 'reservations.subtitleMember') | translate }}
+      </p>
     </div>
+  </header>
+
+  <!-- Compteurs par statut -->
+  <div class="stats-grid anim-stagger" *ngIf="!loading">
     <div class="stat-card">
-      <div class="stat-icon warning"><i class="fas fa-hourglass-half"></i></div>
-      <div class="stat-content">
-        <div class="stat-label">En attente</div>
-        <div class="stat-value">{{ getCountByStatut('EN_ATTENTE') }}</div>
+      <span class="stat-card__icon stat-card__icon--brand" aria-hidden="true"><i class="fas fa-chart-simple"></i></span>
+      <div>
+        <p class="stat-card__label">{{ 'reservations.total' | translate }}</p>
+        <p class="stat-card__value">{{ reservations.length }}</p>
       </div>
     </div>
     <div class="stat-card">
-      <div class="stat-icon success"><i class="fas fa-check-circle"></i></div>
-      <div class="stat-content">
-        <div class="stat-label">Disponibles</div>
-        <div class="stat-value">{{ getCountByStatut('DISPONIBLE') }}</div>
+      <span class="stat-card__icon stat-card__icon--warning" aria-hidden="true"><i class="fas fa-hourglass-half"></i></span>
+      <div>
+        <p class="stat-card__label">{{ 'reservations.status.EN_ATTENTE' | translate }}</p>
+        <p class="stat-card__value">{{ getCountByStatut('EN_ATTENTE') }}</p>
       </div>
     </div>
     <div class="stat-card">
-      <div class="stat-icon info"><i class="fas fa-book-reader"></i></div>
-      <div class="stat-content">
-        <div class="stat-label">Honorées</div>
-        <div class="stat-value">{{ getCountByStatut('HONOREE') }}</div>
+      <span class="stat-card__icon stat-card__icon--success" aria-hidden="true"><i class="fas fa-circle-check"></i></span>
+      <div>
+        <p class="stat-card__label">{{ 'reservations.status.DISPONIBLE' | translate }}</p>
+        <p class="stat-card__value">{{ getCountByStatut('DISPONIBLE') }}</p>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-card__icon stat-card__icon--info" aria-hidden="true"><i class="fas fa-book-open-reader"></i></span>
+      <div>
+        <p class="stat-card__label">{{ 'reservations.status.HONOREE' | translate }}</p>
+        <p class="stat-card__value">{{ getCountByStatut('HONOREE') }}</p>
       </div>
     </div>
   </div>
 
-  <!-- Messages animés -->
-  <div class="messages-container">
-    <!-- Erreur globale -->
-    <div
-      *ngIf="errorMessage && !loading"
-      class="toast-message toast-error"
-      role="alert">
-      <div class="d-flex align-items-center">
-        <span class="toast-icon"><i class="fas fa-exclamation-circle"></i></span>
-        <span>{{ errorMessage }}</span>
-      </div>
-      <div class="d-flex align-items-center gap-2">
-        <button class="btn btn-sm btn-outline-light" (click)="loadData()">
-          <i class="fas fa-sync-alt"></i> Réessayer
-        </button>
-        <button class="btn-close" (click)="errorMessage = ''" aria-label="Fermer"></button>
-      </div>
-    </div>
+  <!-- Erreur de chargement -->
+  <div class="load-error anim-rise-sm" *ngIf="errorMessage && !loading" role="alert">
+    <i class="fas fa-circle-exclamation" aria-hidden="true"></i>
+    <span>{{ errorMessage | translate: errorParams }}</span>
+    <button type="button" class="ds-btn ds-btn--secondary ds-btn--sm" (click)="loadData()">
+      <i class="fas fa-rotate-right" aria-hidden="true"></i>
+      {{ 'common.retry' | translate }}
+    </button>
+  </div>
 
-    <!-- Succès -->
-    <div
-      *ngIf="formSuccess"
-      class="toast-message toast-success"
-      role="alert">
-      <div class="d-flex align-items-center">
-        <span class="toast-icon"><i class="fas fa-check-circle"></i></span>
-        <span>{{ formSuccess }}</span>
-      </div>
-      <button class="btn-close" (click)="formSuccess = ''" aria-label="Fermer"></button>
-    </div>
-
-    <!-- Erreur annulation -->
-    <div
-      *ngIf="cancelError"
-      class="toast-message toast-warning"
-      role="alert">
-      <div class="d-flex align-items-center">
-        <span class="toast-icon"><i class="fas fa-ban"></i></span>
-        <span><strong>Annulation refusée :</strong> {{ cancelError }}</span>
-      </div>
-      <button class="btn-close" (click)="cancelError = ''" aria-label="Fermer"></button>
+  <!-- Filtre par statut -->
+  <div class="filter-row" *ngIf="!loading && !errorMessage">
+    <span class="filter-row__label">{{ 'reservations.filterByStatus' | translate }}</span>
+    <div class="ds-segmented" role="group" [attr.aria-label]="'reservations.filterByStatus' | translate">
+      <button type="button"
+              class="ds-segmented__item"
+              [class.is-active]="selectedStatut === ''"
+              [attr.aria-pressed]="selectedStatut === ''"
+              (click)="onFilterChange('')">
+        {{ 'reservations.allStatuses' | translate }}
+      </button>
+      <button type="button"
+              class="ds-segmented__item"
+              *ngFor="let s of statuts"
+              [class.is-active]="selectedStatut === s"
+              [attr.aria-pressed]="selectedStatut === s"
+              (click)="onFilterChange(s)">
+        {{ 'reservations.status.' + s | translate }}
+      </button>
     </div>
   </div>
 
-  <!-- Filtre -->
-  <div class="filter-section">
-    <div class="row align-items-center g-3">
-      <div class="col-12 col-sm-6 col-md-4">
-        <label for="statutFilter" class="form-label">Filtrer par statut</label>
-        <select
-          id="statutFilter"
-          class="form-select"
-          [(ngModel)]="selectedStatut"
-          (ngModelChange)="onFilterChange($event)">
-          <option value="">Tous les statuts</option>
-          <option *ngFor="let s of statuts" [value]="s">{{ formatStatut(s) }}</option>
-        </select>
-      </div>
-      <div class="col-12 col-sm-6 col-md-8 text-sm-end">
-        <span class="badge bg-primary rounded-pill fs-6" *ngIf="!loading" style="background: var(--primary) !important;">
-          {{ reservations.length }} réservation(s)
-        </span>
-      </div>
+  <!-- Chargement : squelette plutôt qu'un spinner, la page garde sa forme -->
+  <div class="ds-card" *ngIf="loading" aria-busy="true">
+    <div class="ds-card__body">
+      <span class="sr-only">{{ 'common.loading' | translate }}</span>
+      <div class="ds-skeleton ds-skeleton--title"></div>
+      <div class="ds-skeleton ds-skeleton--row" *ngFor="let row of skeletonRows"></div>
     </div>
   </div>
 
-  <!-- État de chargement -->
-  <div *ngIf="loading" class="loading-state text-center">
-    <div class="spinner-container">
-      <div class="spinner-border" role="status">
-        <span class="visually-hidden">Chargement...</span>
-      </div>
-    </div>
-    <p class="mt-3 text-muted fw-medium">Chargement des réservations...</p>
-  </div>
-
-  <!-- Liste des réservations -->
-  <div *ngIf="!loading && !errorMessage" class="content-section">
+  <!-- Liste -->
+  <div class="anim-rise" *ngIf="!loading && !errorMessage">
     <app-reservations-list
       [reservations]="reservations"
       [currentUserRole]="estBibliothecaire ? 'BIBLIOTHECAIRE' : 'ADHERENT'"
@@ -126,24 +95,19 @@
     </app-reservations-list>
   </div>
 
-  <!-- Séparateur -->
-  <div class="divider-section" *ngIf="!loading">
-    <div class="divider-line"></div>
-    <span class="divider-label">Nouvelle réservation</span>
-    <div class="divider-line"></div>
-  </div>
-
   <!-- Formulaire de création -->
-  <div class="form-section" *ngIf="!loading">
-    <app-reservation-form
-      [books]="books"
-      [users]="users"
-      [estBibliothecaire]="estBibliothecaire"
-      [(formError)]="formError"
-      [(formSuccess)]="formSuccess"
-      [isFormValid]="isFormValid"
-      [(reservation)]="newReservation"
-      (submitForm)="onCreateReservation()">
-    </app-reservation-form>
-  </div>
+  <div class="ds-divider" *ngIf="!loading">{{ 'reservations.createTitle' | translate }}</div>
+
+  <app-reservation-form
+    *ngIf="!loading"
+    [books]="books"
+    [users]="users"
+    [estBibliothecaire]="estBibliothecaire"
+    [(formError)]="formError"
+    [(formSuccess)]="formSuccess"
+    [isFormValid]="isFormValid"
+    [(reservation)]="newReservation"
+    (submitForm)="onCreateReservation()">
+  </app-reservation-form>
+
 </div>

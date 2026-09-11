@@ -6,6 +6,8 @@ import { Users } from '../_model/users';
 import { BooksService } from '../_service/books.service';
 import { ReservationService } from '../_service/reservation.service';
 import { UsersService } from '../_service/users.service';
+import { ToastService } from '../_ui/toast/toast.service';
+import { ConfirmService } from '../_ui/confirm-dialog/confirm.service';
 
 @Component({
   selector: 'app-reservations',
@@ -19,7 +21,9 @@ export class ReservationsComponent implements OnInit {
   users: Users[] = [];
 
   loading = true;
+  /** Clé de traduction de l'erreur de chargement, ou chaîne vide. */
   errorMessage = '';
+  errorParams: Record<string, unknown> = {};
   cancelError = '';
 
   selectedStatut = '';
@@ -29,13 +33,18 @@ export class ReservationsComponent implements OnInit {
   formError = '';
   formSuccess = '';
 
+  /** Nombre de lignes de squelette affichées pendant le chargement. */
+  readonly skeletonRows = Array.from({ length: 5 });
+
   /** Vrai si l'utilisateur connecté porte le rôle BIBLIOTHECAIRE. */
   estBibliothecaire = false;
 
   constructor(
     private reservationService: ReservationService,
     private booksService: BooksService,
-    private usersService: UsersService
+    private usersService: UsersService,
+    private toast: ToastService,
+    private confirm: ConfirmService
   ) { }
 
   ngOnInit(): void {
@@ -63,7 +72,7 @@ export class ReservationsComponent implements OnInit {
       },
       error: (err) => {
         this.loading = false;
-        this.errorMessage = this.extractErrorMessage(err);
+        this.setError(err);
       }
     });
   }
@@ -80,60 +89,58 @@ export class ReservationsComponent implements OnInit {
       },
       error: (err) => {
         this.loading = false;
-        this.errorMessage = this.extractErrorMessage(err);
+        this.setError(err);
       }
     });
   }
 
   onCreateReservation(): void {
-    this.formError = '';
-    this.formSuccess = '';
-
     this.reservationService.createReservation(this.newReservation).subscribe({
       next: () => {
-        this.formSuccess = 'Réservation créée avec succès.';
         this.newReservation = new ReservationRequest();
+        this.toast.success('reservations.created');
         this.loadData();
-        // Auto-masquer le message de succès après 5 secondes
-        setTimeout(() => this.formSuccess = '', 5000);
       },
       error: (err) => {
-        this.formError = this.extractErrorMessage(err);
+        // Les règles de gestion (RG-01…RG-06) remontent un message métier rédigé
+        // par le serveur : on l'affiche tel quel plutôt qu'un message générique.
+        const serverMessage = this.serverMessage(err);
+        if (serverMessage) {
+          this.toast.showText('error', serverMessage);
+        } else {
+          this.toast.error(this.errorKey(err), { status: err.status });
+        }
       }
     });
   }
 
-  onAnnulerReservation(reservation: Reservation): void {
-    this.cancelError = '';
+  async onAnnulerReservation(reservation: Reservation): Promise<void> {
+    const confirmed = await this.confirm.ask({
+      titleKey: 'reservations.cancelConfirmTitle',
+      textKey: 'reservations.cancelConfirmText',
+      params: { book: reservation.livreNom },
+      confirmKey: 'reservations.cancelAction',
+      danger: true
+    });
+
+    if (!confirmed) {
+      return;
+    }
 
     this.reservationService.annulerReservation(reservation.reservationId).subscribe({
       next: () => {
         reservation.statut = 'ANNULEE';
-        this.formSuccess = 'Réservation annulée avec succès.';
-        setTimeout(() => this.formSuccess = '', 5000);
+        this.toast.success('reservations.cancelled');
       },
       error: (err) => {
-        this.cancelError = this.extractErrorMessage(err);
+        const serverMessage = this.serverMessage(err);
+        if (serverMessage) {
+          this.toast.showText('error', serverMessage);
+        } else {
+          this.toast.error(this.errorKey(err), { status: err.status });
+        }
       }
     });
-  }
-
-  /**
-   * Extrait un message lisible depuis une erreur HTTP.
-   * Gère les erreurs réseau (status 0), les erreurs métier (400, 404, 409)
-   * et les erreurs inattendues.
-   */
-  private extractErrorMessage(err: any): string {
-    if (err.status === 0) {
-      return 'Le serveur est injoignable. Vérifiez que le backend est démarré et réessayez.';
-    }
-    if (err.error?.message) {
-      return err.error.message;
-    }
-    if (typeof err.error === 'string') {
-      return err.error;
-    }
-    return `Erreur ${err.status} : une erreur inattendue est survenue.`;
   }
 
   /**
@@ -147,20 +154,35 @@ export class ReservationsComponent implements OnInit {
     return this.estBibliothecaire ? this.newReservation.adherentId != null : true;
   }
 
-  /** Formate le nom du statut pour l'affichage */
-  formatStatut(statut: string): string {
-    const labels: Record<string, string> = {
-      'EN_ATTENTE': 'En attente',
-      'DISPONIBLE': 'Disponible',
-      'ANNULEE': 'Annulée',
-      'EXPIREE': 'Expirée',
-      'HONOREE': 'Honorée'
-    };
-    return labels[statut] || statut;
-  }
-
-  /** Compte les réservations par statut */
   getCountByStatut(statut: string): number {
     return this.reservations.filter(r => r.statut === statut).length;
+  }
+
+  // --- Gestion des erreurs -------------------------------------------------
+
+  private setError(err: any): void {
+    this.errorMessage = this.errorKey(err);
+    this.errorParams = { status: err?.status };
+  }
+
+  /** Message métier renvoyé par le serveur, s'il y en a un. */
+  private serverMessage(err: any): string {
+    if (err?.error?.message) { return err.error.message; }
+    if (typeof err?.error === 'string' && err.error.trim()) { return err.error; }
+    return '';
+  }
+
+  /** Clé de traduction correspondant au code HTTP reçu. */
+  private errorKey(err: any): string {
+    switch (err?.status) {
+      case 0: return 'errors.network';
+      case 400: return 'errors.badRequest';
+      case 401: return 'errors.unauthorized';
+      case 403: return 'errors.forbidden';
+      case 404: return 'errors.notFound';
+      case 409: return 'errors.conflict';
+      case 500: return 'errors.server';
+      default: return 'errors.unknown';
+    }
   }
 }

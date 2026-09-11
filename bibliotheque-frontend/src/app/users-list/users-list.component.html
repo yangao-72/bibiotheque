@@ -1,77 +1,125 @@
-<div class="page-wrapper">
+<div class="users-page bg-grid">
 
-  <!-- Header -->
-  <div class="page-header">
-    <h2 class="page-title">
-      <span class="page-title-icon"><i class="fas fa-users"></i></span>
-      Liste des Adhérents
-    </h2>
-    <p class="page-subtitle">Consultez et gérez les utilisateurs de la bibliothèque</p>
-  </div>
-
-  <!-- Messages -->
-  <div *ngIf="errorMessage" class="toast-message toast-error">
-    <div class="d-flex align-items-center">
-      <span class="toast-icon"><i class="fas fa-exclamation-circle"></i></span>
-      <span>{{ errorMessage }}</span>
+  <header class="ds-page-header anim-rise">
+    <div>
+      <h1 class="ds-page-header__title">
+        <span class="ds-page-header__icon" aria-hidden="true"><i class="fas fa-users"></i></span>
+        {{ 'members.title' | translate }}
+      </h1>
+      <p class="ds-page-header__subtitle">{{ 'members.subtitle' | translate }}</p>
     </div>
-    <div class="d-flex align-items-center gap-2">
-      <button class="btn btn-sm btn-outline-light" (click)="retry()"><i class="fas fa-sync-alt"></i> Réessayer</button>
-      <button class="btn-close" (click)="errorMessage = ''" aria-label="Fermer"></button>
-    </div>
-  </div>
+    <a routerLink="/register-user" class="ds-btn ds-btn--primary">
+      <i class="fas fa-user-plus" aria-hidden="true"></i>
+      {{ 'nav.addMember' | translate }}
+    </a>
+  </header>
 
   <!-- Chargement -->
-  <div *ngIf="loading" class="loading-state text-center">
-    <div class="spinner-border" role="status">
-      <span class="visually-hidden">Chargement...</span>
+  <div class="ds-card" *ngIf="loading" aria-busy="true">
+    <div class="ds-card__body">
+      <span class="sr-only">{{ 'common.loading' | translate }}</span>
+      <div class="ds-skeleton ds-skeleton--title"></div>
+      <div class="ds-skeleton ds-skeleton--row" *ngFor="let row of skeletonRows"></div>
     </div>
-    <p class="mt-3 text-muted">Chargement des adhérents...</p>
   </div>
 
-  <!-- Liste vide -->
-  <div *ngIf="!loading && users.length === 0 && !errorMessage" class="empty-state text-center">
-    <div class="empty-icon"><i class="fas fa-user-slash"></i></div>
-    <h4>Aucun adhérent trouvé</h4>
-    <p>Aucun utilisateur n'est enregistré pour le moment.</p>
+  <!-- Erreur -->
+  <div class="users-error anim-rise-sm" *ngIf="!loading && errorMessage && users.length === 0" role="alert">
+    <i class="fas fa-plug-circle-xmark" aria-hidden="true"></i>
+    <span>{{ errorMessage | translate }}</span>
+    <button type="button" class="ds-btn ds-btn--secondary ds-btn--sm" (click)="retry()">
+      <i class="fas fa-rotate-right" aria-hidden="true"></i>
+      {{ 'common.retry' | translate }}
+    </button>
   </div>
 
-  <!-- Erreur avec réessayer -->
-  <div *ngIf="!loading && errorMessage && users.length === 0" class="error-state text-center">
-    <div class="error-icon"><i class="fas fa-plug"></i></div>
-    <h4>Impossible de charger les adhérents</h4>
-    <p class="text-muted">{{ errorMessage }}</p>
-    <button class="btn btn-retry" (click)="retry()"><i class="fas fa-sync-alt"></i> Réessayer</button>
-  </div>
+  <div class="ds-card anim-rise" *ngIf="!loading && !(errorMessage && users.length === 0)">
 
-  <!-- Tableau -->
-  <div *ngIf="!loading && users.length > 0" class="table-wrapper">
-    <div class="table-responsive">
-      <table class="table align-middle">
+    <div class="ds-table-toolbar">
+      <div class="ds-table-toolbar__search">
+        <div class="ds-input-group">
+          <span class="ds-input-group__icon" aria-hidden="true"><i class="fas fa-magnifying-glass"></i></span>
+          <input type="search"
+                 class="ds-input"
+                 [ngModel]="query"
+                 (ngModelChange)="onQueryChange($event)"
+                 [attr.placeholder]="'members.searchPlaceholder' | translate"
+                 [attr.aria-label]="'common.search' | translate">
+        </div>
+      </div>
+      <span class="ds-badge ds-badge--brand">
+        {{ visible.length }} {{ 'common.results' | translate }}
+      </span>
+    </div>
+
+    <app-empty-state *ngIf="users.length === 0"
+                     art="member"
+                     titleKey="empty.membersTitle"
+                     textKey="empty.membersText">
+      <a routerLink="/register-user" class="ds-btn ds-btn--primary">
+        <i class="fas fa-user-plus" aria-hidden="true"></i>
+        {{ 'nav.addMember' | translate }}
+      </a>
+    </app-empty-state>
+
+    <app-empty-state *ngIf="users.length > 0 && visible.length === 0"
+                     art="search"
+                     titleKey="empty.searchTitle"
+                     textKey="empty.searchText"
+                     [params]="{ query: query }">
+    </app-empty-state>
+
+    <div class="ds-table-wrap" *ngIf="visible.length > 0">
+      <table class="ds-table">
+        <caption class="sr-only">{{ 'members.title' | translate }}</caption>
         <thead>
           <tr>
-            <th class="ps-3">ID</th>
-            <th>Nom</th>
-            <th>Identifiant</th>
-            <th>Rôle</th>
-            <th class="text-center">Actions</th>
+            <th scope="col">
+              <button type="button" class="ds-th-sort" [class.is-active]="isSorted('name')"
+                      (click)="sortBy('name')">
+                {{ 'members.name' | translate }}
+                <i class="fas ds-th-sort__icon" [ngClass]="sortIcon('name')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th scope="col">
+              <button type="button" class="ds-th-sort" [class.is-active]="isSorted('username')"
+                      (click)="sortBy('username')">
+                {{ 'members.username' | translate }}
+                <i class="fas ds-th-sort__icon" [ngClass]="sortIcon('username')" aria-hidden="true"></i>
+              </button>
+            </th>
+            <th scope="col">{{ 'members.role' | translate }}</th>
+            <th scope="col" class="text-end">{{ 'common.actions' | translate }}</th>
           </tr>
         </thead>
-        <tbody>
-          <tr *ngFor="let user of users; let i = index" [style.animation-delay]="(i * 0.04) + 's'">
-            <td class="ps-3 text-muted">{{ user.userId }}</td>
-            <td><span class="fw-semibold">{{ user.name }}</span></td>
-            <td>{{ user.username }}</td>
+        <tbody class="anim-stagger">
+          <tr *ngFor="let user of visible; trackBy: trackById">
             <td>
-              <span class="role-badge" [class]="user.role[0]?.roleName === 'Admin' ? 'role-admin' : 'role-user'">
-                {{ user.role[0]?.roleName }}
+              <div class="user-cell">
+                <span class="user-cell__avatar" aria-hidden="true">{{ initial(user) }}</span>
+                <span class="user-cell__name">{{ user.name }}</span>
+              </div>
+            </td>
+            <td class="user-cell__username">{{ user.username }}</td>
+            <td>
+              <span class="ds-badge"
+                    *ngFor="let roleName of roleNames(user)"
+                    [ngClass]="roleBadgeClass(roleName)">
+                {{ roleName }}
               </span>
             </td>
-            <td class="text-center">
-              <div class="d-flex gap-1 justify-content-center">
-                <button *ngIf="user.role[0]?.roleName === 'User'"
-                  (click)="userDetails(user.userId)" class="btn btn-action btn-view" title="Historique"><i class="fas fa-history"></i></button>
-                <button (click)="updateUser(user.userId)" class="btn btn-action btn-edit" title="Modifier"><i class="fas fa-edit"></i></button>
+            <td class="text-end">
+              <div class="user-actions">
+                <button type="button" class="ds-btn ds-btn--ghost ds-btn--icon ds-btn--sm"
+                        (click)="userDetails(user.userId)"
+                        [attr.aria-label]="('members.detailsTitle' | translate) + ' — ' + user.name">
+                  <i class="fas fa-eye" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="ds-btn ds-btn--ghost ds-btn--icon ds-btn--sm"
+                        (click)="updateUser(user.userId)"
+                        [attr.aria-label]="('common.edit' | translate) + ' — ' + user.name">
+                  <i class="fas fa-pen" aria-hidden="true"></i>
+                </button>
               </div>
             </td>
           </tr>

@@ -1,119 +1,42 @@
-/* You can add global styles to this file, and also import other style files */
+/* =============================================================================
+   BiblioGest — Feuille de style globale
+   -----------------------------------------------------------------------------
+   Ordre d'import volontaire :
+     1. Bootstrap et Font Awesome (bibliothèques tierces)
+     2. Les tokens du design system, qui redéfinissent les variables
+     3. La base, le mouvement, les fonds, puis les composants `ds-*`
+     4. Le pont Bootstrap, qui reconnecte les classes Bootstrap aux tokens
+     5. Les surcharges héritées, conservées telles quelles pour les écrans
+        qui n'ont pas encore été repris
+   ============================================================================= */
+
 @import "~bootstrap/dist/css/bootstrap.min.css";
 @import "~@fortawesome/fontawesome-free/css/all.min.css";
 
-/* ============================================
-   Design System Violet/Indigo — Global
-   ============================================ */
+@import "./styles/tokens.css";
+@import "./styles/base.css";
+@import "./styles/motion.css";
+@import "./styles/backgrounds.css";
+@import "./styles/components.css";
 
-:root {
-  --primary: #6366f1;
-  --primary-dark: #4f46e5;
-  --primary-light: #818cf8;
-  --primary-bg: #eef2ff;
-  --sidebar-bg: #1e1b4b;
-  --surface: #ffffff;
-  --surface-hover: #f8fafc;
-  --border: #e2e8f0;
-  --text-primary: #1e293b;
-  --text-secondary: #64748b;
-  --text-muted: #94a3b8;
-  --success: #22c55e;
-  --warning: #f59e0b;
-  --danger: #ef4444;
-  --info: #3b82f6;
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
-  --radius: 12px;
-  --radius-sm: 8px;
-}
+/* =============================================================================
+   Pont Bootstrap — les classes Bootstrap consomment les tokens BiblioGest
+   ============================================================================= */
 
-/* ============================================
-   Dark Mode Variables
-   ============================================ */
-
-.dark-mode {
-  --surface: #1e1e2e;
-  --surface-hover: #2a2a3e;
-  --border: #3a3a50;
-  --text-primary: #e2e8f0;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
-}
-
-/* --- Global resets --- */
-* {
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background: var(--surface-hover);
-  color: var(--text-primary);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  transition: background-color 0.3s, color 0.3s;
-}
-
-/* --- Scrollbar --- */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--surface-hover);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
-}
-
-/* --- Selection --- */
-::selection {
-  background: rgba(99, 102, 241, 0.2);
-  color: var(--text-primary);
-}
-
-/* --- Focus states --- */
-:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
-}
-
-/* --- Links --- */
-a {
-  color: var(--primary);
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-a:hover {
-  color: var(--primary-dark);
-}
-
-/* --- Cards --- */
 .card {
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
   background: var(--surface);
 }
 
-/* --- Buttons --- */
 .btn {
   border-radius: var(--radius-sm);
-  font-weight: 500;
-  transition: all 0.2s;
+  font-weight: var(--weight-semibold);
+  transition: background-color var(--duration-fast) var(--ease-out),
+              border-color var(--duration-fast) var(--ease-out),
+              color var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out);
 }
 
 .btn-primary {
@@ -126,43 +49,38 @@ a:hover {
   border-color: var(--primary-dark);
 }
 
-/* --- Forms --- */
 .form-control,
 .form-select {
   border-radius: var(--radius-sm);
-  border-color: var(--border);
+  border-color: var(--border-strong);
   background: var(--surface);
   color: var(--text-primary);
-  transition: all 0.2s;
+  transition: border-color var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out);
 }
 
 .form-control:focus,
 .form-select:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  box-shadow: var(--focus-ring);
   background: var(--surface);
   color: var(--text-primary);
 }
 
-.form-control::placeholder {
-  color: var(--text-muted);
-}
+.form-control::placeholder { color: var(--text-muted); }
 
-/* --- Alerts --- */
 .alert {
   border-radius: var(--radius-sm);
   border: none;
 }
 
-/* --- Badges --- */
 .badge {
-  border-radius: 20px;
-  font-weight: 600;
+  border-radius: var(--radius-full);
+  font-weight: var(--weight-semibold);
 }
 
-/* --- Tables --- */
 .table {
-  --bs-table-hover-bg: rgba(99, 102, 241, 0.04);
+  --bs-table-hover-bg: var(--primary-bg);
   color: var(--text-primary);
 }
 
@@ -173,60 +91,29 @@ a:hover {
 }
 
 .table thead {
-  background: linear-gradient(135deg, #1e1b4b, #312e81);
+  background: linear-gradient(135deg, var(--brand-950), var(--brand-900));
 }
 
-.table thead th {
-  color: #e2e8f0;
-}
+.table thead th { color: var(--neutral-200); }
 
-.dark-mode .table tbody tr:hover {
-  background: var(--surface-hover);
-}
+.dark-mode .table tbody tr:hover { background: var(--surface-hover); }
 
-/* --- Animations --- */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+.spinner-border { color: var(--primary) !important; }
 
-.animate-fadeIn {
-  animation: fadeIn 0.3s ease-out;
-}
+/* =============================================================================
+   Surcharges héritées — écrans pas encore repris par le design system.
+   Conservées à l'identique pour éviter toute régression visuelle.
+   ============================================================================= */
 
-/* --- Loading spinner --- */
-.spinner-border {
-  color: var(--primary) !important;
-}
-
-/* ============================================
-   Dark Mode — Component Overrides
-   ============================================ */
-
-/* Sidebar stays dark in both modes */
+/* La sidebar reste sombre dans les deux thèmes. */
 .sidebar {
-  background: linear-gradient(180deg, #1e1b4b 0%, #312e81 100%);
+  background: linear-gradient(180deg, var(--brand-950) 0%, var(--brand-900) 100%);
 }
 
-/* Toast messages */
-.toast-message {
-  color: #fff;
-}
+.toast-message { color: #fff; }
 
-/* Page wrappers */
-.page-wrapper {
-  background: var(--surface-hover);
-}
-
-.page-title {
-  color: var(--text-primary);
-}
+.page-wrapper { background: var(--canvas); }
+.page-title { color: var(--text-primary); }
 
 .table-wrapper {
   background: var(--surface);
@@ -241,82 +128,44 @@ a:hover {
 }
 
 .empty-state h4,
-.error-state h4 {
-  color: var(--text-primary);
-}
+.error-state h4 { color: var(--text-primary); }
 
-/* Form cards */
 .form-card {
   background: var(--surface);
   border-color: var(--border);
 }
 
-/* User cards */
-.user-card {
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-}
+.user-card { background: linear-gradient(135deg, var(--brand-500), #8b5cf6); }
 
-.section-card {
-  background: var(--surface);
-  border-color: var(--border);
-}
-
-/* Login card */
-.login-card {
-  background: var(--surface);
-}
-
-/* Dashboard */
-.stat-card {
-  background: var(--surface);
-  border-color: var(--border);
-}
-
+.section-card,
+.login-card,
+.stat-card,
 .quick-actions-card,
-.notifications-card {
-  background: var(--surface);
-  border-color: var(--border);
-}
-
-/* Notification dropdown */
+.notifications-card,
 .notification-dropdown {
   background: var(--surface);
   border-color: var(--border);
 }
 
-.notification-list li {
-  border-bottom-color: var(--border);
-}
+.notification-list li { border-bottom-color: var(--border); }
+.notification-list li:hover { background: var(--surface-hover); }
 
-.notification-list li:hover {
-  background: var(--surface-hover);
-}
-
-/* Toasts */
 .toast-success,
-.toast-error {
-  color: #fff;
-}
+.toast-error { color: #fff; }
 
-/* Dark mode specific text colors */
+/* --- Thème sombre : écrans hérités --------------------------------------- */
+
 .dark-mode .page-title,
 .dark-mode .section-title,
 .dark-mode .stat-label,
-.dark-mode .stat-value {
-  color: var(--text-primary);
-}
+.dark-mode .stat-value { color: var(--text-primary); }
 
 .dark-mode .page-subtitle,
 .dark-mode .notif-content p,
-.dark-mode .notif-time {
-  color: var(--text-muted);
-}
+.dark-mode .notif-time { color: var(--text-muted); }
 
-.dark-mode .notif-content strong {
-  color: var(--text-primary);
-}
+.dark-mode .notif-content strong { color: var(--text-primary); }
 
-/* Dark mode form inputs */
 .dark-mode .form-input {
   background: var(--surface-hover);
   border-color: var(--border);
@@ -328,56 +177,44 @@ a:hover {
   border-color: var(--primary);
 }
 
-.dark-mode .form-label {
-  color: var(--text-secondary);
-}
+.dark-mode .form-label { color: var(--text-secondary); }
 
-/* Dark mode buttons */
 .dark-mode .btn-cancel {
   background: var(--surface-hover);
   color: var(--text-secondary);
   border-color: var(--border);
 }
+.dark-mode .btn-cancel:hover { background: var(--border); }
 
-.dark-mode .btn-cancel:hover {
-  background: var(--border);
-}
-
-/* Dark mode action buttons */
 .dark-mode .action-btn {
   background: var(--surface-hover);
   border-color: var(--border);
   color: var(--text-primary);
 }
-
 .dark-mode .action-btn:hover {
   background: var(--primary-bg);
   border-color: var(--primary);
   color: var(--primary);
 }
 
-/* Dark mode toast messages */
 .dark-mode .toast-message.toast-error {
   background: linear-gradient(135deg, #dc2626, #b91c1c);
 }
-
 .dark-mode .toast-message.toast-success {
   background: linear-gradient(135deg, #16a34a, #15803d);
 }
 
-/* Dark mode for existing components */
 .dark-mode .btn-retry {
-  background: linear-gradient(135deg, #6366f1, #4f46e5);
-  color: white;
+  background: linear-gradient(135deg, var(--brand-500), var(--brand-600));
+  color: #fff;
 }
 
 .dark-mode .btn-borrow,
 .dark-mode .btn-return {
   background: var(--primary);
-  color: white;
+  color: #fff;
 }
 
-/* Dark mode badges */
 .dark-mode .badge-available {
   background: #064e3b;
   color: #6ee7b7;
@@ -390,10 +227,9 @@ a:hover {
   border-color: #ef4444;
 }
 
-/* Dark mode role badges */
 .dark-mode .role-admin {
-  background: #312e81;
-  color: #a5b4fc;
+  background: var(--brand-900);
+  color: var(--brand-300);
 }
 
 .dark-mode .role-user {
@@ -401,24 +237,10 @@ a:hover {
   color: #6ee7b7;
 }
 
-/* Dark mode user profile */
-.dark-mode .user-profile {
-  background: rgba(0, 0, 0, 0.2);
-}
+.dark-mode .user-profile { background: rgba(0, 0, 0, 0.2); }
 
-.dark-mode .btn-logout {
-  background: rgba(255, 255, 255, 0.1);
-}
+.dark-mode .btn-logout { background: rgba(255, 255, 255, 0.1); }
+.dark-mode .btn-logout:hover { background: rgba(239, 68, 68, 0.4); }
 
-.dark-mode .btn-logout:hover {
-  background: rgba(239, 68, 68, 0.4);
-}
-
-/* Dark mode footer */
-.dark-mode .dashboard-footer {
-  border-top-color: var(--border);
-}
-
-.dark-mode .dashboard-footer p {
-  color: var(--text-muted);
-}
+.dark-mode .dashboard-footer { border-top-color: var(--border); }
+.dark-mode .dashboard-footer p { color: var(--text-muted); }

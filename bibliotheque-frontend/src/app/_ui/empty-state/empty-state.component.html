@@ -1,0 +1,7 @@
+<div class="ds-empty anim-fade">
+  <app-illustration class="ds-empty__art" [name]="art"></app-illustration>
+  <h3 class="ds-empty__title">{{ titleKey | translate: params }}</h3>
+  <p class="ds-empty__text">{{ textKey | translate: params }}</p>
+  <!-- Action facultative fournie par l'écran appelant -->
+  <ng-content></ng-content>
+</div>

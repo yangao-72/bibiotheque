@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 import { HeaderComponent } from './header.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 describe('HeaderComponent', () => {
   let component: HeaderComponent;
@@ -12,7 +13,7 @@ describe('HeaderComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, RouterTestingModule, FormsModule],
+      imports: [TranslateModule.forRoot(), HttpClientTestingModule, RouterTestingModule, FormsModule],
       declarations: [HeaderComponent],
       schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();

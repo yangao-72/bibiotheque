@@ -1,0 +1,187 @@
+/* =============================================================================
+   BiblioGest — Fonds décoratifs
+   -----------------------------------------------------------------------------
+   Tout est généré en CSS/SVG : aucune image binaire, aucun appel réseau, donc
+   l'application reste identique hors-ligne et dans le conteneur Docker.
+
+   Les fonds sont toujours `aria-hidden` par construction (pseudo-éléments) et
+   `pointer-events: none` : ils ne capturent jamais le clic.
+   ============================================================================= */
+
+/* --- Aurore : nappes de couleur qui dérivent lentement -------------------- */
+
+.bg-mesh {
+  position: relative;
+  isolation: isolate;
+  background-color: var(--canvas);
+}
+
+.bg-mesh::before {
+  content: '';
+  position: absolute;
+  inset: -20%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(38% 44% at 18% 22%, rgba(99, 102, 241, 0.30), transparent 70%),
+    radial-gradient(34% 40% at 82% 18%, rgba(6, 182, 212, 0.22), transparent 70%),
+    radial-gradient(42% 46% at 72% 82%, rgba(129, 140, 248, 0.26), transparent 70%),
+    radial-gradient(30% 36% at 28% 78%, rgba(217, 70, 239, 0.16), transparent 70%);
+  filter: blur(28px);
+  animation: bg-drift 26s var(--ease-in-out) infinite;
+}
+
+.dark-mode .bg-mesh::before {
+  background:
+    radial-gradient(38% 44% at 18% 22%, rgba(99, 102, 241, 0.40), transparent 70%),
+    radial-gradient(34% 40% at 82% 18%, rgba(6, 182, 212, 0.26), transparent 70%),
+    radial-gradient(42% 46% at 72% 82%, rgba(67, 56, 202, 0.44), transparent 70%),
+    radial-gradient(30% 36% at 28% 78%, rgba(192, 38, 211, 0.20), transparent 70%);
+}
+
+/* --- Blobs flottants ------------------------------------------------------ */
+
+.bg-blobs { position: relative; isolation: isolate; }
+
+.bg-blobs::before,
+.bg-blobs::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 50%;
+  filter: blur(52px);
+  opacity: 0.55;
+}
+
+.bg-blobs::before {
+  width: 26rem;
+  height: 26rem;
+  top: -8rem;
+  right: -6rem;
+  background: radial-gradient(circle, var(--brand-400), transparent 68%);
+  animation: bg-float 11s var(--ease-in-out) infinite;
+}
+
+.bg-blobs::after {
+  width: 20rem;
+  height: 20rem;
+  bottom: -7rem;
+  left: -5rem;
+  background: radial-gradient(circle, var(--accent-400), transparent 68%);
+  animation: bg-float 14s var(--ease-in-out) infinite reverse;
+}
+
+/* --- Grille de points : structure discrète derrière le contenu ------------ */
+
+.bg-grid { position: relative; isolation: isolate; }
+
+.bg-grid::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(circle, var(--border-strong) 1px, transparent 1px);
+  background-size: 26px 26px;
+  opacity: 0.4;
+  /* Estompe la grille vers les bords : elle ne doit jamais concurrencer le texte. */
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 40%, transparent 100%);
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 40%, transparent 100%);
+}
+
+/* --- Grain : casse les aplats de dégradé (effet « banding ») -------------- */
+
+.bg-noise { position: relative; isolation: isolate; }
+
+.bg-noise::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.045;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* --- Rayonnage : motif de tranches de livres, clin d'œil au métier -------- */
+
+.bg-shelf { position: relative; isolation: isolate; }
+
+.bg-shelf::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.14;
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--brand-500) 0 6px,
+    transparent 6px 13px,
+    var(--brand-300) 13px 17px,
+    transparent 17px 27px,
+    var(--accent-500) 27px 31px,
+    transparent 31px 44px
+  );
+  -webkit-mask-image: linear-gradient(to top, #000, transparent 58%);
+  mask-image: linear-gradient(to top, #000, transparent 58%);
+}
+
+/* --- Bandeau de marque : en-têtes de page -------------------------------- */
+
+.bg-brand-band {
+  background: linear-gradient(135deg, var(--brand-600), var(--brand-500) 45%, var(--accent-500));
+  color: var(--text-on-brand);
+}
+
+/* --- Composite plein écran : pages d'authentification et d'accueil -------- */
+
+.bg-hero {
+  position: relative;
+  isolation: isolate;
+  background-color: var(--canvas);
+  overflow: hidden;
+}
+
+.bg-hero::before {
+  content: '';
+  position: absolute;
+  inset: -25%;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(40% 48% at 16% 20%, rgba(99, 102, 241, 0.42), transparent 68%),
+    radial-gradient(36% 42% at 84% 16%, rgba(6, 182, 212, 0.30), transparent 68%),
+    radial-gradient(46% 50% at 76% 84%, rgba(129, 140, 248, 0.34), transparent 68%);
+  filter: blur(34px);
+  animation: bg-drift 30s var(--ease-in-out) infinite;
+}
+
+.bg-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* --- Verre dépoli : panneaux posés sur un fond animé --------------------- */
+
+.surface-glass {
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: blur(16px) saturate(150%);
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+}
+
+/* Repli pour les navigateurs sans color-mix : on retombe sur une surface opaque. */
+@supports not (background: color-mix(in srgb, red 50%, blue)) {
+  .surface-glass {
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+}

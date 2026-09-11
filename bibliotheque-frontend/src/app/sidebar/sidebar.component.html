@@ -5,8 +5,8 @@
       <i class="fas fa-book-open"></i>
     </div>
     <div class="brand-text">
-      <h1>BiblioGest</h1>
-      <p>Gestion de bibliothèque</p>
+      <h1>{{ 'app.name' | translate }}</h1>
+      <p>{{ 'app.tagline' | translate }}</p>
     </div>
   </div>
 
@@ -17,31 +17,31 @@
       <li *ngIf="isAdmin()">
         <a routerLink="/books" routerLinkActive="active" class="nav-item">
           <span class="nav-icon"><i class="fas fa-book"></i></span>
-          <span class="nav-label">Livres</span>
+          <span class="nav-label">{{ 'nav.books' | translate }}</span>
         </a>
       </li>
       <li *ngIf="isAdmin()">
         <a routerLink="/users" routerLinkActive="active" class="nav-item">
           <span class="nav-icon"><i class="fas fa-users"></i></span>
-          <span class="nav-label">Adhérents</span>
+          <span class="nav-label">{{ 'nav.members' | translate }}</span>
         </a>
       </li>
       <li *ngIf="peutVoirLesReservations()">
         <a routerLink="/reservations" routerLinkActive="active" class="nav-item">
           <span class="nav-icon"><i class="fas fa-calendar-check"></i></span>
-          <span class="nav-label">Réservations</span>
+          <span class="nav-label">{{ 'nav.reservations' | translate }}</span>
         </a>
       </li>
       <li *ngIf="isAdmin()">
         <a routerLink="/create-book" routerLinkActive="active" class="nav-item">
           <span class="nav-icon"><i class="fas fa-plus-circle"></i></span>
-          <span class="nav-label">Ajouter un livre</span>
+          <span class="nav-label">{{ 'nav.addBook' | translate }}</span>
         </a>
       </li>
       <li *ngIf="isAdmin()">
         <a routerLink="/register-user" routerLinkActive="active" class="nav-item">
           <span class="nav-icon"><i class="fas fa-user-plus"></i></span>
-          <span class="nav-label">Inscrire un adhérent</span>
+          <span class="nav-label">{{ 'nav.addMember' | translate }}</span>
         </a>
       </li>
 
@@ -49,13 +49,13 @@
       <li *ngIf="isUser()">
         <a routerLink="/borrow-book" routerLinkActive="active" class="nav-item">
           <span class="nav-icon"><i class="fas fa-book-reader"></i></span>
-          <span class="nav-label">Emprunts</span>
+          <span class="nav-label">{{ 'nav.borrow' | translate }}</span>
         </a>
       </li>
       <li *ngIf="isUser()">
         <a routerLink="/return-book" routerLinkActive="active" class="nav-item">
           <span class="nav-icon"><i class="fas fa-undo-alt"></i></span>
-          <span class="nav-label">Retours</span>
+          <span class="nav-label">{{ 'nav.return' | translate }}</span>
         </a>
       </li>
     </ul>
@@ -67,10 +67,12 @@
       <div class="user-avatar">{{ name?.charAt(0) || '?' }}</div>
       <div class="user-info">
         <span class="user-name">{{ name }}</span>
-        <span class="user-role">{{ role }}</span>
+        <span class="user-role">{{ roleKey | translate }}</span>
       </div>
-      <button class="btn-logout" (click)="logout()" title="Déconnexion">
-        <i class="fas fa-sign-out-alt"></i>
+      <button class="btn-logout" (click)="logout()"
+              [title]="'nav.logout' | translate"
+              [attr.aria-label]="'nav.logout' | translate">
+        <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
       </button>
     </div>
   </div>

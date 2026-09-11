@@ -3,6 +3,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 import { UsersService } from './users.service';
 import { UserAuthService } from './user-auth.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -10,7 +11,7 @@ describe('UsersService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule]
+      imports: [TranslateModule.forRoot(), HttpClientTestingModule]
     });
     service = TestBed.inject(UsersService);
     userAuthService = TestBed.inject(UserAuthService);

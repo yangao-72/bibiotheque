@@ -24,8 +24,12 @@ export class LoginComponent implements OnInit {
   }
 
   login(loginForm: NgForm): void {
-    if (!loginForm.value.username || !loginForm.value.password) {
-      this.errorMessage = 'Veuillez remplir tous les champs.';
+    if (!loginForm.value.username) {
+      this.errorMessage = 'validation.usernameRequired';
+      return;
+    }
+    if (!loginForm.value.password) {
+      this.errorMessage = 'validation.passwordRequired';
       return;
     }
 
@@ -39,12 +43,12 @@ export class LoginComponent implements OnInit {
         this.userAuthService.setUserId(response.user.userId);
         this.userAuthService.setName(response.user.name);
 
-        const role = response.user.role[0].roleName;
-        if (role === 'Admin') {
-          this.router.navigate(['/books']);
-        } else {
-          this.router.navigate(['/borrow-book']);
-        }
+        // Un compte porte plusieurs rôles et l'ordre renvoyé par le serveur
+        // n'est pas garanti (côté Java, `role` est un Set) : on cherche donc
+        // le rôle d'administration dans toute la liste, jamais en position 0.
+        const roleNames: string[] = (response.user.role || []).map((r: any) => r.roleName);
+        const isAdmin = roleNames.includes('Admin') || roleNames.includes('BIBLIOTHECAIRE');
+        this.router.navigate([isAdmin ? '/books' : '/reservations']);
       },
       error: (err) => {
         this.loading = false;
@@ -53,11 +57,11 @@ export class LoginComponent implements OnInit {
     });
   }
 
+  /** Renvoie une clé de traduction : le message suit la langue de l'interface. */
   private getLoginErrorMessage(err: any): string {
-    if (err.status === 0) return 'Le serveur est injoignable. Vérifiez que le backend est démarré.';
-    if (err.status === 401) return 'Identifiant ou mot de passe incorrect.';
-    if (err.status === 403) return 'Accès refusé. Vous n\'avez pas les permissions nécessaires.';
-    if (err.error?.message) return err.error.message;
-    return 'Une erreur est survenue lors de la connexion.';
+    if (err.status === 0) return 'errors.network';
+    if (err.status === 401) return 'auth.invalidCredentials';
+    if (err.status === 403) return 'errors.forbidden';
+    return 'errors.server';
   }
 }

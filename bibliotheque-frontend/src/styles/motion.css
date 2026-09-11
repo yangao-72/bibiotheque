@@ -1,0 +1,147 @@
+/* =============================================================================
+   BiblioGest — Mouvement
+   -----------------------------------------------------------------------------
+   Chaque animation sert à expliquer un changement d'état : d'où vient l'élément,
+   où il va, ce qui vient d'arriver. Aucune animation purement décorative sur du
+   contenu — le décoratif est réservé aux fonds (backgrounds.css).
+
+   Tout est désactivé sous `prefers-reduced-motion` (voir fin de fichier).
+   ============================================================================= */
+
+/* --- Entrées ------------------------------------------------------------- */
+
+@keyframes bg-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes bg-rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes bg-rise-sm {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes bg-slide-left {
+  from { opacity: 0; transform: translateX(-16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes bg-slide-right {
+  from { opacity: 0; transform: translateX(16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes bg-pop {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* --- Sorties ------------------------------------------------------------- */
+
+@keyframes bg-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes bg-slide-out-right {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(24px); }
+}
+
+/* --- Boucles (décoratives, fonds uniquement) ----------------------------- */
+
+@keyframes bg-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-14px) rotate(1.5deg); }
+}
+
+@keyframes bg-drift {
+  0%   { transform: translate(0, 0) scale(1); }
+  33%  { transform: translate(3%, -4%) scale(1.05); }
+  66%  { transform: translate(-2%, 3%) scale(0.97); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes bg-shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position: 200% 0; }
+}
+
+@keyframes bg-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes bg-pulse-ring {
+  0%   { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.45); }
+  70%  { box-shadow: 0 0 0 12px rgba(99, 102, 241, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+}
+
+/* --- Classes utilitaires -------------------------------------------------- */
+
+.anim-fade      { animation: bg-fade-in var(--duration-base) var(--ease-out) both; }
+.anim-rise      { animation: bg-rise var(--duration-base) var(--ease-out) both; }
+.anim-rise-sm   { animation: bg-rise-sm var(--duration-fast) var(--ease-out) both; }
+.anim-slide-left  { animation: bg-slide-left var(--duration-base) var(--ease-out) both; }
+.anim-slide-right { animation: bg-slide-right var(--duration-base) var(--ease-out) both; }
+.anim-pop       { animation: bg-pop var(--duration-base) var(--ease-spring) both; }
+.anim-float     { animation: bg-float 7s var(--ease-in-out) infinite; }
+
+/* Cascade : chaque enfant entre légèrement après le précédent.
+   Plafonné à 10 pour qu'une longue liste ne fasse pas attendre. */
+.anim-stagger > *          { animation: bg-rise var(--duration-base) var(--ease-out) both; }
+.anim-stagger > *:nth-child(1)  { animation-delay: 0ms; }
+.anim-stagger > *:nth-child(2)  { animation-delay: 45ms; }
+.anim-stagger > *:nth-child(3)  { animation-delay: 90ms; }
+.anim-stagger > *:nth-child(4)  { animation-delay: 135ms; }
+.anim-stagger > *:nth-child(5)  { animation-delay: 180ms; }
+.anim-stagger > *:nth-child(6)  { animation-delay: 225ms; }
+.anim-stagger > *:nth-child(7)  { animation-delay: 270ms; }
+.anim-stagger > *:nth-child(8)  { animation-delay: 315ms; }
+.anim-stagger > *:nth-child(9)  { animation-delay: 360ms; }
+.anim-stagger > *:nth-child(n+10) { animation-delay: 400ms; }
+
+/* Compat : l'ancienne classe reste valide, elle pointe sur la nouvelle courbe. */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeIn { animation: bg-rise var(--duration-base) var(--ease-out) both; }
+
+/* --- Interactions --------------------------------------------------------- */
+
+.hover-lift {
+  transition: transform var(--duration-fast) var(--ease-out),
+              box-shadow var(--duration-fast) var(--ease-out);
+}
+.hover-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.press-scale { transition: transform var(--duration-instant) var(--ease-out); }
+.press-scale:active { transform: scale(0.97); }
+
+/* =============================================================================
+   Accessibilité — respecte le réglage système « réduire les animations ».
+   On neutralise le mouvement sans supprimer les états : l'interface reste
+   lisible et les éléments animés en `both` restent visibles.
+   ============================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .hover-lift:hover { transform: none; }
+  .press-scale:active { transform: none; }
+}

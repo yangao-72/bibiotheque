@@ -7,7 +7,7 @@ A full-stack **library management system** (bibliothèque): Spring Boot REST API
 | Path | Purpose |
 |---|---|
 | `bibliotheque-backend/` | Spring Boot API (port 8080) |
-| `bibliotheque-frontend/` | Angular 18 app (port 4200) |
+| `bibliotheque-frontend/` | Angular 14 app (port 4200) |
 | `bibliotheque-backend/src/main/java/com/ibizabroker/bibliotheque/` | Backend Java source |
 | `bibliotheque-backend/src/main/java/.../entity/` | JPA entities: Books, Users, Borrow, Role |
 | `bibliotheque-backend/src/main/java/.../dao/` | Spring Data JPA repositories |
@@ -18,6 +18,10 @@ A full-stack **library management system** (bibliothèque): Spring Boot REST API
 | `bibliotheque-frontend/src/app/` | Angular components, services, routing |
 | `bibliotheque-frontend/src/app/_service/` | HTTP services (books, users, borrow) |
 | `bibliotheque-frontend/src/app/_auth/` | AuthGuard, AuthInterceptor |
+| `bibliotheque-frontend/src/app/_ui/` | Design-system components (illustration, toast, confirm, empty state, language switcher) |
+| `bibliotheque-frontend/src/styles/` | Design tokens, base, motion, backgrounds, `ds-*` components |
+| `bibliotheque-frontend/src/assets/i18n/` | `fr.json` / `en.json` translations |
+| `design-system/` | Source of the gallery published to claude.ai/design |
 | `db/seed.sql` | Initial data: admin account, test users, books, borrows |
 
 ## Commands
@@ -35,7 +39,7 @@ docker compose up --build
 cd bibliotheque-backend
 ./mvnw clean install              # build
 ./mvnw spring-boot:run            # run on port 8080
-./mvnw test                       # tests (1 context test)
+./mvnw test                       # 32 tests, H2 in memory, no DB needed
 ```
 
 ### Frontend (manual)
@@ -44,7 +48,7 @@ cd bibliotheque-frontend
 npm install
 npm start                         # serves on port 4200
 npm run build                     # production build
-npm test                          # Karma/Jasmine tests
+npm test -- --watch=false --browsers=ChromeHeadless   # 120 tests
 ```
 
 ### Database
@@ -73,7 +77,19 @@ PostgreSQL, configured via `.env` (copy `.env.example`). Docker exposes on port 
 - `ReservationEndpointIntegrationTests` / `ReservationSecuriteTests` — full context + MockMvc + **real JWTs** (a `@WithMockUser` would bypass the JWT filter and could not prove RS-01).
 - Surefire 2.22.2 + `@Nested`: `-Dtest=ClassName` finds nothing; use `-Dtest='ClassName*'`.
 
-### Frontend (Angular 18)
+### Design system & i18n (frontend)
+- **Tokens** in `src/styles/tokens.css` — brand/neutral ramps, semantic colors, type & space scales, radii, elevations, motion, focus ring. Dark theme re-assigns semantic aliases only; raw ramps never change.
+- Historical variable names (`--primary`, `--surface`, `--radius`…) are kept as aliases so the 23 legacy component stylesheets keep working. **Never rename them.**
+- `src/styles/components.css` holds shared classes prefixed `ds-` — the prefix avoids collisions with Bootstrap and with legacy class names.
+- Shared components in `src/app/_ui/`: `illustration` (7 inline SVGs), `toast` (+ `ToastService`), `confirm-dialog` (+ `ConfirmService`, replaces `window.confirm`), `empty-state`, `language-switcher`.
+- **Illustrations are inline SVG**, no binary assets, no CDN — the app renders identically offline and in Docker. Gradient ids are per-instance (`uid`) because two illustrations on one page would otherwise collide.
+- Angular refuses interpolation in SVG attributes: use `[attr.fill]="'url(#' + uid + '-a)'"`, not `fill="url(#{{uid}}-a)"`.
+- **i18n**: `@ngx-translate/core` v14 (Angular 14 — the project is NOT Angular 18 as previously documented). Files in `src/assets/i18n/{fr,en}.json`, loaded over HTTP, language persisted in localStorage, applied via `APP_INITIALIZER`.
+- Server-side business messages (RG-01…RG-06) pass through the `translate` pipe unchanged — an unknown key is returned as-is. That is deliberate: client keys and server sentences coexist in the same field.
+- Backend error messages remain French-only; translating them would require returning error codes instead of sentences.
+- Every component spec needs `TranslateModule.forRoot()` in its TestBed, otherwise the `translate` pipe fails to resolve.
+
+### Frontend (Angular 14)
 - **16 components**: home, login, logout, header, forbidden, books-list, create-book, update-book, book-details, users-list, registration, update-user, user-details, borrow-book, return-book
 - **Services**: `BooksService`, `UsersService`, `BorrowService`, `UserAuthService`
 - **Auth**: `AuthGuard` (route protection by role), `AuthInterceptor` (adds Bearer token to all requests)
@@ -93,8 +109,9 @@ Browser → Angular component → Service → HTTP (with AuthInterceptor) → Ba
 - Dates serialized as `dd-MM-yyyy` via `JsonDataSerializer`
 
 ### Frontend
-- Angular 18 with TypeScript 5.4
-- Bootstrap 5 for styling, jQuery included
+- Angular 14 with TypeScript 4.7
+- Bootstrap 5 for layout/grid; jQuery removed (was loaded globally, never used)
+- Visual values come from CSS variables only — never hardcode a colour or spacing
 - One component per folder (HTML + CSS + TS + spec)
 - Services in `_service/`, auth in `_auth/`
 - Testing: Karma + Jasmine
@@ -116,3 +133,6 @@ Browser → Angular component → Service → HTTP (with AuthInterceptor) → Ba
 8. **Reservation roles must be seeded**: an account without `ADHERENT`/`BIBLIOTHECAIRE` gets **403** on `/api/reservations`. Re-run the seed (`docker compose up seed`) after pulling the security work.
 9. **`roleMatch` used to be broken**: it returned on the first iteration, so only the first role was ever tested. Fixed — mandatory now that accounts carry two roles.
 10. **`/admin/users` is Admin-only**: the reservations page must not call `getUsersList()` for a plain ADHERENT, otherwise `AuthInterceptor` catches the 403 and redirects to `/forbidden`.
+11. **Login redirect used `role[0]`**: with two roles per account and a Java `Set` (no ordering guarantee), the admin could land on the member page. Now scans the whole role list.
+12. **Shared mock arrays leak between specs**: `ReservationsComponent` writes `reservation.statut` on cancel, so a module-level `const mockReservations` gets mutated. Build fixtures in `beforeEach`.
+13. **jQuery was loaded globally but never used** — removed from `package.json` and `angular.json`.

@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 import { ReturnBookComponent } from './return-book.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 describe('ReturnBookComponent', () => {
   let component: ReturnBookComponent;
@@ -12,7 +13,7 @@ describe('ReturnBookComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, RouterTestingModule, FormsModule],
+      imports: [TranslateModule.forRoot(), HttpClientTestingModule, RouterTestingModule, FormsModule],
       declarations: [ReturnBookComponent],
       schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();

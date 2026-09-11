@@ -1,67 +1,47 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
+
 import { ReservationsListComponent } from './reservations-list.component';
 import { Reservation } from '../_model/reservation';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 describe('ReservationsListComponent', () => {
   let component: ReservationsListComponent;
   let fixture: ComponentFixture<ReservationsListComponent>;
 
-  const mockReservations: Reservation[] = [
-    {
-      reservationId: 1,
-      livreId: 10,
-      livreNom: 'L1 - Livre disponible',
+  function reservation(id: number, livre: string, adherent: string, statut: string): Reservation {
+    return {
+      reservationId: id,
+      livreId: id + 9,
+      livreNom: livre,
       adherentId: 11,
-      adherentNom: 'Adhérent principal (A1)',
+      adherentNom: adherent,
       dateReservation: '21-08-2026',
       dateExpiration: '28-08-2026',
-      statut: 'EN_ATTENTE'
-    },
-    {
-      reservationId: 2,
-      livreId: 11,
-      livreNom: 'L2 - Livre emprunté 1',
-      adherentId: 13,
-      adherentNom: 'Emprunteur (A3)',
-      dateReservation: '21-08-2026',
-      dateExpiration: '28-08-2026',
-      statut: 'DISPONIBLE'
-    },
-    {
-      reservationId: 3,
-      livreId: 12,
-      livreNom: 'L3 - Livre emprunté 2',
-      adherentId: 13,
-      adherentNom: 'Emprunteur (A3)',
-      dateReservation: '21-08-2026',
-      dateExpiration: '28-08-2026',
-      statut: 'ANNULEE'
-    },
-    {
-      reservationId: 4,
-      livreId: 13,
-      livreNom: 'L4 - Livre emprunté 3',
-      adherentId: 13,
-      adherentNom: 'Emprunteur (A3)',
-      dateReservation: '21-08-2026',
-      dateExpiration: '28-08-2026',
-      statut: 'EXPIREE'
-    },
-    {
-      reservationId: 5,
-      livreId: 14,
-      livreNom: 'L5 - Livre emprunté 4',
-      adherentId: 13,
-      adherentNom: 'Emprunteur (A3)',
-      dateReservation: '21-08-2026',
-      dateExpiration: '28-08-2026',
-      statut: 'HONOREE'
-    }
+      statut
+    };
+  }
+
+  const mockReservations: Reservation[] = [
+    reservation(1, 'L1 - Livre disponible', 'Adhérent principal (A1)', 'EN_ATTENTE'),
+    reservation(2, 'L2 - Livre emprunté 1', 'Emprunteur (A3)', 'DISPONIBLE'),
+    reservation(3, 'L3 - Livre emprunté 2', 'Emprunteur (A3)', 'ANNULEE'),
+    reservation(4, 'L4 - Livre emprunté 3', 'Emprunteur (A3)', 'EXPIREE'),
+    reservation(5, 'L5 - Livre emprunté 4', 'Emprunteur (A3)', 'HONOREE')
   ];
+
+  /** Alimente le composant comme le ferait une liaison @Input, puis rend le DOM. */
+  function load(reservations: Reservation[], role = 'BIBLIOTHECAIRE'): void {
+    component.reservations = reservations;
+    component.currentUserRole = role;
+    component.ngOnChanges();
+    fixture.detectChanges();
+  }
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      imports: [FormsModule, TranslateModule.forRoot()],
       declarations: [ReservationsListComponent],
       schemas: [CUSTOM_ELEMENTS_SCHEMA]
     }).compileComponents();
@@ -74,144 +54,157 @@ describe('ReservationsListComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should display empty message when no reservations', () => {
-    component.reservations = [];
-    fixture.detectChanges();
+  // --- Rendu ---------------------------------------------------------------
 
-    const emptyState = fixture.nativeElement.querySelector('.empty-state');
-    expect(emptyState).toBeTruthy();
-    expect(emptyState.textContent).toContain('Aucune réservation');
+  it('should show the empty state when there is no reservation', () => {
+    load([]);
+
+    expect(fixture.nativeElement.querySelector('app-empty-state')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('table')).toBeNull();
   });
 
-  it('should not display table when reservations is empty', () => {
-    component.reservations = [];
-    fixture.detectChanges();
+  it('should render one row per reservation', () => {
+    load(mockReservations);
 
-    const table = fixture.nativeElement.querySelector('table');
-    expect(table).toBeNull();
+    expect(fixture.nativeElement.querySelector('table')).toBeTruthy();
+    expect(fixture.nativeElement.querySelectorAll('tbody tr').length).toBe(5);
   });
 
-  it('should display table when reservations exist', () => {
-    component.reservations = mockReservations;
-    fixture.detectChanges();
-
-    const table = fixture.nativeElement.querySelector('table');
-    expect(table).toBeTruthy();
-
-    const rows = fixture.nativeElement.querySelectorAll('tbody tr');
-    expect(rows.length).toBe(5);
-  });
-
-  it('should display reservation data in table rows', () => {
-    component.reservations = mockReservations;
-    fixture.detectChanges();
+  it('should display the book and the member of a reservation', () => {
+    load(mockReservations);
 
     const firstRow = fixture.nativeElement.querySelector('tbody tr');
     expect(firstRow.textContent).toContain('L1 - Livre disponible');
     expect(firstRow.textContent).toContain('Adhérent principal (A1)');
-    expect(firstRow.textContent).toContain('En attente');
   });
 
-  it('should show cancel button only for EN_ATTENTE and DISPONIBLE', () => {
-    component.reservations = mockReservations;
-    fixture.detectChanges();
+  it('should hide the member column for an ADHERENT', () => {
+    // Un adhérent ne voit que ses propres réservations : la colonne est redondante.
+    load(mockReservations, 'ADHERENT');
+
+    const firstRow = fixture.nativeElement.querySelector('tbody tr');
+    expect(firstRow.textContent).not.toContain('Adhérent principal (A1)');
+  });
+
+  // --- Action d'annulation -------------------------------------------------
+
+  it('should only offer cancellation on EN_ATTENTE and DISPONIBLE rows', () => {
+    load(mockReservations);
 
     const rows = fixture.nativeElement.querySelectorAll('tbody tr');
-    expect(rows[0].querySelector('button')).toBeTruthy();
-    expect(rows[1].querySelector('button')).toBeTruthy();
-    expect(rows[2].querySelector('button')).toBeNull();
-    expect(rows[3].querySelector('button')).toBeNull();
-    expect(rows[4].querySelector('button')).toBeNull();
+    expect(rows[0].querySelector('button')).toBeTruthy();  // EN_ATTENTE
+    expect(rows[1].querySelector('button')).toBeTruthy();  // DISPONIBLE
+    expect(rows[2].querySelector('button')).toBeNull();    // ANNULEE
+    expect(rows[3].querySelector('button')).toBeNull();    // EXPIREE
+    expect(rows[4].querySelector('button')).toBeNull();    // HONOREE
   });
 
-  it('should return true for canCancel with EN_ATTENTE', () => {
-    expect(component.canCancel('EN_ATTENTE')).toBeTrue();
-  });
-
-  it('should return true for canCancel with DISPONIBLE', () => {
-    expect(component.canCancel('DISPONIBLE')).toBeTrue();
-  });
-
-  it('should return false for canCancel with ANNULEE', () => {
-    expect(component.canCancel('ANNULEE')).toBeFalse();
-  });
-
-  it('should return false for canCancel with EXPIREE', () => {
-    expect(component.canCancel('EXPIREE')).toBeFalse();
-  });
-
-  it('should return false for canCancel with HONOREE', () => {
-    expect(component.canCancel('HONOREE')).toBeFalse();
-  });
-
-  it('should return correct badge class for EN_ATTENTE', () => {
-    expect(component.getStatutClass('EN_ATTENTE')).toContain('statut-en-attente');
-  });
-
-  it('should return correct badge class for DISPONIBLE', () => {
-    expect(component.getStatutClass('DISPONIBLE')).toContain('statut-disponible');
-  });
-
-  it('should return correct badge class for ANNULEE', () => {
-    expect(component.getStatutClass('ANNULEE')).toContain('statut-annulee');
-  });
-
-  it('should return correct badge class for EXPIREE', () => {
-    expect(component.getStatutClass('EXPIREE')).toContain('statut-expiree');
-  });
-
-  it('should return correct badge class for HONOREE', () => {
-    expect(component.getStatutClass('HONOREE')).toContain('statut-honoree');
-  });
-
-  it('should emit annuler event on confirmAnnuler', () => {
+  it('should emit the reservation when cancellation is requested', () => {
     spyOn(component.annuler, 'emit');
-    spyOn(window, 'confirm').and.returnValue(true);
+    load(mockReservations);
 
-    component.confirmAnnuler(mockReservations[0]);
+    component.onAnnuler(mockReservations[0]);
 
     expect(component.annuler.emit).toHaveBeenCalledWith(mockReservations[0]);
   });
 
-  it('should not emit annuler event when user cancels confirmation', () => {
-    spyOn(component.annuler, 'emit');
-    spyOn(window, 'confirm').and.returnValue(false);
-
-    component.confirmAnnuler(mockReservations[0]);
-
-    expect(component.annuler.emit).not.toHaveBeenCalled();
+  it('should expose canCancel per statut', () => {
+    expect(component.canCancel('EN_ATTENTE')).toBeTrue();
+    expect(component.canCancel('DISPONIBLE')).toBeTrue();
+    expect(component.canCancel('ANNULEE')).toBeFalse();
+    expect(component.canCancel('EXPIREE')).toBeFalse();
+    expect(component.canCancel('HONOREE')).toBeFalse();
   });
 
-  it('should display all 6 columns in header', () => {
-    component.reservations = mockReservations;
+  // --- Statuts -------------------------------------------------------------
+
+  it('should map each statut to its translation key', () => {
+    // Le libellé n'est plus figé en français : il est résolu par ngx-translate.
+    expect(component.statutKey('EN_ATTENTE')).toBe('reservations.status.EN_ATTENTE');
+    expect(component.statutKey('HONOREE')).toBe('reservations.status.HONOREE');
+  });
+
+  it('should give each statut its own badge style', () => {
+    expect(component.getStatutClass('EN_ATTENTE')).toContain('ds-badge--warning');
+    expect(component.getStatutClass('DISPONIBLE')).toContain('ds-badge--success');
+    expect(component.getStatutClass('ANNULEE')).toContain('ds-badge--danger');
+    expect(component.getStatutClass('EXPIREE')).toContain('ds-badge--neutral');
+    expect(component.getStatutClass('HONOREE')).toContain('ds-badge--info');
+  });
+
+  // --- Recherche, tri, pagination ------------------------------------------
+
+  it('should filter rows on the search query', () => {
+    load(mockReservations);
+
+    component.onQueryChange('L1');
+
+    expect(component.visible.length).toBe(1);
+    expect(component.visible[0].livreNom).toContain('L1');
+  });
+
+  it('should show the no-result state when the search matches nothing', () => {
+    load(mockReservations);
+
+    component.onQueryChange('zzz-introuvable');
     fixture.detectChanges();
 
-    const headers = fixture.nativeElement.querySelectorAll('thead th');
-    expect(headers.length).toBe(6);
-    expect(headers[0].textContent).toContain('Livre');
-    expect(headers[1].textContent).toContain('Adhérent');
-    expect(headers[2].textContent).toContain('Statut');
-    expect(headers[3].textContent).toContain('Réservation');
-    expect(headers[4].textContent).toContain('Expiration');
-    expect(headers[5].textContent).toContain('Action');
+    expect(component.visible.length).toBe(0);
+    expect(fixture.nativeElement.querySelector('app-empty-state')).toBeTruthy();
   });
 
-  it('should display statut badge with correct text', () => {
-    component.reservations = mockReservations;
-    fixture.detectChanges();
+  it('should toggle the sort direction when the same column is clicked twice', () => {
+    load(mockReservations);
 
-    const badges = fixture.nativeElement.querySelectorAll('.statut-badge');
-    expect(badges.length).toBe(5);
-    expect(badges[0].textContent.trim()).toContain('En attente');
-    expect(badges[1].textContent.trim()).toContain('Disponible');
-    expect(badges[2].textContent.trim()).toContain('Annulée');
+    component.sortBy('livreNom');
+    expect(component.sortDirection).toBe('asc');
+
+    component.sortBy('livreNom');
+    expect(component.sortDirection).toBe('desc');
   });
 
-  it('should format statut labels correctly', () => {
-    expect(component.formatStatut('EN_ATTENTE')).toBe('En attente');
-    expect(component.formatStatut('DISPONIBLE')).toBe('Disponible');
-    expect(component.formatStatut('ANNULEE')).toBe('Annulée');
-    expect(component.formatStatut('EXPIREE')).toBe('Expirée');
-    expect(component.formatStatut('HONOREE')).toBe('Honorée');
+  it('should sort rows by the chosen column', () => {
+    load(mockReservations);
+
+    component.sortBy('livreNom');
+
+    expect(component.visible[0].livreNom).toBe('L1 - Livre disponible');
+    expect(component.visible[4].livreNom).toBe('L5 - Livre emprunté 4');
+  });
+
+  it('should reset to the first page when the input list changes', () => {
+    component.page = 3;
+    load(mockReservations);
+
+    expect(component.page).toBe(1);
+  });
+
+  it('should keep everything on a single page below the page size', () => {
+    load(mockReservations);
+
+    expect(component.totalPages).toBe(1);
+    expect(component.pageItems.length).toBe(5);
+  });
+
+  it('should paginate beyond the page size', () => {
+    const many = Array.from({ length: 20 }, (_, i) =>
+      reservation(i + 1, `Livre ${i + 1}`, 'Emprunteur (A3)', 'EN_ATTENTE'));
+    load(many);
+
+    expect(component.totalPages).toBe(3);
+    expect(component.pageItems.length).toBe(8);
+
+    component.goToPage(3);
+    expect(component.pageItems.length).toBe(4);
+  });
+
+  it('should clamp page navigation to the available range', () => {
+    load(mockReservations);
+
+    component.goToPage(99);
+    expect(component.page).toBe(1);
+
+    component.goToPage(-5);
+    expect(component.page).toBe(1);
   });
 });

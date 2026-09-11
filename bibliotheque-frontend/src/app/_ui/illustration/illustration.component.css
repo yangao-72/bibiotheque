@@ -1,0 +1,29 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.ill {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Les éléments respirent à des rythmes différents : une seule cadence
+   donnerait un effet mécanique. */
+.ill-float {
+  animation: bg-float 6.5s var(--ease-in-out) infinite;
+  transform-origin: center;
+}
+
+.ill-float-slow {
+  animation: bg-float 9s var(--ease-in-out) infinite reverse;
+  transform-origin: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ill-float,
+  .ill-float-slow {
+    animation: none;
+  }
+}

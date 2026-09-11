@@ -14,7 +14,8 @@ export class SidebarComponent implements OnInit {
   @Output() toggleSidebar = new EventEmitter<void>();
 
   name = '';
-  role = '';
+  /** Clé de traduction du rôle affiché, résolue dans le template. */
+  roleKey = 'roles.user';
 
   constructor(
     private userAuthService: UserAuthService,
@@ -23,9 +24,10 @@ export class SidebarComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.name = this.userAuthService.getName() || 'Utilisateur';
-    const roles: any[] = this.userAuthService.getRoles();
-    this.role = roles?.includes('Admin') ? 'Administrateur' : 'Utilisateur';
+    this.name = this.userAuthService.getName() || '';
+    this.roleKey = this.userService.roleMatch(['BIBLIOTHECAIRE', 'Admin'])
+      ? 'roles.librarian'
+      : 'roles.member';
   }
 
   public isLoggedIn(): boolean {

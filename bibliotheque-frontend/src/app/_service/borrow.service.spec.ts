@@ -3,13 +3,14 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 
 import { BorrowService } from './borrow.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 describe('BorrowService', () => {
   let service: BorrowService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, RouterTestingModule]
+      imports: [TranslateModule.forRoot(), HttpClientTestingModule, RouterTestingModule]
     });
     service = TestBed.inject(BorrowService);
   });

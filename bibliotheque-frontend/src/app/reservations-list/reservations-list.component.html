@@ -1,55 +1,137 @@
-<!-- Liste vide — état élégant -->
-<div *ngIf="reservations.length === 0" class="empty-state text-center py-5">
-  <div class="empty-icon mb-3"><i class="fas fa-calendar-times"></i></div>
-  <h4 class="text-muted fw-semibold">Aucune réservation</h4>
-  <p class="text-muted small">Il n'y a aucune réservation pour le moment.<br>Créez-en une nouvelle ci-dessous.</p>
-</div>
+<div class="ds-card">
 
-<!-- Tableau responsive -->
-<div *ngIf="reservations.length > 0" class="table-wrapper">
-  <div class="table-responsive">
-    <table class="table align-middle">
+  <!-- Barre d'outils : recherche + compteur -->
+  <div class="ds-table-toolbar">
+    <div class="ds-table-toolbar__search">
+      <div class="ds-input-group">
+        <span class="ds-input-group__icon" aria-hidden="true"><i class="fas fa-magnifying-glass"></i></span>
+        <input type="search"
+               class="ds-input"
+               [ngModel]="query"
+               (ngModelChange)="onQueryChange($event)"
+               [attr.placeholder]="'reservations.searchPlaceholder' | translate"
+               [attr.aria-label]="'common.search' | translate">
+      </div>
+    </div>
+    <span class="ds-badge ds-badge--brand">
+      {{ 'reservations.count' | translate: { count: visible.length } }}
+    </span>
+  </div>
+
+  <!-- Aucune réservation du tout -->
+  <app-empty-state *ngIf="reservations.length === 0"
+                   art="empty"
+                   titleKey="empty.reservationsTitle"
+                   textKey="empty.reservationsText">
+  </app-empty-state>
+
+  <!-- Des réservations existent, mais la recherche ne renvoie rien -->
+  <app-empty-state *ngIf="reservations.length > 0 && visible.length === 0"
+                   art="search"
+                   titleKey="empty.searchTitle"
+                   textKey="empty.searchText"
+                   [params]="{ query: query }">
+  </app-empty-state>
+
+  <!-- Tableau -->
+  <div class="ds-table-wrap" *ngIf="visible.length > 0">
+    <table class="ds-table">
+      <caption class="sr-only">{{ 'reservations.title' | translate }}</caption>
       <thead>
         <tr>
-          <th scope="col" class="ps-3">Livre</th>
-          <th scope="col">Adhérent</th>
-          <th scope="col">Statut</th>
-          <th scope="col" class="d-none d-sm-table-cell">Réservation</th>
-          <th scope="col" class="d-none d-sm-table-cell">Expiration</th>
-          <th scope="col" class="text-center pe-3">Action</th>
+          <th scope="col">
+            <button type="button" class="ds-th-sort" [class.is-active]="isSorted('livreNom')"
+                    (click)="sortBy('livreNom')">
+              {{ 'reservations.book' | translate }}
+              <i class="fas ds-th-sort__icon" [ngClass]="sortIcon('livreNom')" aria-hidden="true"></i>
+            </button>
+          </th>
+          <th scope="col" *ngIf="estBibliothecaire">
+            <button type="button" class="ds-th-sort" [class.is-active]="isSorted('adherentNom')"
+                    (click)="sortBy('adherentNom')">
+              {{ 'reservations.member' | translate }}
+              <i class="fas ds-th-sort__icon" [ngClass]="sortIcon('adherentNom')" aria-hidden="true"></i>
+            </button>
+          </th>
+          <th scope="col">
+            <button type="button" class="ds-th-sort" [class.is-active]="isSorted('dateReservation')"
+                    (click)="sortBy('dateReservation')">
+              {{ 'reservations.reservedOn' | translate }}
+              <i class="fas ds-th-sort__icon" [ngClass]="sortIcon('dateReservation')" aria-hidden="true"></i>
+            </button>
+          </th>
+          <th scope="col">
+            <button type="button" class="ds-th-sort" [class.is-active]="isSorted('dateExpiration')"
+                    (click)="sortBy('dateExpiration')">
+              {{ 'reservations.expiresOn' | translate }}
+              <i class="fas ds-th-sort__icon" [ngClass]="sortIcon('dateExpiration')" aria-hidden="true"></i>
+            </button>
+          </th>
+          <th scope="col">
+            <button type="button" class="ds-th-sort" [class.is-active]="isSorted('statut')"
+                    (click)="sortBy('statut')">
+              {{ 'reservations.status' | translate }}
+              <i class="fas ds-th-sort__icon" [ngClass]="sortIcon('statut')" aria-hidden="true"></i>
+            </button>
+          </th>
+          <th scope="col" class="text-end">{{ 'common.actions' | translate }}</th>
         </tr>
       </thead>
-      <tbody>
-        <tr *ngFor="let r of reservations; let i = index" class="table-row-hover"
-            [style.animation-delay]="(i * 0.04) + 's'">
-          <td class="ps-3">
-            <span class="fw-semibold">{{ r.livreNom }}</span>
-          </td>
-          <td>{{ r.adherentNom }}</td>
+      <tbody class="anim-stagger">
+        <tr *ngFor="let reservation of pageItems; trackBy: trackById">
           <td>
-            <span [class]="getStatutClass(r.statut)">
-              {{ formatStatut(r.statut) }}
+            <div class="res-book">
+              <span class="res-book__icon" aria-hidden="true"><i class="fas fa-book"></i></span>
+              <span class="res-book__name">{{ reservation.livreNom }}</span>
+            </div>
+          </td>
+          <td *ngIf="estBibliothecaire">{{ reservation.adherentNom }}</td>
+          <td class="res-date">{{ reservation.dateReservation }}</td>
+          <td class="res-date">{{ reservation.dateExpiration }}</td>
+          <td>
+            <span [ngClass]="getStatutClass(reservation.statut)">
+              <span class="ds-badge__dot" aria-hidden="true"></span>
+              {{ statutKey(reservation.statut) | translate }}
             </span>
           </td>
-          <td class="d-none d-sm-table-cell text-muted small">
-            {{ r.dateReservation }}
-          </td>
-          <td class="d-none d-sm-table-cell text-muted small">
-            {{ r.dateExpiration }}
-          </td>
-          <td class="text-center pe-3">
-            <button
-              *ngIf="canCancel(r.statut)"
-              class="btn btn-outline-danger btn-sm btn-action"
-              (click)="confirmAnnuler(r)"
-              title="Annuler cette réservation">
-              <span class="d-none d-md-inline"><i class="fas fa-times-circle"></i> Annuler</span>
-              <span class="d-md-none"><i class="fas fa-times"></i></span>
+          <td class="text-end">
+            <button type="button"
+                    class="ds-btn ds-btn--subtle-danger ds-btn--sm"
+                    *ngIf="canCancel(reservation.statut)"
+                    (click)="onAnnuler(reservation)">
+              <i class="fas fa-ban" aria-hidden="true"></i>
+              {{ 'common.cancel' | translate }}
             </button>
-            <span *ngIf="!canCancel(r.statut)" class="text-muted small">—</span>
+            <span class="res-no-action" *ngIf="!canCancel(reservation.statut)" aria-hidden="true">—</span>
           </td>
         </tr>
       </tbody>
     </table>
   </div>
+
+  <!-- Pagination : masquée tant qu'il n'y a qu'une page -->
+  <div class="ds-pagination" *ngIf="totalPages > 1">
+    <span>
+      {{ 'common.page' | translate }} {{ page }} {{ 'common.of' | translate }} {{ totalPages }}
+    </span>
+    <div class="ds-pagination__pages">
+      <button type="button" class="ds-page-btn" [disabled]="page === 1" (click)="goToPage(page - 1)"
+              [attr.aria-label]="'common.previous' | translate">
+        <i class="fas fa-chevron-left" aria-hidden="true"></i>
+      </button>
+      <button type="button"
+              class="ds-page-btn"
+              *ngFor="let p of pages"
+              [class.is-current]="p === page"
+              [attr.aria-current]="p === page ? 'page' : null"
+              (click)="goToPage(p)">
+        {{ p }}
+      </button>
+      <button type="button" class="ds-page-btn" [disabled]="page === totalPages" (click)="goToPage(page + 1)"
+              [attr.aria-label]="'common.next' | translate">
+        <i class="fas fa-chevron-right" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+
 </div>

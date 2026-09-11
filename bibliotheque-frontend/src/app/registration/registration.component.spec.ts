@@ -6,6 +6,7 @@ import { of, throwError } from 'rxjs';
 
 import { RegistrationComponent } from './registration.component';
 import { UsersService } from '../_service/users.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 describe('RegistrationComponent', () => {
   let component: RegistrationComponent;
@@ -16,7 +17,7 @@ describe('RegistrationComponent', () => {
     const spy = jasmine.createSpyObj('UsersService', ['createUser']);
 
     await TestBed.configureTestingModule({
-      imports: [
+      imports: [TranslateModule.forRoot(), 
         FormsModule,
         HttpClientTestingModule,
         RouterTestingModule
@@ -48,7 +49,7 @@ describe('RegistrationComponent', () => {
     component.user.username = 'test';
     component.user.password = 'pass';
     component.onSubmit();
-    expect(component.errorMessage).toContain('nom complet');
+    expect(component.errorMessage).toBe('validation.nameRequired');
     expect(component.saving).toBeFalse();
   });
 
@@ -57,7 +58,7 @@ describe('RegistrationComponent', () => {
     component.user.username = '';
     component.user.password = 'pass';
     component.onSubmit();
-    expect(component.errorMessage).toContain('utilisateur');
+    expect(component.errorMessage).toBe('validation.usernameRequired');
     expect(component.saving).toBeFalse();
   });
 
@@ -66,7 +67,7 @@ describe('RegistrationComponent', () => {
     component.user.username = 'test';
     component.user.password = '';
     component.onSubmit();
-    expect(component.errorMessage).toContain('mot de passe');
+    expect(component.errorMessage).toBe('validation.passwordRequired');
     expect(component.saving).toBeFalse();
   });
 
@@ -78,7 +79,7 @@ describe('RegistrationComponent', () => {
     component.onSubmit();
     expect(usersServiceSpy.createUser).toHaveBeenCalled();
     expect(component.saving).toBeFalse();
-    expect(component.successMessage).toContain('succès');
+    expect(component.successMessage).toBe('Adhérent créé avec succès.');
   });
 
   it('should pair the "User" profile with the ADHERENT reservation role', () => {
@@ -121,7 +122,7 @@ describe('RegistrationComponent', () => {
     component.user.username = 'test';
     component.user.password = 'pass';
     component.onSubmit();
-    expect(component.errorMessage).toContain('injoignable');
+    expect(component.errorMessage).toBe('errors.network');
     expect(component.saving).toBeFalse();
   });
 
@@ -144,7 +145,7 @@ describe('RegistrationComponent', () => {
     component.user.username = 'test';
     component.user.password = 'pass';
     component.onSubmit();
-    expect(component.errorMessage).toContain('Erreur interne');
+    expect(component.errorMessage).toBe('errors.server');
   });
 
   it('should clear errorMessage when clicking close', () => {
