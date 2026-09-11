@@ -1,0 +1,37 @@
+<figure class="meter">
+  <figcaption class="meter__head">
+    <h3 class="meter__title">{{ titleKey | translate }}</h3>
+  </figcaption>
+
+  <p class="meter__empty" *ngIf="isEmpty">{{ emptyKey | translate }}</p>
+
+  <div class="meter__body" *ngIf="!isEmpty">
+    <div class="meter__gauge"
+         role="meter"
+         [attr.aria-valuenow]="percent"
+         aria-valuemin="0"
+         aria-valuemax="100"
+         [attr.aria-label]="titleKey | translate"
+         [attr.aria-valuetext]="percent + '%'">
+      <svg viewBox="0 0 160 160" aria-hidden="true" focusable="false">
+        <!-- Piste : un pas plus clair de la même rampe, jamais une seconde teinte -->
+        <circle class="meter__track"
+                cx="80" cy="80" [attr.r]="radius"
+                [attr.stroke-dasharray]="trackDash"/>
+        <!-- Remplissage -->
+        <circle class="meter__fill"
+                cx="80" cy="80" [attr.r]="radius"
+                [attr.stroke-dasharray]="fillDash"/>
+      </svg>
+
+      <!-- La valeur est lisible sans survol : elle est écrite au centre -->
+      <div class="meter__readout">
+        <span class="meter__percent">{{ percent }}<span class="meter__unit">%</span></span>
+      </div>
+    </div>
+
+    <p class="meter__caption">
+      {{ captionKey | translate: { value: value, max: max } }}
+    </p>
+  </div>
+</figure>

@@ -1,0 +1,97 @@
+/* =============================================================================
+   Jauge en arc — ratio unique
+   ============================================================================= */
+
+:host { display: block; }
+
+.meter { margin: 0; }
+
+.meter__head { margin-bottom: var(--space-4); }
+
+.meter__title {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+}
+
+.meter__empty {
+  margin: 0;
+  padding: var(--space-8) 0;
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.meter__body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.meter__gauge {
+  position: relative;
+  width: 100%;
+  max-width: 11rem;
+}
+
+.meter__gauge svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* Trois quarts de tour ouverts vers le bas. Le tracé d'un cercle SVG démarre
+     à 3 h et court dans le sens horaire ; cette rotation place l'ouverture sous
+     la jauge et fait partir le remplissage du bas-gauche. */
+  transform: rotate(135deg);
+}
+
+.meter__track,
+.meter__fill {
+  fill: none;
+  stroke-width: 16;
+  stroke-linecap: round;
+}
+
+.meter__track { stroke: var(--brand-100); }
+.meter__fill {
+  stroke: var(--primary);
+  transition: stroke-dasharray var(--duration-slow) var(--ease-out);
+}
+
+/* En thème sombre, --brand-100 est un vert très clair : il écraserait le
+   remplissage. La piste descend dans la rampe au lieu d'y monter. */
+.dark-mode .meter__track { stroke: var(--brand-900); }
+
+@media (prefers-reduced-motion: reduce) {
+  .meter__fill { transition: none; }
+}
+
+.meter__readout {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+.meter__percent {
+  /* Chiffres proportionnels : `tabular-nums` donnerait à « 41 » un rendu lâche
+     à cette taille. */
+  font-size: var(--text-4xl);
+  font-weight: var(--weight-bold);
+  line-height: 1;
+  color: var(--text-primary);
+  letter-spacing: var(--tracking-tight);
+}
+
+.meter__unit {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--text-secondary);
+  margin-left: 0.05em;
+}
+
+.meter__caption {
+  margin: var(--space-4) 0 0;
+  text-align: center;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}

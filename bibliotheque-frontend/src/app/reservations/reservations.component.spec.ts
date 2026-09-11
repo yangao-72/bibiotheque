@@ -304,6 +304,50 @@ describe('ReservationsComponent', () => {
     expect(component.isFormValid).toBeTrue();
   });
 
+  // --- Statistiques --------------------------------------------------------
+
+  it('should build a seven-day series', () => {
+    component.reservations = mockReservations;
+    component.calculerStatistiques();
+
+    expect(component.reservationsParJour.length).toBe(7);
+  });
+
+  it('should count a reservation on the day it was created', () => {
+    const aujourdhui = new Date();
+    const jj = String(aujourdhui.getDate()).padStart(2, '0');
+    const mm = String(aujourdhui.getMonth() + 1).padStart(2, '0');
+    const aaaa = aujourdhui.getFullYear();
+
+    // Le serveur sérialise les dates en `dd-MM-yyyy`, que `new Date()` ne sait pas lire.
+    component.reservations = [{ ...mockReservations[0], dateReservation: `${jj}-${mm}-${aaaa}` }];
+    component.calculerStatistiques();
+
+    const dernierJour = component.reservationsParJour[component.reservationsParJour.length - 1];
+    expect(dernierJour.value).toBe(1);
+  });
+
+  it('should ignore a malformed date rather than throwing', () => {
+    component.reservations = [{ ...mockReservations[0], dateReservation: 'pas-une-date' }];
+
+    expect(() => component.calculerStatistiques()).not.toThrow();
+    expect(component.reservationsParJour.every(j => j.value === 0)).toBeTrue();
+  });
+
+  it('should measure the fulfilment rate on finished reservations only', () => {
+    // Rapporter les honorées au total ferait chuter le taux à chaque création,
+    // ce qui ne mesurerait rien.
+    component.reservations = [
+      { ...mockReservations[0], statut: 'HONOREE' },
+      { ...mockReservations[0], statut: 'ANNULEE' },
+      { ...mockReservations[0], statut: 'EN_ATTENTE' }
+    ];
+    component.calculerStatistiques();
+
+    expect(component.honorees).toBe(1);
+    expect(component.terminees).toBe(2);
+  });
+
   // --- Compteurs -----------------------------------------------------------
 
   it('should count reservations by statut', () => {

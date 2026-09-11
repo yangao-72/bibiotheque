@@ -40,6 +40,8 @@ import { ToastContainerComponent } from './_ui/toast/toast-container.component';
 import { ConfirmDialogComponent } from './_ui/confirm-dialog/confirm-dialog.component';
 import { EmptyStateComponent } from './_ui/empty-state/empty-state.component';
 import { LanguageSwitcherComponent } from './_ui/language-switcher/language-switcher.component';
+import { BarChartComponent } from './_ui/bar-chart/bar-chart.component';
+import { ArcMeterComponent } from './_ui/arc-meter/arc-meter.component';
 
 /** Charge les fichiers de traduction depuis src/assets/i18n/<langue>.json. */
 export function createTranslateLoader(http: HttpClient): TranslateLoader {
@@ -80,6 +82,8 @@ export function initLanguage(languageService: LanguageService): () => void {
     ConfirmDialogComponent,
     EmptyStateComponent,
     LanguageSwitcherComponent,
+    BarChartComponent,
+    ArcMeterComponent,
   ],
   imports: [
     BrowserModule,

@@ -45,6 +45,32 @@
     </div>
   </div>
 
+  <!-- Statistiques -->
+  <div class="stats-row anim-rise" *ngIf="!loading && !errorMessage">
+    <section class="ds-card stats-row__chart">
+      <div class="ds-card__body">
+        <app-bar-chart
+          [data]="reservationsParJour"
+          titleKey="chart.perDayTitle"
+          subtitleKey="chart.perDaySubtitle"
+          unitKey="chart.reservationsUnit">
+        </app-bar-chart>
+      </div>
+    </section>
+
+    <section class="ds-card stats-row__meter">
+      <div class="ds-card__body">
+        <app-arc-meter
+          [value]="honorees"
+          [max]="terminees"
+          titleKey="chart.fulfilmentTitle"
+          captionKey="chart.fulfilmentCaption"
+          emptyKey="chart.noFinished">
+        </app-arc-meter>
+      </div>
+    </section>
+  </div>
+
   <!-- Erreur de chargement -->
   <div class="load-error anim-rise-sm" *ngIf="errorMessage && !loading" role="alert">
     <i class="fas fa-circle-exclamation" aria-hidden="true"></i>

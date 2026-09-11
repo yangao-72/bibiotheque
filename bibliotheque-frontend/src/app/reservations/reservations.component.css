@@ -100,3 +100,22 @@
 @media (max-width: 767.98px) {
   .reservations-page { padding: var(--space-5) var(--space-4); }
 }
+
+/* --- Bandeau de statistiques ----------------------------------------------
+   Le graphique prend deux fois la largeur de la jauge : sept colonnes ont
+   besoin de place, un pourcentage n'en a pas. */
+
+.stats-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+  align-items: stretch;
+}
+
+.stats-row .ds-card { display: flex; }
+.stats-row .ds-card__body { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+
+@media (max-width: 991.98px) {
+  .stats-row { grid-template-columns: 1fr; }
+}

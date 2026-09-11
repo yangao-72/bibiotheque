@@ -93,6 +93,15 @@ PostgreSQL, configured via `.env` (copy `.env.example`). Docker exposes on port 
 - Backend error messages remain French-only; translating them would require returning error codes instead of sentences.
 - Every component spec needs `TranslateModule.forRoot()` in its TestBed, otherwise the `translate` pipe fails to resolve.
 
+### Charts
+- Two forms only, both **single-hue**: a column chart (7-day counts) and an arc meter (fulfilment rate). Components live in `_ui/bar-chart` and `_ui/arc-meter`.
+- A status-breakdown stacked bar was **rejected**: the dataviz validator scores the status palette's adjacent pair green↔orange at ΔE 5.4 under protanopia, below the 6 floor that secondary encoding could rescue. Single-hue removes the problem by construction — don't reintroduce a multi-hue chart without re-running `scripts/validate_palette.js`.
+- The meter fill **shortens the dash**, it never offsets it: a positive `stroke-dashoffset` shifts the pattern backwards and draws the *end* of the arc, filling the gauge in reverse.
+- `rotate(135deg)` on the gauge SVG puts the opening at the bottom and starts the fill bottom-left. Verified by rendering all four rotations, not by reasoning.
+- Bootstrap's colour utilities are re-pointed at tokens in `styles.css`: measured on our surfaces, `.text-muted`/`.text-success`/`.text-danger`/`.text-primary` land at 3.77–3.93:1 in dark mode (fail AA), and `.text-warning` is 1.63:1 in light mode.
+- `.ds-segmented`'s active tab separated from its track by only 1.05:1 in dark mode; it is now marked by the brand colour plus an inset ring, not by a surface difference.
+- Dates arrive from the server as `dd-MM-yyyy`; `new Date()` cannot parse that — the day-matching helper splits the string.
+
 ### Frontend (Angular 14)
 - **16 components**: home, login, logout, header, forbidden, books-list, create-book, update-book, book-details, users-list, registration, update-user, user-details, borrow-book, return-book
 - **Services**: `BooksService`, `UsersService`, `BorrowService`, `UserAuthService`

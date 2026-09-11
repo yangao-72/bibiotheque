@@ -245,5 +245,18 @@
     "copiesPositive": "Le nombre d'exemplaires doit être positif.",
     "bookRequired": "Veuillez choisir un livre.",
     "memberRequired": "Veuillez choisir un adhérent."
+  },
+  "chart": {
+    "perDayTitle": "Réservations sur 7 jours",
+    "perDaySubtitle": "Créées chaque jour, aujourd’hui compris",
+    "reservationsUnit": "Réservations",
+    "fulfilmentTitle": "Taux d’aboutissement",
+    "fulfilmentCaption": "{{value}} honorée(s) sur {{max}} terminée(s)",
+    "noFinished": "Aucune réservation terminée pour l’instant.",
+    "noData": "Pas encore de données à afficher.",
+    "showTable": "Tableau",
+    "showChart": "Graphique",
+    "period": "Jour",
+    "total": "Total"
   }
 }

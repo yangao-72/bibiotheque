@@ -245,5 +245,18 @@
     "copiesPositive": "The number of copies must be positive.",
     "bookRequired": "Please choose a book.",
     "memberRequired": "Please choose a member."
+  },
+  "chart": {
+    "perDayTitle": "Reservations over 7 days",
+    "perDaySubtitle": "Created each day, today included",
+    "reservationsUnit": "Reservations",
+    "fulfilmentTitle": "Fulfilment rate",
+    "fulfilmentCaption": "{{value}} fulfilled out of {{max}} finished",
+    "noFinished": "No finished reservation yet.",
+    "noData": "No data to show yet.",
+    "showTable": "Table",
+    "showChart": "Chart",
+    "period": "Day",
+    "total": "Total"
   }
 }

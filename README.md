@@ -548,6 +548,30 @@ Composants partagés (`src/app/_ui/`) :
 | `app-confirm-dialog` + `ConfirmService` | Remplace `window.confirm()` : traduisible, accessible, aux couleurs de l'app |
 | `app-empty-state` | État vide illustré, avec l'action qui permet d'en sortir |
 | `app-language-switcher` | Bascule de langue de la barre supérieure |
+| `app-bar-chart` | Colonnes, série unique : recherche du survol, jumelle tabulaire |
+| `app-arc-meter` | Jauge en arc — un ratio contre une limite |
+
+#### Les graphiques
+
+Deux formes seulement, toutes deux **monochromes**, sur la page Réservations :
+
+| Graphique | Forme | Pourquoi |
+|---|---|---|
+| Réservations sur 7 jours | Colonnes, série unique | Magnitude dans le temps → une seule teinte, pas de légende |
+| Taux d'aboutissement | Jauge (*meter*) | Un ratio contre une limite — *pas* un camembert à deux parts |
+
+Le monochrome n'est pas un appauvrissement, c'est une contrainte mesurée. Une
+répartition par statut en segments adjacents a été **écartée** : sous protanopie,
+le vert « disponible » et l'orange « en attente » ne sont séparés que de ΔE 5,4,
+sous le plancher de 6 qui rendrait la palette acceptable même avec étiquettes.
+Une série unique par graphique fait disparaître le problème par construction.
+
+Le taux d'aboutissement se calcule sur les seules réservations **terminées**
+(honorées ÷ honorées + annulées + expirées) : le rapporter au total ferait
+chuter le taux à chaque création, ce qui ne mesurerait rien.
+
+Chaque graphique a une **jumelle tabulaire** : aucune valeur n'est accessible
+uniquement au survol.
 
 La galerie du design system est publiée sur **claude.ai/design** (projet
 « BiblioGest — Design System ») : fondations, composants, motifs et illustrations.
@@ -588,6 +612,9 @@ tels quels.
 * Toutes les animations sont neutralisées sous `prefers-reduced-motion`.
 * Les icônes décoratives sont `aria-hidden`, les boutons-icônes ont un `aria-label`.
 * Le statut d'une réservation n'est jamais porté par la couleur seule : pastille + texte.
+* Les utilitaires de couleur de Bootstrap (`.text-muted`, `.text-success`, `.text-danger`,
+  `.text-primary`) sont rebranchés sur les tokens : mesurés sur nos surfaces, ils
+  tombaient entre 3,77 et 3,93:1 en thème sombre, sous le seuil AA.
 
 ---
 

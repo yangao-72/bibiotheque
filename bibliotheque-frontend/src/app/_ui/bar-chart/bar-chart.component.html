@@ -1,0 +1,82 @@
+<figure class="chart">
+
+  <figcaption class="chart__head">
+    <div>
+      <h3 class="chart__title">{{ titleKey | translate }}</h3>
+      <p class="chart__sub" *ngIf="subtitleKey">{{ subtitleKey | translate }}</p>
+    </div>
+    <button type="button"
+            class="chart__toggle"
+            (click)="toggleTable()"
+            [attr.aria-expanded]="showTable">
+      <i class="fas" [ngClass]="showTable ? 'fa-chart-column' : 'fa-table-list'" aria-hidden="true"></i>
+      {{ (showTable ? 'chart.showChart' : 'chart.showTable') | translate }}
+    </button>
+  </figcaption>
+
+  <!-- Aucune donnée : on le dit, on ne dessine pas un cadre vide. -->
+  <p class="chart__empty" *ngIf="isEmpty">{{ 'chart.noData' | translate }}</p>
+
+  <div class="chart__plot" *ngIf="!isEmpty && !showTable">
+    <!-- Graduations : traits pleins d'un cran au-dessus de la surface, discrets. -->
+    <div class="chart__scale" aria-hidden="true">
+      <span class="chart__tick" *ngFor="let t of ticks">{{ t }}</span>
+    </div>
+
+    <div class="chart__area">
+      <div class="chart__grid" aria-hidden="true">
+        <span *ngFor="let t of ticks"></span>
+      </div>
+
+      <ul class="chart__bars">
+        <li class="chart__slot" *ngFor="let bar of bars">
+          <!-- La cible de survol couvre toute la colonne, pas seulement la barre
+               peinte : viser 6 px de large serait impraticable. -->
+          <button type="button"
+                  class="chart__hit"
+                  [attr.aria-label]="bar.fullLabel + ' : ' + bar.value + ' ' + (unitKey | translate)">
+            <span class="chart__label" *ngIf="bar.isMax">{{ bar.value }}</span>
+            <!-- Une valeur nulle ne peint rien : un moignon de 2 px dans la
+                 couleur de la série se lirait comme « un peu », pas « zéro ». -->
+            <span class="chart__bar" *ngIf="bar.value > 0" [style.height.%]="bar.heightPct"></span>
+            <span class="chart__tip" role="tooltip">
+              <strong>{{ bar.value }}</strong>
+              <span>{{ bar.fullLabel }}</span>
+            </span>
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Bande de l'axe, comprise dans la hauteur du conteneur -->
+    <div class="chart__axis" aria-hidden="true">
+      <span *ngFor="let bar of bars">{{ bar.label }}</span>
+    </div>
+  </div>
+
+  <!-- Jumelle tabulaire : toute valeur reste accessible sans survol -->
+  <div class="chart__table-wrap" *ngIf="!isEmpty && showTable">
+    <table class="chart__table">
+      <caption class="sr-only">{{ titleKey | translate }}</caption>
+      <thead>
+        <tr>
+          <th scope="col">{{ 'chart.period' | translate }}</th>
+          <th scope="col">{{ unitKey | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let bar of bars">
+          <th scope="row">{{ bar.fullLabel }}</th>
+          <td>{{ bar.value }}</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <th scope="row">{{ 'chart.total' | translate }}</th>
+          <td>{{ total }}</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+</figure>

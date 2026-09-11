@@ -8,6 +8,8 @@ import { ReservationService } from '../_service/reservation.service';
 import { UsersService } from '../_service/users.service';
 import { ToastService } from '../_ui/toast/toast.service';
 import { ConfirmService } from '../_ui/confirm-dialog/confirm.service';
+import { BarDatum } from '../_ui/bar-chart/bar-chart.component';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-reservations',
@@ -39,12 +41,20 @@ export class ReservationsComponent implements OnInit {
   /** Vrai si l'utilisateur connecté porte le rôle BIBLIOTHECAIRE. */
   estBibliothecaire = false;
 
+  /** Réservations créées chaque jour sur les sept derniers jours. */
+  reservationsParJour: BarDatum[] = [];
+
+  /** Numérateur et dénominateur du taux d'aboutissement. */
+  honorees = 0;
+  terminees = 0;
+
   constructor(
     private reservationService: ReservationService,
     private booksService: BooksService,
     private usersService: UsersService,
     private toast: ToastService,
-    private confirm: ConfirmService
+    private confirm: ConfirmService,
+    private translate: TranslateService
   ) { }
 
   ngOnInit(): void {
@@ -68,6 +78,7 @@ export class ReservationsComponent implements OnInit {
         this.reservations = data.reservations;
         this.books = data.books;
         this.users = data.users;
+        this.calculerStatistiques();
         this.loading = false;
       },
       error: (err) => {
@@ -85,6 +96,7 @@ export class ReservationsComponent implements OnInit {
     this.reservationService.getReservations(statut || undefined).subscribe({
       next: (data) => {
         this.reservations = data;
+        this.calculerStatistiques();
         this.loading = false;
       },
       error: (err) => {
@@ -156,6 +168,61 @@ export class ReservationsComponent implements OnInit {
 
   getCountByStatut(statut: string): number {
     return this.reservations.filter(r => r.statut === statut).length;
+  }
+
+  // --- Statistiques --------------------------------------------------------
+
+  /**
+   * Prépare les deux séries affichées en haut de page.
+   *
+   * Le taux d'aboutissement se calcule sur les seules réservations *terminées* :
+   * rapporter les honorées au total ferait mécaniquement chuter le taux chaque
+   * fois qu'une réservation est créée, ce qui ne mesurerait rien.
+   */
+  calculerStatistiques(): void {
+    this.reservationsParJour = this.compterParJour(7);
+
+    this.honorees = this.getCountByStatut('HONOREE');
+    this.terminees = this.honorees
+      + this.getCountByStatut('ANNULEE')
+      + this.getCountByStatut('EXPIREE');
+  }
+
+  private compterParJour(nbJours: number): BarDatum[] {
+    const jours: BarDatum[] = [];
+    const locale = this.translate.currentLang || 'fr';
+
+    for (let i = nbJours - 1; i >= 0; i--) {
+      const jour = new Date();
+      jour.setHours(0, 0, 0, 0);
+      jour.setDate(jour.getDate() - i);
+
+      jours.push({
+        label: jour.toLocaleDateString(locale, { weekday: 'short' }),
+        fullLabel: jour.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long' }),
+        value: this.reservations.filter(r => this.memeJour(r.dateReservation, jour)).length
+      });
+    }
+
+    return jours;
+  }
+
+  /** Le serveur sérialise les dates en `dd-MM-yyyy` : `new Date()` ne sait pas les lire. */
+  private memeJour(dateReservation: Date | string, jour: Date): boolean {
+    if (typeof dateReservation !== 'string') {
+      const d = new Date(dateReservation);
+      return d.toDateString() === jour.toDateString();
+    }
+
+    const parts = dateReservation.split('-');
+    if (parts.length !== 3) {
+      return false;
+    }
+
+    const [jourStr, moisStr, anneeStr] = parts;
+    return Number(jourStr) === jour.getDate()
+      && Number(moisStr) === jour.getMonth() + 1
+      && Number(anneeStr) === jour.getFullYear();
   }
 
   // --- Gestion des erreurs -------------------------------------------------

@@ -103,6 +103,22 @@
   border-bottom: 1px solid var(--border);
 }
 
+/* --- Utilitaires de couleur Bootstrap ------------------------------------
+   Bootstrap fige ses couleurs de texte et ne connaît pas notre thème. Mesurés
+   sur nos surfaces, quatre de ses utilitaires tombent sous le seuil AA en
+   thème sombre (3,8 à 3,9:1), et `.text-warning` est illisible en thème clair
+   (1,63:1). On les rebranche sur les tokens sémantiques, conformes des deux
+   côtés. */
+.text-muted   { color: var(--text-muted) !important; }
+.text-primary { color: var(--primary) !important; }
+.text-success { color: var(--success) !important; }
+.text-danger  { color: var(--danger) !important; }
+.text-warning { color: var(--warning) !important; }
+
+/* La croix de fermeture de Bootstrap est une image SVG noire : invisible sur
+   une surface sombre. On l'inverse plutôt que de redéfinir l'image. */
+.dark-mode .btn-close { filter: invert(1) grayscale(1) brightness(2); }
+
 .spinner-border { color: var(--primary) !important; }
 
 /* =============================================================================
