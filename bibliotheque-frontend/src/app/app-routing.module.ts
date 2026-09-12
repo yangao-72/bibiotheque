@@ -21,14 +21,17 @@ const routes: Routes = [
   {path: 'books', component: BooksListComponent, canActivate:[AuthGuard], data:{roles:['Admin']}},
   {path: 'create-book', component: CreateBookComponent, canActivate:[AuthGuard], data:{roles:['Admin']}},
   {path: '', component: DashboardComponent, canActivate:[AuthGuard], data:{roles:['Admin', 'User']}},
-  {path: 'home', component: HomeComponent},
+  // Page publique : le shell n'y afficherait qu'une barre laterale vide et une
+  // recherche inutilisable par un visiteur non connecte.
+  {path: 'home', component: HomeComponent, data: {chrome: false}},
   {path: 'update-book/:bookId', component: UpdateBookComponent, canActivate:[AuthGuard], data:{roles:['Admin']}},
   {path: 'book-details/:bookId', component: BookDetailsComponent, canActivate:[AuthGuard], data:{roles:['Admin']}},
   {path: 'users', component: UsersListComponent, canActivate:[AuthGuard], data:{roles:['Admin']}},
   {path: 'register-user', component: RegistrationComponent, canActivate:[AuthGuard], data:{roles:['Admin']}},
   {path: 'user-details/:userId', component: UserDetailsComponent, canActivate:[AuthGuard], data:{roles:['Admin']}},
   {path: 'update-user/:userId', component: UpdateUserComponent, canActivate:[AuthGuard], data:{roles:['Admin']}},
-  {path: 'login', component: LoginComponent},
+  // `chrome: false` : l'écran occupe la page seul, sans barre latérale ni barre du haut.
+  {path: 'login', component: LoginComponent, data: {chrome: false}},
   {path: 'forbidden', component: ForbiddenComponent},
   {path: 'borrow-book', component: BorrowBookComponent, canActivate:[AuthGuard], data:{roles:['User']}},
   {path: 'return-book', component: ReturnBookComponent, canActivate:[AuthGuard], data:{roles:['User']}},

@@ -1,28 +1,34 @@
-<!-- Première tabulation de la page : permet de sauter la navigation. -->
-<a class="skip-link" href="#main-content">{{ 'app.skipToContent' | translate }}</a>
+<!-- Première tabulation de la page : permet de sauter la navigation.
+     Sans barre latérale ni barre du haut, il n'y a rien à sauter. -->
+<a class="skip-link" href="#main-content" *ngIf="showChrome">
+  {{ 'app.skipToContent' | translate }}
+</a>
 
-<div class="app-layout" [class.sidebar-open]="sidebarOpen">
-  <!-- Sidebar -->
+<div class="app-layout"
+     [class.app-layout--bare]="!showChrome"
+     [class.sidebar-open]="sidebarOpen">
+
   <app-sidebar
+    *ngIf="showChrome"
     [isOpen]="sidebarOpen"
     (toggleSidebar)="toggleSidebar()">
   </app-sidebar>
 
-  <!-- Main Area -->
   <div class="main-area">
-    <!-- Topbar -->
-    <app-topbar (toggleSidebar)="toggleSidebar()"></app-topbar>
+    <app-topbar *ngIf="showChrome" (toggleSidebar)="toggleSidebar()"></app-topbar>
 
-    <!-- Content -->
+    <!-- Un seul router-outlet, monté une fois pour toutes : le dupliquer dans
+         deux branches détruirait et recréerait le composant de page à chaque
+         passage d'un écran avec shell à un écran sans. -->
     <main class="main-content" id="main-content" tabindex="-1">
       <router-outlet></router-outlet>
     </main>
   </div>
 </div>
 
-<!-- Overlay for mobile -->
+<!-- Voile du tiroir mobile -->
 <div class="sidebar-overlay"
-     *ngIf="sidebarOpen"
+     *ngIf="showChrome && sidebarOpen"
      (click)="toggleSidebar()">
 </div>
 

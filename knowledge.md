@@ -48,7 +48,7 @@ cd bibliotheque-frontend
 npm install
 npm start                         # serves on port 4200
 npm run build                     # production build
-npm test -- --watch=false --browsers=ChromeHeadless   # 143 tests
+npm test -- --watch=false --browsers=ChromeHeadless   # 148 tests
 ```
 
 ### Database
@@ -94,6 +94,8 @@ PostgreSQL, configured via `.env` (copy `.env.example`). Docker exposes on port 
 - Server-side business messages (RG-01…RG-06) pass through the `translate` pipe unchanged — an unknown key is returned as-is. That is deliberate: client keys and server sentences coexist in the same field.
 - Backend error messages remain French-only; translating them would require returning error codes instead of sentences.
 - Every component spec needs `TranslateModule.forRoot()` in its TestBed, otherwise the `translate` pipe fails to resolve.
+- **Shell visibility is route data, not hardcoded**: `AppComponent` reads `data.chrome` off the deepest route on each `NavigationEnd`. `/login` and `/home` set `chrome: false` — the two routes an unauthenticated visitor can reach, where the sidebar renders empty and the topbar's search is unusable. Keep **one** `router-outlet`: duplicating it across `ngIf/else` branches destroys and recreates the page component on every shell toggle.
+- Hiding the topbar also hides the language switcher, so the login page mounts its own copy — otherwise a non-French visitor cannot switch language before signing in.
 
 ### Charts
 - Two forms only, both **single-hue**: a column chart (7-day counts) and an arc meter (fulfilment rate). Components live in `_ui/bar-chart` and `_ui/arc-meter`.

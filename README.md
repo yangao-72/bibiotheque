@@ -497,7 +497,7 @@ rôle réservation ; les comptes créés depuis l'écran d'inscription aussi.
 # Backend — 37 tests, aucune base requise (H2 en mémoire)
 cd bibliotheque-backend && ./mvnw test
 
-# Frontend — 143 tests
+# Frontend — 148 tests
 cd bibliotheque-frontend && npm test -- --watch=false --browsers=ChromeHeadless
 ```
 
@@ -613,6 +613,29 @@ uniquement au survol.
 La galerie du design system est publiée sur **claude.ai/design** (projet
 « BiblioGest — Design System ») : fondations, composants, motifs et illustrations.
 Les sources des fiches sont dans [`design-system/`](design-system/).
+
+#### Les écrans sans shell
+
+La barre latérale et la barre du haut ne sont pas montées en dur : `AppComponent`
+lit `data.chrome` sur la route la plus profonde à chaque navigation.
+
+```ts
+{ path: 'login', component: LoginComponent, data: { chrome: false } }
+```
+
+Deux routes en profitent — **`/login`** et **`/home`**. Ce sont les deux pages
+qu'un visiteur non authentifié peut atteindre : la navigation n'y afficherait
+qu'une barre latérale vide et une recherche inutilisable.
+
+Deux détails qui comptent :
+
+* **Un seul `router-outlet`.** Le dupliquer dans deux branches `ngIf/else`
+  détruirait et recréerait le composant de page à chaque passage d'un écran
+  avec shell à un écran sans. Le shell est masqué, le gabarit reçoit
+  `.app-layout--bare` pour récupérer la largeur et la hauteur réservées.
+* **Le sélecteur de langue est reposé sur l'écran de connexion.** Il vit
+  normalement dans la barre du haut ; sans lui, un visiteur non francophone
+  n'aurait aucun moyen de changer de langue avant de s'être connecté.
 
 ### 8.2 Les langues
 

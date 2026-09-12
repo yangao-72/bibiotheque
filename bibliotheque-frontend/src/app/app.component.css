@@ -22,6 +22,19 @@
   transition: background-color 0.3s;
 }
 
+/* --- Écrans sans shell ---------------------------------------------------
+   La barre latérale est fixe et la barre du haut réserve 64 px : sans elles,
+   il faut rendre au contenu la largeur et la hauteur qu'elles occupaient. */
+
+.app-layout--bare .main-area {
+  margin-left: 0;
+}
+
+.app-layout--bare .main-content {
+  margin-top: 0;
+  background: transparent;
+}
+
 /* Overlay */
 .sidebar-overlay {
   display: none;

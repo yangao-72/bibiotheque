@@ -3,10 +3,18 @@
    ============================================================================= */
 
 .login {
+  position: relative;
   display: grid;
   place-items: center;
   min-height: 100vh;
   padding: var(--space-6);
+}
+
+.login-lang {
+  position: absolute;
+  top: var(--space-5);
+  right: var(--space-5);
+  z-index: var(--z-dropdown);
 }
 
 .login-card {
@@ -256,7 +264,14 @@
 /* Sous 900px la carte passe sur une colonne : le volet de marque garde le logo
    et le titre, mais perd l'illustration, qui mangerait tout l'écran. */
 @media (max-width: 899.98px) {
-  .login-card { grid-template-columns: 1fr; }
+  .login-lang {
+  position: absolute;
+  top: var(--space-5);
+  right: var(--space-5);
+  z-index: var(--z-dropdown);
+}
+
+.login-card { grid-template-columns: 1fr; }
   .login-brandside { padding: var(--space-6); }
   .login-brandside__art { display: none; }
   .login-brandside__title { font-size: var(--text-2xl); }
