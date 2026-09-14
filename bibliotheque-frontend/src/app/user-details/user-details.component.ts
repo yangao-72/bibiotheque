@@ -4,6 +4,7 @@ import { Borrow } from '../_model/borrow';
 import { Users } from '../_model/users';
 import { BorrowService } from '../_service/borrow.service';
 import { UsersService } from '../_service/users.service';
+import { ToastService } from '../_ui/toast/toast.service';
 
 @Component({
   selector: 'app-user-details',
@@ -18,15 +19,50 @@ export class UserDetailsComponent implements OnInit {
   loading = true;
   errorMessage = '';
 
+  /** Seul un Admin peut réintégrer un compte supprimé. */
+  estAdmin = false;
+  reactivating = false;
+
   constructor(
     private route: ActivatedRoute,
     private borrowService: BorrowService,
-    public userService: UsersService
+    public userService: UsersService,
+    private toast: ToastService
   ) { }
 
   ngOnInit(): void {
     this.id = this.route.snapshot.params['userId'];
+    this.estAdmin = this.userService.roleMatch(['Admin']);
     this.loadUserData();
+  }
+
+  /**
+   * Un compte est actif par défaut : `actif` est absent (comptes historiques) ou
+   * `null` dans la réponse pour les comptes créés avant le soft delete.
+   */
+  get estActif(): boolean {
+    return this.user?.actif !== false;
+  }
+
+  /** Réintègre un compte supprimé, sans quitter la fiche. */
+  reactiver(): void {
+    if (this.reactivating) {
+      return;
+    }
+    this.reactivating = true;
+    this.errorMessage = '';
+
+    this.userService.reactivateUser(this.id).subscribe({
+      next: (user) => {
+        this.user = user;
+        this.reactivating = false;
+        this.toast.success('members.reactivated');
+      },
+      error: (err) => {
+        this.reactivating = false;
+        this.errorMessage = this.getErrorMessage(err);
+      }
+    });
   }
 
   loadUserData(): void {

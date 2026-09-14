@@ -1,7 +1,16 @@
 <div class="user-details-container">
   <!-- Header -->
-  <div class="page-header">
+  <div class="page-header page-header--with-action">
     <h2 class="page-title"><i class="fas fa-user me-2"></i> {{ 'members.detailsTitle' | translate }}</h2>
+    <!-- Réintégration d'un compte supprimé : Admin uniquement. -->
+    <button type="button"
+            class="ds-btn ds-btn--primary"
+            *ngIf="estAdmin && !loading && !errorMessage && !estActif"
+            [disabled]="reactivating"
+            (click)="reactiver()">
+      <i class="fas fa-user-check" aria-hidden="true"></i>
+      {{ 'members.reactivate' | translate }}
+    </button>
   </div>
 
   <!-- Chargement -->
@@ -25,7 +34,26 @@
       <div class="user-info">
         <h3>{{ user.name }}</h3>
         <span class="user-role">{{ user.role?.[0]?.roleName || 'Utilisateur' }}</span>
+        <span class="account-status" [class.account-status--inactive]="!estActif">
+          <i class="fas" [ngClass]="estActif ? 'fa-circle-check' : 'fa-circle-xmark'" aria-hidden="true"></i>
+          {{ (estActif ? 'members.statusActive' : 'members.statusInactive') | translate }}
+        </span>
       </div>
+    </div>
+
+    <!-- Trace d'audit : quand et pourquoi le compte a été supprimé -->
+    <div class="audit-card" *ngIf="!estActif">
+      <div class="audit-card__icon"><i class="fas fa-clock-rotate-left"></i></div>
+      <dl class="audit-card__facts">
+        <div class="audit-card__row">
+          <dt>{{ 'members.deactivatedOn' | translate }}</dt>
+          <dd>{{ user.dateDesactivation || '—' }}</dd>
+        </div>
+        <div class="audit-card__row">
+          <dt>{{ 'members.deactivationMotif' | translate }}</dt>
+          <dd>{{ user.motifDesactivation || ('members.noMotif' | translate) }}</dd>
+        </div>
+      </dl>
     </div>
 
     <!-- Historique emprunts -->

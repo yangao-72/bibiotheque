@@ -53,6 +53,14 @@ public class JwtService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException(
                         "User not found with username: " + username));
 
+        // Un compte désactivé (soft delete) est traité comme inexistant. C'est le
+        // point de passage unique de l'authentification : au login, Spring masque
+        // ce cas en BadCredentialsException ; dans le filtre JWT, il aboutit à un
+        // 401 — un token émis avant la désactivation ne survit donc pas.
+        if (!user.estActif()) {
+            throw new UsernameNotFoundException("User account is disabled: " + username);
+        }
+
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),

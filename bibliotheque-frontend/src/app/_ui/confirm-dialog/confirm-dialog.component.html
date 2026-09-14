@@ -1,4 +1,4 @@
-<ng-container *ngIf="request | async as req">
+<ng-container *ngIf="request as req">
   <div class="ds-overlay" (click)="answer(false)">
     <div class="ds-modal"
          role="alertdialog"
@@ -23,6 +23,20 @@
         </div>
       </div>
 
+      <!-- Justification facultative : le motif de la suppression, conservé pour l'audit. -->
+      <label class="ds-field confirm-dialog__field" *ngIf="req.inputLabelKey">
+        <span class="ds-label" [class.ds-label--required]="req.inputRequired">
+          {{ req.inputLabelKey | translate }}
+        </span>
+        <textarea #inputField
+                  class="ds-textarea"
+                  rows="3"
+                  maxlength="500"
+                  [ngModel]="value"
+                  (ngModelChange)="value = $event"
+                  [attr.placeholder]="req.inputPlaceholderKey ? (req.inputPlaceholderKey | translate) : null"></textarea>
+      </label>
+
       <div class="ds-modal__footer">
         <button type="button" class="ds-btn ds-btn--secondary" (click)="answer(false)">
           {{ (req.cancelKey || 'common.cancel') | translate }}
@@ -31,6 +45,7 @@
                 type="button"
                 class="ds-btn"
                 [ngClass]="req.danger ? 'ds-btn--danger' : 'ds-btn--primary'"
+                [disabled]="!canConfirm"
                 (click)="answer(true)">
           {{ (req.confirmKey || 'common.confirm') | translate }}
         </button>

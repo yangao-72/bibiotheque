@@ -55,6 +55,20 @@
 /* Plusieurs rôles par compte : on les espace pour qu'ils restent lisibles. */
 td .ds-badge + .ds-badge { margin-left: var(--space-1); }
 
+/* Onglets « Adhérents » / « Archives ».
+   Le design system n'espace pas icône et libellé dans un onglet (aucun onglet
+   n'en portait jusqu'ici) : on le fait localement plutôt que de modifier un
+   composant partagé pour un seul usage. */
+.members-tabs {
+  margin-bottom: var(--space-5);
+}
+
+.members-tabs .ds-segmented__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
 .text-end { text-align: right; }
 
 @media (max-width: 767.98px) {

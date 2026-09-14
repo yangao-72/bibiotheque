@@ -6,13 +6,36 @@
         <span class="ds-page-header__icon" aria-hidden="true"><i class="fas fa-users"></i></span>
         {{ 'members.title' | translate }}
       </h1>
-      <p class="ds-page-header__subtitle">{{ 'members.subtitle' | translate }}</p>
+      <p class="ds-page-header__subtitle">
+        {{ (vue === 'archives' ? 'members.subtitleArchives' : 'members.subtitle') | translate }}
+      </p>
     </div>
-    <a routerLink="/register-user" class="ds-btn ds-btn--primary">
+    <a routerLink="/register-user" class="ds-btn ds-btn--primary" *ngIf="vue === 'actifs'">
       <i class="fas fa-user-plus" aria-hidden="true"></i>
       {{ 'nav.addMember' | translate }}
     </a>
   </header>
+
+  <!-- Vues : adhérents actifs / archives des comptes supprimés -->
+  <div class="ds-segmented members-tabs anim-rise" role="group" [attr.aria-label]="'members.title' | translate">
+    <button type="button"
+            class="ds-segmented__item"
+            [class.is-active]="vue === 'actifs'"
+            [attr.aria-pressed]="vue === 'actifs'"
+            (click)="onChangeVue('actifs')">
+      <i class="fas fa-users" aria-hidden="true"></i>
+      {{ 'members.tabActive' | translate }}
+    </button>
+    <button type="button"
+            class="ds-segmented__item"
+            *ngIf="estAdmin"
+            [class.is-active]="vue === 'archives'"
+            [attr.aria-pressed]="vue === 'archives'"
+            (click)="onChangeVue('archives')">
+      <i class="fas fa-box-archive" aria-hidden="true"></i>
+      {{ 'members.tabArchives' | translate }}
+    </button>
+  </div>
 
   <!-- Chargement -->
   <div class="ds-card" *ngIf="loading" aria-busy="true">
@@ -52,7 +75,8 @@
       </span>
     </div>
 
-    <app-empty-state *ngIf="users.length === 0"
+    <!-- Vue des adhérents actifs, vide -->
+    <app-empty-state *ngIf="base.length === 0 && vue === 'actifs'"
                      art="member"
                      titleKey="empty.membersTitle"
                      textKey="empty.membersText">
@@ -62,7 +86,14 @@
       </a>
     </app-empty-state>
 
-    <app-empty-state *ngIf="users.length > 0 && visible.length === 0"
+    <!-- Archives vides : rien n'a encore été supprimé -->
+    <app-empty-state *ngIf="base.length === 0 && vue === 'archives'"
+                     art="shelf"
+                     titleKey="empty.archivesTitle"
+                     textKey="empty.archivesText">
+    </app-empty-state>
+
+    <app-empty-state *ngIf="base.length > 0 && visible.length === 0"
                      art="search"
                      titleKey="empty.searchTitle"
                      textKey="empty.searchText"
@@ -98,6 +129,9 @@
               <div class="user-cell">
                 <span class="user-cell__avatar" aria-hidden="true">{{ initial(user) }}</span>
                 <span class="user-cell__name">{{ user.name }}</span>
+                <span class="ds-badge ds-badge--neutral" *ngIf="!estActif(user)">
+                  {{ 'members.statusInactive' | translate }}
+                </span>
               </div>
             </td>
             <td class="user-cell__username">{{ user.username }}</td>
@@ -119,6 +153,13 @@
                         (click)="updateUser(user.userId)"
                         [attr.aria-label]="('common.edit' | translate) + ' — ' + user.name">
                   <i class="fas fa-pen" aria-hidden="true"></i>
+                </button>
+                <!-- Suppression : Admin uniquement, et inutile sur un compte déjà supprimé. -->
+                <button type="button" class="ds-btn ds-btn--ghost ds-btn--icon ds-btn--sm user-delete"
+                        *ngIf="estAdmin && estActif(user)"
+                        (click)="onDelete(user)"
+                        [attr.aria-label]="('common.delete' | translate) + ' — ' + user.name">
+                  <i class="fas fa-trash" aria-hidden="true"></i>
                 </button>
               </div>
             </td>

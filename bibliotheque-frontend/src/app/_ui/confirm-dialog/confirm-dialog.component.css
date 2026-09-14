@@ -1,0 +1,11 @@
+/* Le champ de justification vit entre le corps (déjà rembourré) et le pied de la
+   modale : il porte donc lui-même ses marges latérales. */
+.confirm-dialog__field {
+  display: block;
+  margin: 0;
+  padding: 0 var(--space-6) var(--space-5);
+}
+
+.confirm-dialog__field .ds-textarea {
+  resize: vertical;
+}

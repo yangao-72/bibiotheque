@@ -8,6 +8,14 @@
   margin-bottom: 2rem;
 }
 
+.page-header--with-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
 .page-title {
   font-size: 1.5rem;
   font-weight: 700;
@@ -94,8 +102,75 @@
 }
 
 .user-role {
+  display: block;
   font-size: 0.85rem;
   opacity: 0.85;
+}
+
+/* Statut du compte : actif, ou supprimé (soft delete) */
+.account-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.22);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.account-status--inactive {
+  background: rgba(0, 0, 0, 0.22);
+}
+
+/* Trace d'audit de la suppression */
+.audit-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 1rem 1.5rem;
+  background: var(--warning-bg);
+  border: 1px solid var(--warning-border);
+  border-radius: 12px;
+}
+
+.audit-card__icon {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--warning);
+}
+
+.audit-card__facts {
+  margin: 0;
+  min-width: 0;
+}
+
+.audit-card__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.audit-card__row + .audit-card__row { margin-top: 0.35rem; }
+
+.audit-card__row dt {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--warning);
+}
+
+.audit-card__row dd {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
 }
 
 /* Section Card */
