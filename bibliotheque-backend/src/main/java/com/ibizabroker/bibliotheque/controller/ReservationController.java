@@ -1,6 +1,5 @@
 package com.ibizabroker.bibliotheque.controller;
 
-import com.ibizabroker.bibliotheque.configuration.ReservationSecurity;
 import com.ibizabroker.bibliotheque.entity.ReservationRequest;
 import com.ibizabroker.bibliotheque.entity.ReservationResponse;
 import com.ibizabroker.bibliotheque.entity.ReservationStatus;
@@ -26,9 +25,6 @@ public class ReservationController {
 
     @Autowired
     private ReservationService reservationService;
-
-    @Autowired
-    private ReservationSecurity reservationSecurity;
 
     @PreAuthorize("hasAnyRole('ADHERENT', 'BIBLIOTHECAIRE')")
     @PostMapping
@@ -60,18 +56,16 @@ public class ReservationController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Liste des réservations retournée"),
             @ApiResponse(responseCode = "401", description = "Token absent, invalide ou expiré"),
-            @ApiResponse(responseCode = "403", description = "Rôle insuffisant")
+            @ApiResponse(responseCode = "403", description = "Rôle insuffisant, ou ADHERENT filtrant sur un autre adhérent (RS-05)")
     })
     public ResponseEntity<List<ReservationResponse>> listerReservations(
             @RequestParam(required = false) ReservationStatus statut,
             @RequestParam(required = false) Integer adherentId,
             Authentication authentication) {
-        // RS-05 : un ADHERENT ne reçoit que ses propres réservations, quel que soit
-        // l'`adherentId` demandé. Le filtre est imposé à partir du token.
-        Integer filtreAdherentId = reservationSecurity.estBibliothecaire(authentication)
-                ? adherentId
-                : reservationSecurity.utilisateurCourantId(authentication);
-        List<ReservationResponse> reservations = reservationService.listerReservations(statut, filtreAdherentId);
+        // RS-05 : le filtre est résolu dans le service, à partir du token. Un
+        // ADHERENT qui demande le compte d'un autre reçoit un 403, comme pour la
+        // création (RS-04) — le contrôle vit au même endroit, sur le chemin obligé.
+        List<ReservationResponse> reservations = reservationService.listerReservations(statut, adherentId, authentication);
         return ResponseEntity.ok(reservations);
     }
 

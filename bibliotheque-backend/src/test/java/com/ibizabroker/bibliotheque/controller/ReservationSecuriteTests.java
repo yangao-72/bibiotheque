@@ -359,7 +359,7 @@ class ReservationSecuriteTests {
                             .content(corpsReservation(livreLibreDeReservation.getBookId(), adherent2.getUserId())))
                     .andExpect(status().isForbidden())
                     .andExpect(jsonPath("$.status").value(403))
-                    .andExpect(jsonPath("$.message").value("403 Forbidden = vous n'avez pas le droit"));
+                    .andExpect(jsonPath("$.message").value("vous n'avez pas le droit"));
 
             // Ni au nom d'adherent2, ni au nom d'adherent1 : la demande est purement rejetée.
             org.junit.jupiter.api.Assertions.assertEquals(
@@ -434,11 +434,26 @@ class ReservationSecuriteTests {
                     .andExpect(jsonPath("$[0].adherentId").value(adherent1.getUserId()));
         }
 
+        /**
+         * Comme pour la création (RS-04), une valeur hostile n'est pas corrigée en
+         * silence : l'appelant doit savoir qu'il a visé un autre compte et n'a pas
+         * le droit. Le message est donc celui de RS-04, dans le corps de la réponse.
+         */
         @Test
-        @DisplayName("Le paramètre adherentId d'un autre est ignoré pour un ADHERENT")
-        void parametreAdherentIdIgnore() throws Exception {
+        @DisplayName("Le paramètre adherentId d'un autre → 403 avec le message métier")
+        void parametreAdherentIdDunAutreRefuse() throws Exception {
             mockMvc.perform(get(URL)
                             .param("adherentId", String.valueOf(adherent2.getUserId()))
+                            .header("Authorization", "Bearer " + tokenAdherent1))
+                    .andExpect(status().isForbidden())
+                    .andExpect(jsonPath("$.message").value("vous n'avez pas le droit"));
+        }
+
+        @Test
+        @DisplayName("Un ADHERENT qui filtre sur son propre identifiant reçoit ses réservations")
+        void parametreAdherentIdEgalAuToken() throws Exception {
+            mockMvc.perform(get(URL)
+                            .param("adherentId", String.valueOf(adherent1.getUserId()))
                             .header("Authorization", "Bearer " + tokenAdherent1))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.length()").value(1))

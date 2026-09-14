@@ -412,7 +412,7 @@ Base : `http://localhost:8080`
 | Verbe | URL | Anonyme | ADHERENT | BIBLIOTHECAIRE |
 |---|---|---|---|---|
 | POST | `/api/reservations` | 401 | pour lui-même uniquement ; **403** s'il vise un autre | pour n'importe qui |
-| GET | `/api/reservations?statut=X&adherentId=X` | 401 | ses réservations seulement | toutes |
+| GET | `/api/reservations?statut=X&adherentId=X` | 401 | ses réservations seulement ; **403** s'il vise un autre | toutes |
 | GET | `/api/reservations/{id}` | 401 | si elle lui appartient, sinon 403 | toutes |
 | PATCH | `/api/reservations/{id}/annuler` | 401 | si elle lui appartient, sinon 403 | toutes |
 | DELETE | `/api/reservations/{id}` | 401 | **403** | oui |
@@ -424,7 +424,8 @@ Base : `http://localhost:8080`
 > `adherentId` n'est lu que pour un **BIBLIOTHECAIRE**, qui réserve pour l'adhérent
 > de son choix ; il est alors obligatoire (sinon **400**). Pour un ADHERENT, il ne
 > fait jamais autorité : sa propre identité vient du token, et viser un autre compte
-> renvoie **403** — `403 Forbidden = vous n'avez pas le droit` (RS-04).
+> renvoie **403** — `vous n'avez pas le droit` (RS-04). Le même message répond à un
+> ADHERENT qui filtre la liste sur le compte d'un autre (RS-05).
 
 > Le message est écrit par `GestionnaireExceptionsRest` : s'en remettre à la page
 > d'erreur du conteneur ne suffit pas, celle-ci ne remplit pas le corps d'un 403
@@ -448,7 +449,7 @@ Base : `http://localhost:8080`
 | RS-02 | Un ADHERENT sur une action bibliothécaire → **403** | `@PreAuthorize("hasRole('BIBLIOTHECAIRE')")` sur `DELETE` |
 | RS-03 | Un ADHERENT sur la réservation d'un autre → **403** | `@PreAuthorize(... or @reservationSecurity.estProprietaire(#id, authentication))` |
 | RS-04 | Un ADHERENT ne peut pas réserver au nom d'un autre | `ReservationService.creerReservation` : le propriétaire est déduit du token via `ReservationSecurity`, et l'`adherentId` du corps n'est lu que pour un BIBLIOTHECAIRE ; un ADHERENT qui vise un autre compte reçoit **403** (`ForbiddenException`) au lieu d'une réservation à son nom |
-| RS-05 | `GET /api/reservations` par un ADHERENT ne renvoie que les siennes | `ReservationController.listerReservations` force le filtre `adherentId` |
+| RS-05 | `GET /api/reservations` par un ADHERENT ne renvoie que les siennes | `ReservationService.listerReservations` résout le filtre à partir du token ; viser un autre adhérent reçoit **403** (`ForbiddenException`), avec le message de RS-04 |
 
 ### Ce que la matrice ne dit pas, et qui la vidait de son sens
 
@@ -509,10 +510,10 @@ rôle réservation ; les comptes créés depuis l'écran d'inscription aussi.
 ### Lancer les tests
 
 ```bash
-# Backend — 90 tests, aucune base requise (H2 en mémoire)
+# Backend — 91 tests, aucune base requise (H2 en mémoire)
 cd bibliotheque-backend && ./mvnw test
 
-# Frontend — 193 tests
+# Frontend — 195 tests
 cd bibliotheque-frontend && npm test -- --watch=false --browsers=ChromeHeadless
 ```
 

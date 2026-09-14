@@ -31,8 +31,8 @@ export class AuthInterceptor implements HttpInterceptor {
                     // dédié est la bonne réponse.
                     this.router.navigate(['/forbidden']);
                 }
-                // Un 403 porteur d'un message métier (par exemple RS-04 : « 403
-                // Forbidden = vous n'avez pas le droit ») est destiné à l'écran
+                // Un 403 porteur d'un message métier (par exemple RS-04/RS-05 :
+                // « vous n'avez pas le droit ») est destiné à l'écran
                 // appelant : le rediriger ferait perdre l'explication. Comme pour
                 // les 400/404/409/500, on laisse donc passer l'erreur pour que le
                 // composant affiche le texte du serveur.

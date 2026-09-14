@@ -267,8 +267,15 @@ export class ReservationsComponent implements OnInit {
 
   // --- Gestion des erreurs -------------------------------------------------
 
+  /**
+   * Le message du serveur primait déjà sur les toasts de création/annulation ; il
+   * prime aussi ici : il est plus précis que la clé générique du code HTTP et
+   * porte la règle appliquée (RS-04/RS-05 : « vous n'avez pas le droit »). La clé
+   * ne sert plus que de repli, quand la réponse n'a pas de corps exploitable
+   * (403 de Spring Security, erreur réseau).
+   */
   private setError(err: any): void {
-    this.errorMessage = this.errorKey(err);
+    this.errorMessage = this.serverMessage(err) || this.errorKey(err);
     this.errorParams = { status: err?.status };
   }
 

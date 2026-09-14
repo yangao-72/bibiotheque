@@ -17,7 +17,7 @@ import java.time.OffsetDateTime;
  * dépendre s'est révélé fragile : mesuré sur l'application réelle, un 400, 404 ou
  * 409 renvoyait le JSON avec son message, un <b>403 renvoyait un corps vide</b>.
  * Or c'est précisément le message qui porte l'explication côté client (RS-04 :
- * « 403 Forbidden = vous n'avez pas le droit »).</p>
+ * « vous n'avez pas le droit »).</p>
  *
  * <p>Écrire le corps ici rend la réponse indépendante du conteneur : une réponse
  * déjà écrite ne déclenche plus de page d'erreur, donc plus de substitution

@@ -36,11 +36,12 @@ public class ReservationService {
     private ReservationSecurity reservationSecurity;
 
     /**
-     * Message renvoyé (HTTP 403) à un ADHERENT qui vise le compte d'un autre.
-     * Volontairement public : c'est le libellé contractuel de RS-04, partagé avec
-     * les tests et repérable d'un seul endroit si la formulation évolue.
+     * Message renvoyé (HTTP 403) à un ADHERENT qui agit pour le compte d'un autre —
+     * en créant une réservation (RS-04) comme en filtrant la liste (RS-05).
+     * Volontairement public : c'est le libellé contractuel de la règle, partagé
+     * avec les tests et repérable d'un seul endroit si la formulation évolue.
      */
-    public static final String MESSAGE_RESERVATION_POUR_AUTRUI = "403 Forbidden = vous n'avez pas le droit";
+    public static final String MESSAGE_ACCES_REFUSE = "vous n'avez pas le droit";
 
     private static final int MAX_RESERVATIONS_ACTIVES = 3;
     private static final int DUREE_VALIDITE_JOURS = 7;
@@ -147,7 +148,7 @@ public class ReservationService {
 
             Integer idDemande = request.getAdherentId();
             if (idDemande != null && !idDemande.equals(idDuToken)) {
-                throw new ForbiddenException(MESSAGE_RESERVATION_POUR_AUTRUI);
+                throw new ForbiddenException(MESSAGE_ACCES_REFUSE);
             }
             return idDuToken;
         }
@@ -159,16 +160,27 @@ public class ReservationService {
 
     /**
      * Liste les réservations, filtrables par statut et par adhérent.
+     *
+     * <p>RS-05 : le filtre par adhérent est résolu ici, comme l'identité de RS-04,
+     * et non décidé par le client. Un ADHERENT ne voit que ses réservations ; s'il
+     * demande explicitement le compte d'un autre, la requête est refusée en 403
+     * plutôt que corrigée en silence — la valeur hostile est signalée, pas
+     * remplacée, afin que l'appelant comprenne pourquoi il n'obtient rien.</p>
+     *
+     * <p>Le BIBLIOTHECAIRE, lui, filtre sur l'adhérent de son choix (ou sur aucun).</p>
      */
-    public List<ReservationResponse> listerReservations(ReservationStatus statut, Integer adherentId) {
+    public List<ReservationResponse> listerReservations(ReservationStatus statut, Integer adherentId,
+                                                        Authentication authentication) {
+        Integer filtreAdherentId = filtreAdherentId(adherentId, authentication);
+
         List<Reservation> reservations;
 
-        if (statut != null && adherentId != null) {
-            reservations = reservationRepository.findByAdherentUserIdAndStatut(adherentId, statut);
+        if (statut != null && filtreAdherentId != null) {
+            reservations = reservationRepository.findByAdherentUserIdAndStatut(filtreAdherentId, statut);
         } else if (statut != null) {
             reservations = reservationRepository.findByStatut(statut);
-        } else if (adherentId != null) {
-            reservations = reservationRepository.findByAdherentUserId(adherentId);
+        } else if (filtreAdherentId != null) {
+            reservations = reservationRepository.findByAdherentUserId(filtreAdherentId);
         } else {
             reservations = reservationRepository.findAll();
         }
@@ -176,6 +188,26 @@ public class ReservationService {
         return reservations.stream()
                 .map(ReservationResponse::new)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * RS-05 — adhérent sur lequel filtrer la liste.
+     *
+     * <p>Sans droit de bibliothécaire, le filtre est celui du porteur du token.
+     * Répéter son propre identifiant est donc accepté (la valeur coïncide avec
+     * l'identité), mais viser un autre compte est un 403 explicite, avec le même
+     * message que RS-04 : la règle est la même, la réponse doit l'être aussi.</p>
+     */
+    private Integer filtreAdherentId(Integer adherentId, Authentication authentication) {
+        if (reservationSecurity.estBibliothecaire(authentication)) {
+            return adherentId;
+        }
+
+        Integer idDuToken = reservationSecurity.utilisateurCourantId(authentication);
+        if (adherentId != null && !adherentId.equals(idDuToken)) {
+            throw new ForbiddenException(MESSAGE_ACCES_REFUSE);
+        }
+        return idDuToken;
     }
 
     /**

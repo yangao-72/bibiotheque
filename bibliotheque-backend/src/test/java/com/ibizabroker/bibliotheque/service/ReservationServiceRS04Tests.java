@@ -53,7 +53,8 @@ import static org.mockito.Mockito.when;
  * nom de 10 : une usurpation absorbée en silence ferait croire à une réussite et
  * rendrait l'attaque indistinguable d'un usage normal. Le compte visé n'est même
  * pas lu en base, puisque rien de ce que le client envoie ne sert à résoudre
- * l'identité.</p>
+ * l'identité. Le message est asserté littéralement : c'est la réponse que
+ * l'utilisateur voit, elle fait partie du contrat.</p>
  *
  * <p>L'identité est simulée par {@code reservationSecurity} : ces tests portent
  * sur la décision du service, pas sur la lecture du token, déjà couverte par
@@ -125,7 +126,7 @@ class ReservationServiceRS04Tests {
         ForbiddenException refus = assertThrows(ForbiddenException.class,
                 () -> reservationService.creerReservation(demande, tokenAdherent));
 
-        assertEquals(ReservationService.MESSAGE_RESERVATION_POUR_AUTRUI, refus.getMessage());
+        assertEquals("vous n'avez pas le droit", refus.getMessage());
 
         // Rien n'est enregistré : la demande n'est pas recyclée en réservation personnelle.
         verify(reservationRepository, never()).save(any(Reservation.class));

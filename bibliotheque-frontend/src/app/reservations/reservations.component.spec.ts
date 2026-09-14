@@ -142,7 +142,7 @@ describe('ReservationsComponent', () => {
 
   // --- Erreurs -------------------------------------------------------------
 
-  it('should expose a translation key when the API fails', fakeAsync(() => {
+  it('should surface the server message when the API fails with one', fakeAsync(() => {
     reservationServiceSpy.getReservations.and.returnValue(
       throwError(() => ({ status: 500, error: { message: 'Erreur serveur' } }))
     );
@@ -150,8 +150,32 @@ describe('ReservationsComponent', () => {
     component.ngOnInit();
     tick();
 
-    expect(component.errorMessage).toBe('errors.server');
+    expect(component.errorMessage).toBe('Erreur serveur');
     expect(component.loading).toBeFalse();
+  }));
+
+  it('should fall back to a translation key when the API fails without a message', fakeAsync(() => {
+    reservationServiceSpy.getReservations.and.returnValue(
+      throwError(() => ({ status: 403, error: null }))
+    );
+
+    component.ngOnInit();
+    tick();
+
+    expect(component.errorMessage).toBe('errors.forbidden');
+  }));
+
+  it('should display the server message when the list is refused (RS-05)', fakeAsync(() => {
+    // Un ADHERENT qui filtre sur le compte d'un autre reçoit un 403 rédigé :
+    // c'est ce texte qui doit apparaître, et non le message générique du 403.
+    reservationServiceSpy.getReservations.and.returnValue(
+      throwError(() => ({ status: 403, error: { message: "vous n'avez pas le droit" } }))
+    );
+
+    component.ngOnInit();
+    tick();
+
+    expect(component.errorMessage).toBe("vous n'avez pas le droit");
   }));
 
   it('should expose the network error key when the server is unreachable', fakeAsync(() => {
@@ -245,14 +269,14 @@ describe('ReservationsComponent', () => {
     // Un ADHERENT qui vise le compte d'un autre reçoit un 403 rédigé : c'est ce
     // texte qui doit s'afficher, pas un message générique.
     reservationServiceSpy.createReservation.and.returnValue(
-      throwError(() => ({ status: 403, error: { message: "403 Forbidden = vous n'avez pas le droit" } }))
+      throwError(() => ({ status: 403, error: { message: "vous n'avez pas le droit" } }))
     );
 
     component.newReservation.livreId = 10;
     component.onCreateReservation();
     tick();
 
-    expect(toastServiceSpy.showText).toHaveBeenCalledWith('error', "403 Forbidden = vous n'avez pas le droit");
+    expect(toastServiceSpy.showText).toHaveBeenCalledWith('error', "vous n'avez pas le droit");
     expect(toastServiceSpy.error).not.toHaveBeenCalled();
   }));
 
