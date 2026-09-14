@@ -38,15 +38,17 @@ public class ReservationController {
             @ApiResponse(responseCode = "201", description = "Réservation créée avec succès"),
             @ApiResponse(responseCode = "400", description = "Champs obligatoires manquants"),
             @ApiResponse(responseCode = "401", description = "Token absent, invalide ou expiré"),
-            @ApiResponse(responseCode = "403", description = "Rôle insuffisant"),
+            @ApiResponse(responseCode = "403", description = "Rôle insuffisant, ou ADHERENT réservant au nom d'un autre (RS-04)"),
             @ApiResponse(responseCode = "404", description = "Livre ou utilisateur introuvable"),
             @ApiResponse(responseCode = "409", description = "Règle de gestion violée")
     })
     public ResponseEntity<ReservationResponse> creerReservation(@RequestBody ReservationRequest request,
                                                                 Authentication authentication) {
-        // RS-04 : un ADHERENT ne peut pas réserver au nom d'un autre. L'identité du
-        // propriétaire est résolue dans le service, à partir du token — le contrôle
-        // n'est donc pas seulement ici, mais sur le chemin obligé de toute création.
+        // RS-04 : un ADHERENT ne peut pas réserver au nom d'un autre — la demande
+        // est refusée en 403 plutôt que convertie en réservation personnelle.
+        // L'identité du propriétaire est résolue dans le service, à partir du token :
+        // le contrôle n'est donc pas seulement ici, mais sur le chemin obligé de
+        // toute création.
         ReservationResponse response = reservationService.creerReservation(request, authentication);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

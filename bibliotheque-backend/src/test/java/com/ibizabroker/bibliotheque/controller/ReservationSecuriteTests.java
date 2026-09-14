@@ -343,20 +343,40 @@ class ReservationSecuriteTests {
     @DisplayName("RS-04 — création au nom d'un autre")
     class RS04 {
 
+        /**
+         * Le message est asserté dans le corps de la réponse, et non via
+         * l'exception : c'est ce que le client voit, et c'est la règle RS-04.
+         * Le corps est écrit par {@code GestionnaireExceptionsRest} — sans lui,
+         * un 403 sortait vide (la page d'erreur du conteneur ne le remplit pas).
+         */
         @Test
-        @DisplayName("L'adherentId du corps est ignoré : la réservation est créée pour le porteur du token")
-        void adherentIdDuCorpsIgnore() throws Exception {
+        @DisplayName("L'adhérentId d'un autre → 403 avec le message métier, et rien n'est créé")
+        void adherentIdDuCorpsRefuse() throws Exception {
             // adherent1 envoie volontairement l'identifiant d'adherent2 dans le corps.
             mockMvc.perform(post(URL)
                             .header("Authorization", "Bearer " + tokenAdherent1)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(corpsReservation(livreLibreDeReservation.getBookId(), adherent2.getUserId())))
-                    .andExpect(status().isCreated())
-                    .andExpect(jsonPath("$.adherentId").value(adherent1.getUserId()));
+                    .andExpect(status().isForbidden())
+                    .andExpect(jsonPath("$.status").value(403))
+                    .andExpect(jsonPath("$.message").value("403 Forbidden = vous n'avez pas le droit"));
 
-            // Aucune réservation supplémentaire n'a été créée au nom d'adherent2.
+            // Ni au nom d'adherent2, ni au nom d'adherent1 : la demande est purement rejetée.
             org.junit.jupiter.api.Assertions.assertEquals(
                     1, reservationRepository.findByAdherentUserId(adherent2.getUserId()).size());
+            org.junit.jupiter.api.Assertions.assertEquals(
+                    1, reservationRepository.findByAdherentUserId(adherent1.getUserId()).size());
+        }
+
+        @Test
+        @DisplayName("Un ADHERENT qui répète son propre identifiant reste accepté")
+        void adherentIdDuCorpsEgalAuToken() throws Exception {
+            mockMvc.perform(post(URL)
+                            .header("Authorization", "Bearer " + tokenAdherent1)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(corpsReservation(livreLibreDeReservation.getBookId(), adherent1.getUserId())))
+                    .andExpect(status().isCreated())
+                    .andExpect(jsonPath("$.adherentId").value(adherent1.getUserId()));
         }
 
         @Test

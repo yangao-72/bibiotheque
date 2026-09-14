@@ -241,6 +241,21 @@ describe('ReservationsComponent', () => {
     expect(toastServiceSpy.error).toHaveBeenCalledWith('errors.forbidden', { status: 403 });
   }));
 
+  it('should display the server message on a 403 carrying one (RS-04)', fakeAsync(() => {
+    // Un ADHERENT qui vise le compte d'un autre reçoit un 403 rédigé : c'est ce
+    // texte qui doit s'afficher, pas un message générique.
+    reservationServiceSpy.createReservation.and.returnValue(
+      throwError(() => ({ status: 403, error: { message: "403 Forbidden = vous n'avez pas le droit" } }))
+    );
+
+    component.newReservation.livreId = 10;
+    component.onCreateReservation();
+    tick();
+
+    expect(toastServiceSpy.showText).toHaveBeenCalledWith('error', "403 Forbidden = vous n'avez pas le droit");
+    expect(toastServiceSpy.error).not.toHaveBeenCalled();
+  }));
+
   // --- Annulation ----------------------------------------------------------
 
   it('should ask for confirmation before cancelling', fakeAsync(() => {

@@ -10,6 +10,7 @@ import com.ibizabroker.bibliotheque.entity.ReservationRequest;
 import com.ibizabroker.bibliotheque.entity.ReservationResponse;
 import com.ibizabroker.bibliotheque.entity.Users;
 import com.ibizabroker.bibliotheque.exceptions.BadRequestException;
+import com.ibizabroker.bibliotheque.exceptions.ForbiddenException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,7 +26,6 @@ import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -48,10 +48,12 @@ import static org.mockito.Mockito.when;
  * différence entre obéir à la règle et l'imposer.</p>
  *
  * <p>Le corps de la requête désigne volontairement l'adhérent {@code 25} alors que
- * le porteur du token est l'adhérent {@code 10}. On vérifie que la réservation
- * enregistrée appartient à 10, et que le service ne va même pas chercher le compte
- * usurpé en base : la valeur du corps n'est pas seulement ignorée après coup, elle
- * n'est jamais exploitée.</p>
+ * le porteur du token est l'adhérent {@code 10}. On vérifie que la demande est
+ * rejetée en {@code ForbiddenException} (403) — et non convertie en réservation au
+ * nom de 10 : une usurpation absorbée en silence ferait croire à une réussite et
+ * rendrait l'attaque indistinguable d'un usage normal. Le compte visé n'est même
+ * pas lu en base, puisque rien de ce que le client envoie ne sert à résoudre
+ * l'identité.</p>
  *
  * <p>L'identité est simulée par {@code reservationSecurity} : ces tests portent
  * sur la décision du service, pas sur la lecture du token, déjà couverte par
@@ -115,21 +117,34 @@ class ReservationServiceRS04Tests {
     }
 
     @Test
-    @DisplayName("L'adherentId du corps est ignoré : la réservation appartient au porteur du token")
-    void lAdherentIdDuCorpsEstIgnore() {
+    @DisplayName("Un ADHERENT qui vise un autre compte est refusé en 403, pas créé à son nom")
+    void lAdherentQuiViseUnAutreEstRefuse() {
+        when(reservationSecurity.utilisateurCourantId(tokenAdherent)).thenReturn(ID_ADHERENT_CONNECTE);
+
+        // Le corps réclame l'adhérent 25, le token désigne l'adhérent 10.
+        ForbiddenException refus = assertThrows(ForbiddenException.class,
+                () -> reservationService.creerReservation(demande, tokenAdherent));
+
+        assertEquals(ReservationService.MESSAGE_RESERVATION_POUR_AUTRUI, refus.getMessage());
+
+        // Rien n'est enregistré : la demande n'est pas recyclée en réservation personnelle.
+        verify(reservationRepository, never()).save(any(Reservation.class));
+        // Et le compte visé par le corps n'est jamais lu : l'identité ne vient que du token.
+        verify(usersRepository, never()).findById(ID_ADHERENT_USURPE);
+    }
+
+    @Test
+    @DisplayName("Un ADHERENT qui répète son propre identifiant est accepté")
+    void lAdherentQuiRepeteSonPropreIdEstAccepte() {
+        demande.setAdherentId(ID_ADHERENT_CONNECTE);
         when(reservationSecurity.utilisateurCourantId(tokenAdherent)).thenReturn(ID_ADHERENT_CONNECTE);
         when(usersRepository.findById(ID_ADHERENT_CONNECTE)).thenReturn(Optional.of(adherent(ID_ADHERENT_CONNECTE)));
         when(reservationRepository.countByAdherentUserIdAndStatutIn(eq(ID_ADHERENT_CONNECTE), anyList())).thenReturn(0L);
 
-        // Le corps réclame l'adhérent 25, le token désigne l'adhérent 10.
         ReservationResponse reponse = reservationService.creerReservation(demande, tokenAdherent);
 
-        assertNotNull(reponse);
         assertEquals(ID_ADHERENT_CONNECTE, reponse.getAdherentId(),
-                "Le propriétaire doit être le porteur du token, jamais l'adhérent du corps.");
-
-        // Le compte visé par le corps n'est pas seulement écarté : il n'est jamais lu.
-        verify(usersRepository, never()).findById(ID_ADHERENT_USURPE);
+                "Une valeur identique au token ne décide de rien : elle ne doit pas être refusée.");
 
         ArgumentCaptor<Reservation> enregistree = ArgumentCaptor.forClass(Reservation.class);
         verify(reservationRepository).save(enregistree.capture());

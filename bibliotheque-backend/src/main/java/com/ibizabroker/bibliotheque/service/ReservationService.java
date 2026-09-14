@@ -7,6 +7,7 @@ import com.ibizabroker.bibliotheque.dao.UsersRepository;
 import com.ibizabroker.bibliotheque.entity.*;
 import com.ibizabroker.bibliotheque.exceptions.BadRequestException;
 import com.ibizabroker.bibliotheque.exceptions.ConflictException;
+import com.ibizabroker.bibliotheque.exceptions.ForbiddenException;
 import com.ibizabroker.bibliotheque.exceptions.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -34,6 +35,13 @@ public class ReservationService {
     @Autowired
     private ReservationSecurity reservationSecurity;
 
+    /**
+     * Message renvoyé (HTTP 403) à un ADHERENT qui vise le compte d'un autre.
+     * Volontairement public : c'est le libellé contractuel de RS-04, partagé avec
+     * les tests et repérable d'un seul endroit si la formulation évolue.
+     */
+    public static final String MESSAGE_RESERVATION_POUR_AUTRUI = "403 Forbidden = vous n'avez pas le droit";
+
     private static final int MAX_RESERVATIONS_ACTIVES = 3;
     private static final int DUREE_VALIDITE_JOURS = 7;
 
@@ -43,7 +51,8 @@ public class ReservationService {
      * RG-02 : Un adhérent ne peut avoir qu'une seule réservation active sur un même livre.
      * RG-03 : Un adhérent ne peut pas dépasser 3 réservations actives simultanées.
      * RG-04 : dateExpiration = dateReservation + 7 jours.
-     * RS-04 : le propriétaire est déduit du token, jamais du corps de la requête.
+     * RS-04 : le propriétaire est déduit du token, jamais du corps de la requête ;
+     * un ADHERENT qui vise un autre compte obtient un 403 explicite.
      *
      * <p>Le contrôle de RS-04 vit ici, et non seulement dans le contrôleur : le
      * service est le point de passage obligé de toute création de réservation,
@@ -118,15 +127,29 @@ public class ReservationService {
      * appelant autorisé à viser un autre adhérent est le BIBLIOTHECAIRE — c'est le
      * seul cas où le corps est lu, et le champ y est alors obligatoire.</p>
      *
+     * <p>Viser un autre compte est refusé par un 403 explicite, et non absorbé en
+     * créant la réservation au nom de l'appelant : une usurpation silencieusement
+     * convertie en réservation personnelle ferait croire à une réussite, laisserait
+     * l'attaque indistinguable d'un usage normal dans les journaux, et masquerait
+     * le besoin d'un compte ou d'un chemin d'appel légitime.</p>
+     *
+     * <p>Répéter son propre identifiant reste accepté : l'appelant ne décide alors
+     * de rien, la valeur coïncide avec le token.</p>
+     *
      * <p>Le test de rôle passe par {@link ReservationSecurity#estBibliothecaire} et
      * non par un « est-ce du personnel ? » plus large : un compte qui porte un
      * autre rôle de gestion ne doit pas conserver la main sur ce champ.</p>
      */
     private Integer proprietaireId(ReservationRequest request, Authentication authentication) {
         if (!reservationSecurity.estBibliothecaire(authentication)) {
-            // La valeur éventuellement envoyée par le client est ignorée, y compris
-            // si elle désigne un adhérent existant.
-            return reservationSecurity.utilisateurCourantId(authentication);
+            // RS-04 : le porteur du token est la seule source d'identité valable.
+            Integer idDuToken = reservationSecurity.utilisateurCourantId(authentication);
+
+            Integer idDemande = request.getAdherentId();
+            if (idDemande != null && !idDemande.equals(idDuToken)) {
+                throw new ForbiddenException(MESSAGE_RESERVATION_POUR_AUTRUI);
+            }
+            return idDuToken;
         }
         if (request.getAdherentId() == null) {
             throw new BadRequestException("Le champ 'adherentId' est obligatoire.");

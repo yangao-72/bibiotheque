@@ -133,7 +133,9 @@ bibliothèque/
 │       │   └── exceptions/
 │       │       ├── NotFoundException.java     -> HTTP 404
 │       │       ├── BadRequestException.java   -> HTTP 400
-│       │       └── ConflictException.java     -> HTTP 409
+│       │       ├── ForbiddenException.java    -> HTTP 403 (RS-04)
+│       │       ├── ConflictException.java     -> HTTP 409
+│       │       └── GestionnaireExceptionsRest.java  écrit le message dans le corps
 │       ├── main/resources/application.properties     port, URL base, identifiants
 │       ├── test/resources/application-test.properties  profil `test` : base H2 en mémoire
 │       └── test/java/...
@@ -409,7 +411,7 @@ Base : `http://localhost:8080`
 
 | Verbe | URL | Anonyme | ADHERENT | BIBLIOTHECAIRE |
 |---|---|---|---|---|
-| POST | `/api/reservations` | 401 | pour lui-même uniquement | pour n'importe qui |
+| POST | `/api/reservations` | 401 | pour lui-même uniquement ; **403** s'il vise un autre | pour n'importe qui |
 | GET | `/api/reservations?statut=X&adherentId=X` | 401 | ses réservations seulement | toutes |
 | GET | `/api/reservations/{id}` | 401 | si elle lui appartient, sinon 403 | toutes |
 | PATCH | `/api/reservations/{id}/annuler` | 401 | si elle lui appartient, sinon 403 | toutes |
@@ -420,8 +422,15 @@ Base : `http://localhost:8080`
 ```
 
 > `adherentId` n'est lu que pour un **BIBLIOTHECAIRE**, qui réserve pour l'adhérent
-> de son choix ; il est alors obligatoire (sinon **400**). Pour un ADHERENT, il est
-> ignoré et remplacé par l'identité du token (RS-04).
+> de son choix ; il est alors obligatoire (sinon **400**). Pour un ADHERENT, il ne
+> fait jamais autorité : sa propre identité vient du token, et viser un autre compte
+> renvoie **403** — `403 Forbidden = vous n'avez pas le droit` (RS-04).
+
+> Le message est écrit par `GestionnaireExceptionsRest` : s'en remettre à la page
+> d'erreur du conteneur ne suffit pas, celle-ci ne remplit pas le corps d'un 403
+> (constaté sur l'application réelle, alors que 400/404/409 l'obtenaient). Côté
+> frontend, un 403 **porteur d'un message** est affiché tel quel au lieu de
+> rediriger vers `/forbidden` : l'explication ne doit pas être perdue.
 
 **Règles de gestion :**
 - RG-01 : On ne peut réserver qu'un livre indisponible (`noOfCopies == 0`)
@@ -438,7 +447,7 @@ Base : `http://localhost:8080`
 | RS-01 | Sans token (absent, invalide, expiré) → **401** | `WebSecurityConfiguration` (`anyRequest().authenticated()`), `JwtRequestFilter`, `JwtAuthenticationEntryPoint` |
 | RS-02 | Un ADHERENT sur une action bibliothécaire → **403** | `@PreAuthorize("hasRole('BIBLIOTHECAIRE')")` sur `DELETE` |
 | RS-03 | Un ADHERENT sur la réservation d'un autre → **403** | `@PreAuthorize(... or @reservationSecurity.estProprietaire(#id, authentication))` |
-| RS-04 | Un ADHERENT ne peut pas réserver au nom d'un autre | `ReservationService.creerReservation` : le propriétaire est déduit du token via `ReservationSecurity`, et l'`adherentId` du corps n'est lu que pour un BIBLIOTHECAIRE |
+| RS-04 | Un ADHERENT ne peut pas réserver au nom d'un autre | `ReservationService.creerReservation` : le propriétaire est déduit du token via `ReservationSecurity`, et l'`adherentId` du corps n'est lu que pour un BIBLIOTHECAIRE ; un ADHERENT qui vise un autre compte reçoit **403** (`ForbiddenException`) au lieu d'une réservation à son nom |
 | RS-05 | `GET /api/reservations` par un ADHERENT ne renvoie que les siennes | `ReservationController.listerReservations` force le filtre `adherentId` |
 
 ### Ce que la matrice ne dit pas, et qui la vidait de son sens
@@ -500,17 +509,17 @@ rôle réservation ; les comptes créés depuis l'écran d'inscription aussi.
 ### Lancer les tests
 
 ```bash
-# Backend — 88 tests, aucune base requise (H2 en mémoire)
+# Backend — 90 tests, aucune base requise (H2 en mémoire)
 cd bibliotheque-backend && ./mvnw test
 
-# Frontend — 192 tests
+# Frontend — 193 tests
 cd bibliotheque-frontend && npm test -- --watch=false --browsers=ChromeHeadless
 ```
 
 | Classe de test | Ce qu'elle prouve |
 |---|---|
 | `ReservationServiceRG03Tests` | RG-03 en **test unitaire**, repositories mockés, sans base ni contexte Spring |
-| `ReservationServiceRS04Tests` | RS-04 en **test unitaire** : le corps réclame un autre adhérent, le service enregistre pour le porteur du token et ne lit jamais le compte usurpé |
+| `ReservationServiceRS04Tests` | RS-04 en **test unitaire** : le corps réclame un autre adhérent, le service refuse en 403 sans rien enregistrer et ne lit jamais le compte usurpé — répéter son propre identifiant reste accepté |
 | `ReservationEndpointIntegrationTests` | `GET /api/reservations` : 401 sans token, 200 avec un token ADHERENT, 403 sur la réservation d'un autre |
 | `ReservationSecuriteTests` | La matrice complète + RS-01 → RS-05, avec de vrais tokens JWT |
 | `BorrowSecuriteTests` | La matrice `/borrow` : anonyme 401, ADHERENT restreint à ses emprunts, personnel autorisé |

@@ -39,7 +39,7 @@ docker compose up --build
 cd bibliotheque-backend
 ./mvnw clean install              # build
 ./mvnw spring-boot:run            # run on port 8080
-./mvnw test                       # 83 tests, H2 in memory, no DB needed
+./mvnw test                       # 90 tests, H2 in memory, no DB needed
 ```
 
 ### Frontend (manual)
@@ -48,7 +48,7 @@ cd bibliotheque-frontend
 npm install
 npm start                         # serves on port 4200
 npm run build                     # production build
-npm test -- --watch=false --browsers=ChromeHeadless   # 192 tests
+npm test -- --watch=false --browsers=ChromeHeadless   # 193 tests
 ```
 
 ### Database
@@ -66,7 +66,8 @@ PostgreSQL, configured via `.env` (copy `.env.example`). Docker exposes on port 
 ### Reservation security (RS-01..RS-05)
 - **Roles**: `ADHERENT` and `BIBLIOTHECAIRE`, **added alongside** the legacy `User`/`Admin` roles (a user carries both). Seeded idempotently in `db/seed.sql`.
 - **`ReservationSecurity`** (`configuration/`) is the single source of truth: `utilisateurCourantId()`, `estBibliothecaire()`, `estProprietaire()`. Exposed to SpEL as `@reservationSecurity`.
-- **Identity always comes from the token**, never from the request body/params. `ReservationController` overwrites `adherentId` (POST) and forces the `adherentId` filter (GET list) for non-librarians. The member's frontend request omits the key outright (`createReservation` sends `{ livreId }`), so the payload cannot be read as "reserve for the null member" — the overridden field and the absent field are two different defences, both verified. `ReservationService` also lost a "both fields are required" branch that the two single-field checks already subsumed.
+- **Identity always comes from the token**, never from the request body/params. RS-04 is enforced in `ReservationService.creerReservation` (not only in the controller, so a second caller cannot bypass it): for a non-librarian the owner is `ReservationSecurity.utilisateurCourantId(authentication)`. A member that targets **someone else's** id gets **403** (`ForbiddenException`, message `403 Forbidden = vous n'avez pas le droit`) — never a silent rewrite into a reservation under their own name, which would look like a success and hide the attempt. Repeating one's **own** id is accepted (the value decides nothing), and omitting the field stays valid. `ReservationController` keeps the `adherentId` filter forced (GET list) for non-librarians, and the member's frontend request omits the key outright (`createReservation` sends `{ livreId }`).
+- **`@ResponseStatus` alone does not guarantee an error body.** Measured on the real app: 400/404/409 came back as Spring Boot's JSON (`…"message":"RG-01 : …"`), but a **403 came back empty** (`Content-Length: 0`). `GestionnaireExceptionsRest` (`@RestControllerAdvice`) now writes `{timestamp,status,error,message,path}` for the four business exceptions, so the message no longer depends on the container's error-page dispatch — and, since the body is already written, no error dispatch replaces it. 403s raised *before* the controller (Spring Security `@PreAuthorize`, missing token) stay empty on purpose; the Angular `AuthInterceptor` redirects those to `/forbidden`, but lets a 403 **carrying a message** through so the screen shows it (RS-04's "403 Forbidden = vous n'avez pas le droit").
 - `estProprietaire()` returns `true` for a missing reservation on purpose, so an unknown id yields 404 (from the service) rather than 403.
 - Ownership check was **removed** from `ReservationService.annulerReservation` (it returned 409 and trusted a query param); it now lives in `@PreAuthorize` and returns 403.
 - `JwtRequestFilter` catches `JwtException` so a forged token returns 401 instead of 500, and `UsernameNotFoundException` so a token whose subject was deleted also returns 401.
