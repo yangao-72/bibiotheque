@@ -1,5 +1,6 @@
 package com.ibizabroker.bibliotheque.service;
 
+import com.ibizabroker.bibliotheque.configuration.ReservationSecurity;
 import com.ibizabroker.bibliotheque.dao.BooksRepository;
 import com.ibizabroker.bibliotheque.dao.ReservationRepository;
 import com.ibizabroker.bibliotheque.dao.UsersRepository;
@@ -8,6 +9,7 @@ import com.ibizabroker.bibliotheque.exceptions.BadRequestException;
 import com.ibizabroker.bibliotheque.exceptions.ConflictException;
 import com.ibizabroker.bibliotheque.exceptions.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -25,6 +27,13 @@ public class ReservationService {
     @Autowired
     private UsersRepository usersRepository;
 
+    /**
+     * Sert à déduire le propriétaire d'une réservation du token, et non du corps
+     * de la requête (RS-04).
+     */
+    @Autowired
+    private ReservationSecurity reservationSecurity;
+
     private static final int MAX_RESERVATIONS_ACTIVES = 3;
     private static final int DUREE_VALIDITE_JOURS = 7;
 
@@ -34,25 +43,31 @@ public class ReservationService {
      * RG-02 : Un adhérent ne peut avoir qu'une seule réservation active sur un même livre.
      * RG-03 : Un adhérent ne peut pas dépasser 3 réservations actives simultanées.
      * RG-04 : dateExpiration = dateReservation + 7 jours.
+     * RS-04 : le propriétaire est déduit du token, jamais du corps de la requête.
+     *
+     * <p>Le contrôle de RS-04 vit ici, et non seulement dans le contrôleur : le
+     * service est le point de passage obligé de toute création de réservation,
+     * donc un second chemin d'appel (nouveau contrôleur, traitement planifié,
+     * appel interne) ne peut pas le contourner.</p>
      */
-    public ReservationResponse creerReservation(ReservationRequest request) {
-        // Validation des champs obligatoires. Le cas « les deux sont nuls » est
-        // déjà couvert par les deux tests qui suivent : un troisième test combiné
-        // n'aurait jamais été atteint.
+    public ReservationResponse creerReservation(ReservationRequest request, Authentication authentication) {
+        // Validation du seul champ obligatoire pour tout le monde : le livre.
+        // Celle d'`adherentId` vit dans `proprietaireId`, car le champ n'est lu que
+        // pour un BIBLIOTHECAIRE (RS-04).
         if (request.getLivreId() == null) {
             throw new BadRequestException("Le champ 'livreId' est obligatoire.");
         }
-        if (request.getAdherentId() == null) {
-            throw new BadRequestException("Le champ 'adherentId' est obligatoire.");
-        }
+
+        // RS-04 : l'identité du propriétaire vient du token, pas du corps.
+        Integer adherentId = proprietaireId(request, authentication);
 
         // Recherche du livre
         Books livre = booksRepository.findById(request.getLivreId())
                 .orElseThrow(() -> new NotFoundException("Livre avec l'id " + request.getLivreId() + " introuvable."));
 
         // Recherche de l'adhérent
-        Users adherent = usersRepository.findById(request.getAdherentId())
-                .orElseThrow(() -> new NotFoundException("Utilisateur avec l'id " + request.getAdherentId() + " introuvable."));
+        Users adherent = usersRepository.findById(adherentId)
+                .orElseThrow(() -> new NotFoundException("Utilisateur avec l'id " + adherentId + " introuvable."));
 
         // RG-01 : On ne peut réserver qu'un livre indisponible (noOfCopies == 0)
         if (livre.getNoOfCopies() > 0) {
@@ -92,6 +107,31 @@ public class ReservationService {
 
         Reservation savedReservation = reservationRepository.save(reservation);
         return new ReservationResponse(savedReservation);
+    }
+
+    /**
+     * RS-04 — identifiant de l'adhérent pour qui la réservation est créée.
+     *
+     * <p>Le {@code adherentId} du corps de la requête est une donnée fournie par
+     * le client : il ne peut donc pas déterminer le propriétaire. Un ADHERENT
+     * réserve toujours pour lui-même, l'identité étant lue dans le token. Le seul
+     * appelant autorisé à viser un autre adhérent est le BIBLIOTHECAIRE — c'est le
+     * seul cas où le corps est lu, et le champ y est alors obligatoire.</p>
+     *
+     * <p>Le test de rôle passe par {@link ReservationSecurity#estBibliothecaire} et
+     * non par un « est-ce du personnel ? » plus large : un compte qui porte un
+     * autre rôle de gestion ne doit pas conserver la main sur ce champ.</p>
+     */
+    private Integer proprietaireId(ReservationRequest request, Authentication authentication) {
+        if (!reservationSecurity.estBibliothecaire(authentication)) {
+            // La valeur éventuellement envoyée par le client est ignorée, y compris
+            // si elle désigne un adhérent existant.
+            return reservationSecurity.utilisateurCourantId(authentication);
+        }
+        if (request.getAdherentId() == null) {
+            throw new BadRequestException("Le champ 'adherentId' est obligatoire.");
+        }
+        return request.getAdherentId();
     }
 
     /**

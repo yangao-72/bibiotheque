@@ -44,13 +44,10 @@ public class ReservationController {
     })
     public ResponseEntity<ReservationResponse> creerReservation(@RequestBody ReservationRequest request,
                                                                 Authentication authentication) {
-        // RS-04 : un ADHERENT ne peut pas réserver au nom d'un autre. L'`adherentId`
-        // éventuellement envoyé dans le corps est écrasé par l'identité du token.
-        // Seul un BIBLIOTHECAIRE conserve la main sur ce champ.
-        if (!reservationSecurity.estBibliothecaire(authentication)) {
-            request.setAdherentId(reservationSecurity.utilisateurCourantId(authentication));
-        }
-        ReservationResponse response = reservationService.creerReservation(request);
+        // RS-04 : un ADHERENT ne peut pas réserver au nom d'un autre. L'identité du
+        // propriétaire est résolue dans le service, à partir du token — le contrôle
+        // n'est donc pas seulement ici, mais sur le chemin obligé de toute création.
+        ReservationResponse response = reservationService.creerReservation(request, authentication);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

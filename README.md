@@ -122,7 +122,7 @@ bibliothèque/
 │       │   │   └── JwtController.java       /authenticate
 │       │   ├── service/
 │       │   │   ├── JwtService.java     vérifie le couple login / mot de passe
-│       │   │   └── ReservationService.java  logique métier réservation (RG-01 à RG-06)
+│       │   │   └── ReservationService.java  logique métier réservation (RG-01 à RG-06, RS-04)
 │       │   ├── configuration/
 │       │   │   ├── WebSecurityConfiguration.java     qui a le droit d'aller où
 │       │   │   ├── JwtRequestFilter.java             lit le header Authorization
@@ -139,6 +139,7 @@ bibliothèque/
 │       └── test/java/...
 │           ├── BibliothequeApplicationTests.java          le contexte démarre-t-il ?
 │           ├── service/ReservationServiceRG03Tests.java   RG-03, unitaire, repositories mockés
+│           ├── service/ReservationServiceRS04Tests.java   RS-04, unitaire, identité simulée
 │           └── controller/
 │               ├── ReservationEndpointIntegrationTests.java   GET /api/reservations : 401 / 200 / 403
 │               ├── ReservationSecuriteTests.java            matrice réservation + RS-01 → RS-05
@@ -418,8 +419,9 @@ Base : `http://localhost:8080`
 { "livreId": 10, "adherentId": 11 }
 ```
 
-> `adherentId` n'est lu que pour un **BIBLIOTHECAIRE**. Pour un ADHERENT, il est
-> ignoré et remplacé par l'identité du token (RG/RS-04).
+> `adherentId` n'est lu que pour un **BIBLIOTHECAIRE**, qui réserve pour l'adhérent
+> de son choix ; il est alors obligatoire (sinon **400**). Pour un ADHERENT, il est
+> ignoré et remplacé par l'identité du token (RS-04).
 
 **Règles de gestion :**
 - RG-01 : On ne peut réserver qu'un livre indisponible (`noOfCopies == 0`)
@@ -436,7 +438,7 @@ Base : `http://localhost:8080`
 | RS-01 | Sans token (absent, invalide, expiré) → **401** | `WebSecurityConfiguration` (`anyRequest().authenticated()`), `JwtRequestFilter`, `JwtAuthenticationEntryPoint` |
 | RS-02 | Un ADHERENT sur une action bibliothécaire → **403** | `@PreAuthorize("hasRole('BIBLIOTHECAIRE')")` sur `DELETE` |
 | RS-03 | Un ADHERENT sur la réservation d'un autre → **403** | `@PreAuthorize(... or @reservationSecurity.estProprietaire(#id, authentication))` |
-| RS-04 | Un ADHERENT ne peut pas réserver au nom d'un autre | `ReservationController.creerReservation` écrase `adherentId` avec l'identité du token |
+| RS-04 | Un ADHERENT ne peut pas réserver au nom d'un autre | `ReservationService.creerReservation` : le propriétaire est déduit du token via `ReservationSecurity`, et l'`adherentId` du corps n'est lu que pour un BIBLIOTHECAIRE |
 | RS-05 | `GET /api/reservations` par un ADHERENT ne renvoie que les siennes | `ReservationController.listerReservations` force le filtre `adherentId` |
 
 ### Ce que la matrice ne dit pas, et qui la vidait de son sens
@@ -498,7 +500,7 @@ rôle réservation ; les comptes créés depuis l'écran d'inscription aussi.
 ### Lancer les tests
 
 ```bash
-# Backend — 83 tests, aucune base requise (H2 en mémoire)
+# Backend — 88 tests, aucune base requise (H2 en mémoire)
 cd bibliotheque-backend && ./mvnw test
 
 # Frontend — 192 tests
@@ -508,6 +510,7 @@ cd bibliotheque-frontend && npm test -- --watch=false --browsers=ChromeHeadless
 | Classe de test | Ce qu'elle prouve |
 |---|---|
 | `ReservationServiceRG03Tests` | RG-03 en **test unitaire**, repositories mockés, sans base ni contexte Spring |
+| `ReservationServiceRS04Tests` | RS-04 en **test unitaire** : le corps réclame un autre adhérent, le service enregistre pour le porteur du token et ne lit jamais le compte usurpé |
 | `ReservationEndpointIntegrationTests` | `GET /api/reservations` : 401 sans token, 200 avec un token ADHERENT, 403 sur la réservation d'un autre |
 | `ReservationSecuriteTests` | La matrice complète + RS-01 → RS-05, avec de vrais tokens JWT |
 | `BorrowSecuriteTests` | La matrice `/borrow` : anonyme 401, ADHERENT restreint à ses emprunts, personnel autorisé |

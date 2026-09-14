@@ -380,6 +380,21 @@ class ReservationSecuriteTests {
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.adherentId").value(adherent2.getUserId()));
         }
+
+        /**
+         * Le bibliothécaire est le seul appelant pour qui ce champ est lu — il ne peut
+         * donc pas être facultatif : sans lui, aucune cible ne serait identifiable, et
+         * l'ignorer en silence créerait la réservation au nom du bibliothécaire lui-même.
+         */
+        @Test
+        @DisplayName("Le BIBLIOTHECAIRE qui réserve pour autrui sans adherentId → 400")
+        void bibliothecaireSansAdherentId() throws Exception {
+            mockMvc.perform(post(URL)
+                            .header("Authorization", "Bearer " + tokenBibliothecaire)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(corpsReservation(livreLibreDeReservation.getBookId(), null)))
+                    .andExpect(status().isBadRequest());
+        }
     }
 
     // =========================================================================

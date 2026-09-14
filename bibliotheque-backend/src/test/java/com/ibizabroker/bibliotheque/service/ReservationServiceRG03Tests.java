@@ -1,5 +1,6 @@
 package com.ibizabroker.bibliotheque.service;
 
+import com.ibizabroker.bibliotheque.configuration.ReservationSecurity;
 import com.ibizabroker.bibliotheque.dao.BooksRepository;
 import com.ibizabroker.bibliotheque.dao.ReservationRepository;
 import com.ibizabroker.bibliotheque.dao.UsersRepository;
@@ -18,6 +19,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 
 import java.util.Collections;
 import java.util.List;
@@ -48,6 +51,10 @@ import static org.mockito.Mockito.when;
  * réservations d'un autre adhérent — ou de tout le monde — le mock ne
  * correspondrait pas, renverrait 0 et les cas de refus échoueraient. Le test
  * distingue donc un comptage par adhérent d'un comptage global.</p>
+ *
+ * <p>Depuis que RS-04 est appliqué dans le service, le propriétaire n'est plus
+ * celui du corps de la requête mais celui du token : l'identité est simulée par
+ * {@code reservationSecurity}, et {@code ID_ADHERENT} est l'adhérent connecté.</p>
  */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("RG-03 — limite de 3 réservations actives")
@@ -65,10 +72,16 @@ class ReservationServiceRG03Tests {
     @Mock
     private UsersRepository usersRepository;
 
+    /** RS-04 : le service lit l'identité du propriétaire ici, et non dans le corps. */
+    @Mock
+    private ReservationSecurity reservationSecurity;
+
     @InjectMocks
     private ReservationService reservationService;
 
     private ReservationRequest demande;
+
+    private Authentication tokenAdherent;
 
     @BeforeEach
     void preparerLeContexteCommun() {
@@ -85,8 +98,13 @@ class ReservationServiceRG03Tests {
         demande.setLivreId(ID_LIVRE);
         demande.setAdherentId(ID_ADHERENT);
 
+        tokenAdherent = new UsernamePasswordAuthenticationToken("adherent", null);
+
         when(booksRepository.findById(ID_LIVRE)).thenReturn(Optional.of(livreIndisponible));
         when(usersRepository.findById(ID_ADHERENT)).thenReturn(Optional.of(adherent));
+        // RS-04 : le porteur du token est ID_ADHERENT, quelle que soit la valeur
+        // envoyée dans le corps (qui vaut ici ID_ADHERENT par construction).
+        when(reservationSecurity.utilisateurCourantId(any(Authentication.class))).thenReturn(ID_ADHERENT);
         // RG-02 : aucune réservation active de cet adhérent sur ce livre
         when(reservationRepository.findByLivreBookIdAndStatutIn(eq(ID_LIVRE), anyList()))
                 .thenReturn(Collections.emptyList());
@@ -99,7 +117,7 @@ class ReservationServiceRG03Tests {
         when(reservationRepository.save(any(Reservation.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        ReservationResponse reservationCreee = reservationService.creerReservation(demande);
+        ReservationResponse reservationCreee = reservationService.creerReservation(demande, tokenAdherent);
 
         assertNotNull(reservationCreee);
         assertEquals(ID_ADHERENT, reservationCreee.getAdherentId());
@@ -114,7 +132,7 @@ class ReservationServiceRG03Tests {
         when(reservationRepository.countByAdherentUserIdAndStatutIn(eq(ID_ADHERENT), anyList())).thenReturn(3L);
 
         ConflictException refus = assertThrows(ConflictException.class,
-                () -> reservationService.creerReservation(demande));
+                () -> reservationService.creerReservation(demande, tokenAdherent));
 
         assertTrue(refus.getMessage().contains("RG-03"),
                 "Le message de refus doit mentionner la règle RG-03, reçu : " + refus.getMessage());
@@ -127,7 +145,7 @@ class ReservationServiceRG03Tests {
     void unAdherentAuDelaDeTroisReservationsActivesEstRefuse() {
         when(reservationRepository.countByAdherentUserIdAndStatutIn(eq(ID_ADHERENT), anyList())).thenReturn(5L);
 
-        assertThrows(ConflictException.class, () -> reservationService.creerReservation(demande));
+        assertThrows(ConflictException.class, () -> reservationService.creerReservation(demande, tokenAdherent));
         verify(reservationRepository, never()).save(any(Reservation.class));
     }
 
@@ -138,7 +156,7 @@ class ReservationServiceRG03Tests {
         when(reservationRepository.save(any(Reservation.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        reservationService.creerReservation(demande);
+        reservationService.creerReservation(demande, tokenAdherent);
 
         ArgumentCaptor<List<ReservationStatus>> statutsComptes = ArgumentCaptor.forClass(List.class);
         verify(reservationRepository).countByAdherentUserIdAndStatutIn(eq(ID_ADHERENT), statutsComptes.capture());
