@@ -39,7 +39,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.cors();			httpSecurity.csrf().disable()
-				.authorizeRequests().antMatchers("/authenticate", "/borrow/**", "/admin/books/").permitAll()
+				.authorizeRequests().antMatchers("/authenticate").permitAll() // seul endpoint reellement public : tout le reste exige un token (cf. JwtAuthenticationEntryPoint pour le 401)
 				.antMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
 				.antMatchers(HttpHeaders.ALLOW).permitAll()
 				.anyRequest().authenticated()

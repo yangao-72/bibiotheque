@@ -61,6 +61,13 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+  /**
+   * Statistiques du personnel. Ces quatre appels ne sont légitimes que pour un
+   * compte Admin/BIBLIOTHECAIRE : `GET /borrow` et `GET /admin/users` répondent
+   * **403** à un adhérent, et l'intercepteur le redirigerait vers /forbidden.
+   * Le garde `isAdmin` n'est donc pas cosmétique — il tient la matrice
+   * d'autorisation du serveur.
+   */
   private loadAdminStats(): void {
     let completed = 0;
     const total = 4;
@@ -118,6 +125,7 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  /** Un adhérent ne voit que ses propres chiffres : aucun appel réservé au personnel. */
   private loadUserStats(): void {
     this.loading = false;
   }

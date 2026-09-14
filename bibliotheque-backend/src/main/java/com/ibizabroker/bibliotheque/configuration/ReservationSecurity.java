@@ -1,13 +1,9 @@
 package com.ibizabroker.bibliotheque.configuration;
 
 import com.ibizabroker.bibliotheque.dao.ReservationRepository;
-import com.ibizabroker.bibliotheque.dao.UsersRepository;
 import com.ibizabroker.bibliotheque.entity.Reservation;
-import com.ibizabroker.bibliotheque.entity.Users;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -16,8 +12,9 @@ import java.util.Optional;
  * Point central de la sécurité des réservations.
  *
  * <p>Règle fondamentale (RS-04) : l'identité de l'appelant est toujours dérivée du
- * token JWT, jamais du corps ni des paramètres de la requête. Le token ne portant
- * que le <em>username</em>, on retrouve l'identifiant technique en base.</p>
+ * token JWT, jamais du corps ni des paramètres de la requête. La résolution du
+ * compte à partir du token est partagée avec le module emprunt et vit dans
+ * {@link IdentiteCourante} — un seul mécanisme, pas deux.</p>
  *
  * <p>Ce bean est référencé par son nom dans les expressions {@code @PreAuthorize}
  * du {@code ReservationController}, par exemple :
@@ -26,11 +23,11 @@ import java.util.Optional;
 @Component("reservationSecurity")
 public class ReservationSecurity {
 
-    public static final String ROLE_ADHERENT = "ADHERENT";
-    public static final String ROLE_BIBLIOTHECAIRE = "BIBLIOTHECAIRE";
+    public static final String ROLE_ADHERENT = IdentiteCourante.ROLE_ADHERENT;
+    public static final String ROLE_BIBLIOTHECAIRE = IdentiteCourante.ROLE_BIBLIOTHECAIRE;
 
     @Autowired
-    private UsersRepository usersRepository;
+    private IdentiteCourante identite;
 
     @Autowired
     private ReservationRepository reservationRepository;
@@ -39,19 +36,19 @@ public class ReservationSecurity {
      * Identifiant de l'utilisateur authentifié, déduit du token.
      */
     public Integer utilisateurCourantId(Authentication authentication) {
-        Users utilisateur = usersRepository.findByUsername(authentication.getName())
-                .orElseThrow(() -> new UsernameNotFoundException(
-                        "Utilisateur '" + authentication.getName() + "' introuvable."));
-        return utilisateur.getUserId();
+        return identite.utilisateurCourantId(authentication);
     }
 
     /**
      * Indique si l'appelant possède le rôle BIBLIOTHECAIRE.
+     *
+     * <p>Volontairement limité à ce rôle : la matrice d'autorisation des
+     * réservations distingue ADHERENT et BIBLIOTHECAIRE, et un ADHERENT ne doit
+     * pas voir son `adherentId` conservé sous prétexte qu'il porte un autre rôle
+     * de gestion.</p>
      */
     public boolean estBibliothecaire(Authentication authentication) {
-        return authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .anyMatch(("ROLE_" + ROLE_BIBLIOTHECAIRE)::equals);
+        return identite.aLeRole(authentication, ROLE_BIBLIOTHECAIRE);
     }
 
     /**
