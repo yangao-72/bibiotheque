@@ -139,8 +139,12 @@ bibliothèque/
 │       └── test/java/...
 │           ├── BibliothequeApplicationTests.java          le contexte démarre-t-il ?
 │           ├── service/ReservationServiceRG03Tests.java   RG-03, unitaire, repositories mockés
-│           ├── controller/ReservationEndpointIntegrationTests.java  GET /api/reservations : 401 / 200 / 403
-│           └── controller/ReservationSecuriteTests.java    matrice complète + RS-01 → RS-05
+│           └── controller/
+│               ├── ReservationEndpointIntegrationTests.java   GET /api/reservations : 401 / 200 / 403
+│               ├── ReservationSecuriteTests.java            matrice réservation + RS-01 → RS-05
+│               ├── BorrowSecuriteTests.java                 matrice /borrow
+│               ├── EscaladeDePrivilegesTests.java           escalade de privilèges
+│               └── SuppressionDeCompteTests.java            soft delete et audit des comptes
 │
 ├── bibliotheque-frontend/          interface Angular — port 4200
 │   ├── package.json                dépendances npm + scripts
@@ -494,19 +498,21 @@ rôle réservation ; les comptes créés depuis l'écran d'inscription aussi.
 ### Lancer les tests
 
 ```bash
-# Backend — 37 tests, aucune base requise (H2 en mémoire)
+# Backend — 83 tests, aucune base requise (H2 en mémoire)
 cd bibliotheque-backend && ./mvnw test
 
-# Frontend — 148 tests
+# Frontend — 192 tests
 cd bibliotheque-frontend && npm test -- --watch=false --browsers=ChromeHeadless
 ```
 
 | Classe de test | Ce qu'elle prouve |
 |---|---|
-| `ReservationServiceRG03Tests` | RG-03 en **test unitaire**, repositories mockés, sans base |
+| `ReservationServiceRG03Tests` | RG-03 en **test unitaire**, repositories mockés, sans base ni contexte Spring |
 | `ReservationEndpointIntegrationTests` | `GET /api/reservations` : 401 sans token, 200 avec un token ADHERENT, 403 sur la réservation d'un autre |
 | `ReservationSecuriteTests` | La matrice complète + RS-01 → RS-05, avec de vrais tokens JWT |
+| `BorrowSecuriteTests` | La matrice `/borrow` : anonyme 401, ADHERENT restreint à ses emprunts, personnel autorisé |
 | `EscaladeDePrivilegesTests` | Un ADHERENT ne peut pas se fabriquer de compte BIBLIOTHECAIRE ; un token orphelin donne 401 |
+| `SuppressionDeCompteTests` | Soft delete des comptes, motif et date d'audit, réactivation, garde-fou « emprunt en cours » |
 
 ---
 

@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -27,8 +28,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,7 +39,15 @@ import static org.mockito.Mockito.when;
  * 3 réservations actives simultanées.
  *
  * <p>Aucune base de données n'est nécessaire : les repositories sont simulés
- * (mocks Mockito) et seule la logique de {@link ReservationService} est exercée.</p>
+ * (mocks Mockito), seule la logique de {@link ReservationService} est exercée, et
+ * aucun contexte Spring n'est démarré — la classe n'est pas annotée
+ * {@code @SpringBootTest}.</p>
+ *
+ * <p>Les stubs de comptage visent explicitement {@code ID_ADHERENT} via
+ * {@code eq(…)} plutôt que {@code anyInt()} : si le service comptait les
+ * réservations d'un autre adhérent — ou de tout le monde — le mock ne
+ * correspondrait pas, renverrait 0 et les cas de refus échoueraient. Le test
+ * distingue donc un comptage par adhérent d'un comptage global.</p>
  */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("RG-03 — limite de 3 réservations actives")
@@ -79,14 +88,14 @@ class ReservationServiceRG03Tests {
         when(booksRepository.findById(ID_LIVRE)).thenReturn(Optional.of(livreIndisponible));
         when(usersRepository.findById(ID_ADHERENT)).thenReturn(Optional.of(adherent));
         // RG-02 : aucune réservation active de cet adhérent sur ce livre
-        when(reservationRepository.findByLivreBookIdAndStatutIn(anyInt(), anyList()))
+        when(reservationRepository.findByLivreBookIdAndStatutIn(eq(ID_LIVRE), anyList()))
                 .thenReturn(Collections.emptyList());
     }
 
     @Test
     @DisplayName("Un adhérent ayant 2 réservations actives peut en créer une troisième")
     void unAdherentAvecDeuxReservationsActivesPeutEnCreerUneTroisieme() {
-        when(reservationRepository.countByAdherentUserIdAndStatutIn(anyInt(), anyList())).thenReturn(2L);
+        when(reservationRepository.countByAdherentUserIdAndStatutIn(eq(ID_ADHERENT), anyList())).thenReturn(2L);
         when(reservationRepository.save(any(Reservation.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -102,7 +111,7 @@ class ReservationServiceRG03Tests {
     @Test
     @DisplayName("Un adhérent ayant 3 réservations actives reçoit un refus")
     void unAdherentAvecTroisReservationsActivesEstRefuse() {
-        when(reservationRepository.countByAdherentUserIdAndStatutIn(anyInt(), anyList())).thenReturn(3L);
+        when(reservationRepository.countByAdherentUserIdAndStatutIn(eq(ID_ADHERENT), anyList())).thenReturn(3L);
 
         ConflictException refus = assertThrows(ConflictException.class,
                 () -> reservationService.creerReservation(demande));
@@ -116,7 +125,7 @@ class ReservationServiceRG03Tests {
     @Test
     @DisplayName("Un adhérent ayant plus de 3 réservations actives reçoit également un refus")
     void unAdherentAuDelaDeTroisReservationsActivesEstRefuse() {
-        when(reservationRepository.countByAdherentUserIdAndStatutIn(anyInt(), anyList())).thenReturn(5L);
+        when(reservationRepository.countByAdherentUserIdAndStatutIn(eq(ID_ADHERENT), anyList())).thenReturn(5L);
 
         assertThrows(ConflictException.class, () -> reservationService.creerReservation(demande));
         verify(reservationRepository, never()).save(any(Reservation.class));
@@ -125,15 +134,14 @@ class ReservationServiceRG03Tests {
     @Test
     @DisplayName("La limite porte uniquement sur les statuts EN_ATTENTE et DISPONIBLE")
     void laLimiteNeCompteQueLesReservationsActives() {
-        when(reservationRepository.countByAdherentUserIdAndStatutIn(anyInt(), anyList())).thenReturn(0L);
+        when(reservationRepository.countByAdherentUserIdAndStatutIn(eq(ID_ADHERENT), anyList())).thenReturn(0L);
         when(reservationRepository.save(any(Reservation.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         reservationService.creerReservation(demande);
 
-        org.mockito.ArgumentCaptor<List<ReservationStatus>> statutsComptes =
-                org.mockito.ArgumentCaptor.forClass(List.class);
-        verify(reservationRepository).countByAdherentUserIdAndStatutIn(anyInt(), statutsComptes.capture());
+        ArgumentCaptor<List<ReservationStatus>> statutsComptes = ArgumentCaptor.forClass(List.class);
+        verify(reservationRepository).countByAdherentUserIdAndStatutIn(eq(ID_ADHERENT), statutsComptes.capture());
 
         assertEquals(List.of(ReservationStatus.EN_ATTENTE, ReservationStatus.DISPONIBLE),
                 statutsComptes.getValue());
