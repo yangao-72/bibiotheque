@@ -92,11 +92,57 @@ describe('ReservationsListComponent', () => {
     load(mockReservations);
 
     const rows = fixture.nativeElement.querySelectorAll('tbody tr');
-    expect(rows[0].querySelector('button')).toBeTruthy();  // EN_ATTENTE
-    expect(rows[1].querySelector('button')).toBeTruthy();  // DISPONIBLE
-    expect(rows[2].querySelector('button')).toBeNull();    // ANNULEE
-    expect(rows[3].querySelector('button')).toBeNull();    // EXPIREE
-    expect(rows[4].querySelector('button')).toBeNull();    // HONOREE
+    expect(rows[0].querySelector('.res-action-cancel')).toBeTruthy();  // EN_ATTENTE
+    expect(rows[1].querySelector('.res-action-cancel')).toBeTruthy();  // DISPONIBLE
+    expect(rows[2].querySelector('.res-action-cancel')).toBeNull();    // ANNULEE
+    expect(rows[3].querySelector('.res-action-cancel')).toBeNull();    // EXPIREE
+    expect(rows[4].querySelector('.res-action-cancel')).toBeNull();    // HONOREE
+  });
+
+  // --- Action de suppression -----------------------------------------------
+
+  it('should offer deletion to a BIBLIOTHECAIRE on every row', () => {
+    load(mockReservations);
+
+    const rows = fixture.nativeElement.querySelectorAll('tbody tr');
+    rows.forEach((row: HTMLElement) =>
+      expect(row.querySelector('.res-action-delete')).toBeTruthy());
+  });
+
+  it('should not offer deletion to an ADHERENT', () => {
+    // RS-02 : DELETE /api/reservations/{id} est réservé au bibliothécaire ;
+    // l'interface ne doit pas exposer l'action à un adhérent.
+    load(mockReservations, 'ADHERENT');
+
+    expect(fixture.nativeElement.querySelector('.res-action-delete')).toBeNull();
+  });
+
+  it('should emit the reservation when deletion is requested', () => {
+    spyOn(component.supprimer, 'emit');
+    load(mockReservations);
+
+    component.onSupprimer(mockReservations[0]);
+
+    expect(component.supprimer.emit).toHaveBeenCalledWith(mockReservations[0]);
+  });
+
+  // --- Action de consultation ----------------------------------------------
+
+  it('should offer the details action on every row, to both roles', () => {
+    load(mockReservations, 'ADHERENT');
+
+    const rows = fixture.nativeElement.querySelectorAll('tbody tr');
+    rows.forEach((row: HTMLElement) =>
+      expect(row.querySelector('.res-action-details')).toBeTruthy());
+  });
+
+  it('should emit the reservation when details are requested', () => {
+    spyOn(component.details, 'emit');
+    load(mockReservations);
+
+    component.onDetails(mockReservations[0]);
+
+    expect(component.details.emit).toHaveBeenCalledWith(mockReservations[0]);
   });
 
   it('should emit the reservation when cancellation is requested', () => {

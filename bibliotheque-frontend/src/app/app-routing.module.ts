@@ -11,6 +11,7 @@ import { LoginComponent } from './login/login.component';
 import { RegistrationComponent } from './registration/registration.component';
 import { ReturnBookComponent } from './return-book/return-book.component';
 import { ReservationsComponent } from './reservations/reservations.component';
+import { ReservationDetailsComponent } from './reservation-details/reservation-details.component';
 import { UpdateBookComponent } from './update-book/update-book.component';
 import { UpdateUserComponent } from './update-user/update-user.component';
 import { UserDetailsComponent } from './user-details/user-details.component';
@@ -35,7 +36,9 @@ const routes: Routes = [
   {path: 'forbidden', component: ForbiddenComponent},
   {path: 'borrow-book', component: BorrowBookComponent, canActivate:[AuthGuard], data:{roles:['User']}},
   {path: 'return-book', component: ReturnBookComponent, canActivate:[AuthGuard], data:{roles:['User']}},
-  {path: 'reservations', component: ReservationsComponent, canActivate:[AuthGuard], data:{roles:['ADHERENT', 'BIBLIOTHECAIRE']}}
+  {path: 'reservations', component: ReservationsComponent, canActivate:[AuthGuard], data:{roles:['ADHERENT', 'BIBLIOTHECAIRE']}},
+  // RS-03 est appliqué par l'API : un ADHERENT qui ouvre la réservation d'un autre reçoit 403.
+  {path: 'reservation-details/:reservationId', component: ReservationDetailsComponent, canActivate:[AuthGuard], data:{roles:['ADHERENT', 'BIBLIOTHECAIRE']}}
 ];
 
 @NgModule({

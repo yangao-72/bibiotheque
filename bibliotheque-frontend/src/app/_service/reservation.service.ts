@@ -25,8 +25,19 @@ export class ReservationService {
     return this.httpClient.get<Reservation>(`${this.baseURL}/${id}`);
   }
 
+  /**
+   * RS-04 : un ADHERENT ne transmet pas d'`adherentId` — le serveur déduit son
+   * identité du token. On omet la clé au lieu de l'envoyer à `null` : le corps
+   * d'un membre ne contient alors que le livre, et la requête ne peut pas être
+   * relue comme « réserve pour l'adhérent null ». Seul un BIBLIOTHECAIRE, qui
+   * choisit l'adhérent, envoie la clé.
+   */
   createReservation(request: ReservationRequest): Observable<Reservation> {
-    return this.httpClient.post<Reservation>(this.baseURL, request);
+    const corps: Partial<ReservationRequest> = { livreId: request.livreId };
+    if (request.adherentId != null) {
+      corps.adherentId = request.adherentId;
+    }
+    return this.httpClient.post<Reservation>(this.baseURL, corps);
   }
 
   /**

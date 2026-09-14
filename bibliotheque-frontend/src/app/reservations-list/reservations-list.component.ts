@@ -14,6 +14,8 @@ export class ReservationsListComponent implements OnChanges {
   @Input() reservations: Reservation[] = [];
   @Input() currentUserRole = '';
   @Output() annuler = new EventEmitter<Reservation>();
+  @Output() supprimer = new EventEmitter<Reservation>();
+  @Output() details = new EventEmitter<Reservation>();
 
   /** Nombre de lignes par page. Au-delà, la pagination prend le relais. */
   static readonly PAGE_SIZE = 8;
@@ -95,6 +97,20 @@ export class ReservationsListComponent implements OnChanges {
     // La demande de confirmation est portée par l'écran parent, qui dispose du
     // service de modale : ce composant se contente de signaler l'intention.
     this.annuler.emit(reservation);
+  }
+
+  /**
+   * Suppression définitive : réservée au BIBLIOTHECAIRE (et à l'Admin).
+   * Un ADHERENT ne voit même pas le bouton — `DELETE /api/reservations/{id}`
+   * lui répondrait 403, mais l'interface ne doit pas l'y inviter.
+   */
+  onSupprimer(reservation: Reservation): void {
+    this.supprimer.emit(reservation);
+  }
+
+  /** Ouvre la fiche détaillée. Le parent porte la navigation. */
+  onDetails(reservation: Reservation): void {
+    this.details.emit(reservation);
   }
 
   getStatutClass(statut: string): string {

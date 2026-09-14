@@ -1,0 +1,101 @@
+<div class="reservation-details bg-grid">
+
+  <!-- En-tête -->
+  <header class="ds-page-header anim-rise">
+    <div>
+      <h1 class="ds-page-header__title">
+        <span class="ds-page-header__icon" aria-hidden="true"><i class="fas fa-calendar-check"></i></span>
+        {{ 'reservations.detailsTitle' | translate }}
+      </h1>
+      <p class="ds-page-header__subtitle">{{ 'reservations.detailsSubtitle' | translate }}</p>
+    </div>
+    <button type="button" class="ds-btn ds-btn--secondary" (click)="back()">
+      <i class="fas fa-arrow-left" aria-hidden="true"></i>
+      {{ 'common.back' | translate }}
+    </button>
+  </header>
+
+  <!-- Chargement -->
+  <div class="ds-card" *ngIf="loading" aria-busy="true">
+    <div class="ds-card__body">
+      <span class="sr-only">{{ 'common.loading' | translate }}</span>
+      <div class="ds-skeleton ds-skeleton--title"></div>
+      <div class="ds-skeleton ds-skeleton--text"></div>
+      <div class="ds-skeleton ds-skeleton--text"></div>
+      <div class="ds-skeleton ds-skeleton--text"></div>
+    </div>
+  </div>
+
+  <!-- Erreur (404, réseau… — le 403 est déjà redirigé vers /forbidden) -->
+  <div class="ds-card anim-rise-sm" *ngIf="!loading && errorMessage" role="alert">
+    <div class="ds-card__body res-error">
+      <i class="fas fa-circle-exclamation" aria-hidden="true"></i>
+      <p class="res-error__text">{{ errorMessage | translate: errorParams }}</p>
+      <div class="res-error__actions">
+        <button type="button" class="ds-btn ds-btn--secondary ds-btn--sm" (click)="loadReservation()">
+          <i class="fas fa-rotate-right" aria-hidden="true"></i>
+          {{ 'common.retry' | translate }}
+        </button>
+        <button type="button" class="ds-btn ds-btn--ghost ds-btn--sm" (click)="back()">
+          {{ 'common.back' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenu -->
+  <div class="ds-card anim-rise" *ngIf="!loading && !errorMessage && reservation">
+    <div class="ds-card__header">
+      <h2 class="ds-card__title">{{ reservation.livreNom }}</h2>
+      <span [ngClass]="getStatutClass(reservation.statut)">
+        <span class="ds-badge__dot" aria-hidden="true"></span>
+        {{ statutKey(reservation.statut) | translate }}
+      </span>
+    </div>
+
+    <div class="ds-card__body">
+      <dl class="res-detail">
+        <div class="res-detail__row">
+          <dt class="res-detail__label">{{ 'reservations.reference' | translate }}</dt>
+          <dd class="res-detail__value">#{{ reservation.reservationId }}</dd>
+        </div>
+        <div class="res-detail__row">
+          <dt class="res-detail__label">{{ 'reservations.book' | translate }}</dt>
+          <dd class="res-detail__value">{{ reservation.livreNom }}</dd>
+        </div>
+        <!-- L'adhérent ne voit que ses propres réservations (RS-05) : son nom est redondant. -->
+        <div class="res-detail__row" *ngIf="estBibliothecaire">
+          <dt class="res-detail__label">{{ 'reservations.member' | translate }}</dt>
+          <dd class="res-detail__value">{{ reservation.adherentNom }}</dd>
+        </div>
+        <div class="res-detail__row">
+          <dt class="res-detail__label">{{ 'reservations.reservedOn' | translate }}</dt>
+          <dd class="res-detail__value">{{ reservation.dateReservation }}</dd>
+        </div>
+        <div class="res-detail__row">
+          <dt class="res-detail__label">{{ 'reservations.expiresOn' | translate }}</dt>
+          <dd class="res-detail__value">{{ reservation.dateExpiration }}</dd>
+        </div>
+      </dl>
+    </div>
+
+    <!-- Actions : annulation pour le propriétaire, suppression pour le bibliothécaire -->
+    <div class="ds-card__footer" *ngIf="canCancel || estBibliothecaire">
+      <button type="button"
+              class="ds-btn ds-btn--subtle-danger"
+              *ngIf="canCancel"
+              (click)="onAnnuler()">
+        <i class="fas fa-ban" aria-hidden="true"></i>
+        {{ 'reservations.cancelAction' | translate }}
+      </button>
+      <button type="button"
+              class="ds-btn ds-btn--danger"
+              *ngIf="estBibliothecaire"
+              (click)="onSupprimer()">
+        <i class="fas fa-trash" aria-hidden="true"></i>
+        {{ 'reservations.deleteAction' | translate }}
+      </button>
+    </div>
+  </div>
+
+</div>

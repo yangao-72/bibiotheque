@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { Router } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
 import { of, throwError } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
@@ -67,7 +69,7 @@ describe('ReservationsComponent', () => {
     mockReservations = buildReservations();
 
     reservationServiceSpy = jasmine.createSpyObj('ReservationService', [
-      'getReservations', 'createReservation', 'annulerReservation'
+      'getReservations', 'createReservation', 'annulerReservation', 'supprimerReservation'
     ]);
     booksServiceSpy = jasmine.createSpyObj('BooksService', ['getBooksList']);
     usersServiceSpy = jasmine.createSpyObj('UsersService', ['getUsersList', 'roleMatch']);
@@ -83,7 +85,7 @@ describe('ReservationsComponent', () => {
     confirmServiceSpy.ask.and.returnValue(Promise.resolve(true));
 
     await TestBed.configureTestingModule({
-      imports: [FormsModule, TranslateModule.forRoot()],
+      imports: [FormsModule, TranslateModule.forRoot(), RouterTestingModule],
       declarations: [ReservationsComponent],
       providers: [
         { provide: ReservationService, useValue: reservationServiceSpy },
@@ -279,6 +281,60 @@ describe('ReservationsComponent', () => {
     tick();
 
     expect(toastServiceSpy.showText).toHaveBeenCalledWith('error', 'RG-06 : ne peut plus changer');
+  }));
+
+  // --- Suppression (bibliothécaire / admin) --------------------------------
+
+  it('should ask for confirmation before deleting a reservation', fakeAsync(() => {
+    reservationServiceSpy.supprimerReservation.and.returnValue(of(undefined));
+
+    component.onSupprimerReservation(mockReservations[0]);
+    tick();
+
+    expect(confirmServiceSpy.ask).toHaveBeenCalled();
+  }));
+
+  it('should delete a reservation and reload the list', fakeAsync(() => {
+    reservationServiceSpy.supprimerReservation.and.returnValue(of(undefined));
+    spyOn(component, 'loadData');
+
+    component.onSupprimerReservation(mockReservations[0]);
+    tick();
+
+    expect(reservationServiceSpy.supprimerReservation).toHaveBeenCalledWith(1);
+    expect(toastServiceSpy.success).toHaveBeenCalledWith('reservations.deleted');
+    expect(component.loadData).toHaveBeenCalled();
+  }));
+
+  it('should do nothing when the deletion confirmation is declined', fakeAsync(() => {
+    confirmServiceSpy.ask.and.returnValue(Promise.resolve(false));
+
+    component.onSupprimerReservation(mockReservations[0]);
+    tick();
+
+    expect(reservationServiceSpy.supprimerReservation).not.toHaveBeenCalled();
+  }));
+
+  // --- Navigation vers la fiche détaillée ----------------------------------
+
+  it('should open the details screen by reservation id', () => {
+    const router = TestBed.inject(Router);
+    spyOn(router, 'navigate');
+
+    component.onVoirReservation(mockReservations[0]);
+
+    expect(router.navigate).toHaveBeenCalledWith(['/reservation-details', 1]);
+  });
+
+  it('should surface the business message when deletion is refused', fakeAsync(() => {
+    reservationServiceSpy.supprimerReservation.and.returnValue(
+      throwError(() => ({ status: 403, error: { message: 'Action réservée au BIBLIOTHECAIRE' } }))
+    );
+
+    component.onSupprimerReservation(mockReservations[0]);
+    tick();
+
+    expect(toastServiceSpy.showText).toHaveBeenCalledWith('error', 'Action réservée au BIBLIOTHECAIRE');
   }));
 
   // --- Validation du formulaire -------------------------------------------

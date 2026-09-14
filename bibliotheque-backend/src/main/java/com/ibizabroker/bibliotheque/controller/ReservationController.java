@@ -107,10 +107,14 @@ public class ReservationController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('BIBLIOTHECAIRE')")
+    // L'Admin est admis explicitement : dans le seed comme à l'inscription il
+    // porte déjà BIBLIOTHECAIRE, mais un compte strictement « Admin » (créé à la
+    // main, ou avant l'ajout du rôle réservation) doit lui aussi pouvoir purger
+    // une réservation — c'est ce que demande la règle métier.
+    @PreAuthorize("hasAnyRole('BIBLIOTHECAIRE', 'Admin')")
     @DeleteMapping("/{id}")
     @Operation(summary = "Supprimer une réservation", description = "Supprime définitivement une réservation. "
-            + "Réservé au BIBLIOTHECAIRE.")
+            + "Réservé au BIBLIOTHECAIRE et à l'Admin.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Réservation supprimée avec succès"),
             @ApiResponse(responseCode = "401", description = "Token absent, invalide ou expiré"),

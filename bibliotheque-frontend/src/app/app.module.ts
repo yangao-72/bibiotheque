@@ -27,6 +27,7 @@ import { ReturnBookComponent } from './return-book/return-book.component';
 import { ReservationsComponent } from './reservations/reservations.component';
 import { ReservationsListComponent } from './reservations-list/reservations-list.component';
 import { ReservationFormComponent } from './reservation-form/reservation-form.component';
+import { ReservationDetailsComponent } from './reservation-details/reservation-details.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { TopbarComponent } from './topbar/topbar.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
@@ -74,6 +75,7 @@ export function initLanguage(languageService: LanguageService): () => void {
     ReservationsComponent,
     ReservationsListComponent,
     ReservationFormComponent,
+    ReservationDetailsComponent,
     SidebarComponent,
     TopbarComponent,
     DashboardComponent,

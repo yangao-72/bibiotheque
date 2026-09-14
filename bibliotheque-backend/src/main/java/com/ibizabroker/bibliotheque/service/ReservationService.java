@@ -36,10 +36,9 @@ public class ReservationService {
      * RG-04 : dateExpiration = dateReservation + 7 jours.
      */
     public ReservationResponse creerReservation(ReservationRequest request) {
-        // Validation des champs obligatoires
-        if (request.getLivreId() == null && request.getAdherentId() == null) {
-            throw new BadRequestException("Les champs 'livreId' et 'adherentId' sont obligatoires.");
-        }
+        // Validation des champs obligatoires. Le cas « les deux sont nuls » est
+        // déjà couvert par les deux tests qui suivent : un troisième test combiné
+        // n'aurait jamais été atteint.
         if (request.getLivreId() == null) {
             throw new BadRequestException("Le champ 'livreId' est obligatoire.");
         }

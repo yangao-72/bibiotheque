@@ -117,7 +117,9 @@
     <app-reservations-list
       [reservations]="reservations"
       [currentUserRole]="estBibliothecaire ? 'BIBLIOTHECAIRE' : 'ADHERENT'"
-      (annuler)="onAnnulerReservation($event)">
+      (annuler)="onAnnulerReservation($event)"
+      (supprimer)="onSupprimerReservation($event)"
+      (details)="onVoirReservation($event)">
     </app-reservations-list>
   </div>
 

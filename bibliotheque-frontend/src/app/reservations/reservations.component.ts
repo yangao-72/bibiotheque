@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { Books } from '../_model/books';
 import { Reservation, ReservationRequest } from '../_model/reservation';
@@ -54,7 +55,8 @@ export class ReservationsComponent implements OnInit {
     private usersService: UsersService,
     private toast: ToastService,
     private confirm: ConfirmService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
@@ -116,6 +118,44 @@ export class ReservationsComponent implements OnInit {
       error: (err) => {
         // Les règles de gestion (RG-01…RG-06) remontent un message métier rédigé
         // par le serveur : on l'affiche tel quel plutôt qu'un message générique.
+        const serverMessage = this.serverMessage(err);
+        if (serverMessage) {
+          this.toast.showText('error', serverMessage);
+        } else {
+          this.toast.error(this.errorKey(err), { status: err.status });
+        }
+      }
+    });
+  }
+
+  /** Ouvre la fiche détaillée de la réservation, adressable par son identifiant. */
+  onVoirReservation(reservation: Reservation): void {
+    this.router.navigate(['/reservation-details', reservation.reservationId]);
+  }
+
+  /**
+   * Suppression définitive d'une réservation : bibliothécaire / admin.
+   * Un ADHERENT n'a pas accès au bouton (RS-02).
+   */
+  async onSupprimerReservation(reservation: Reservation): Promise<void> {
+    const confirmed = await this.confirm.ask({
+      titleKey: 'reservations.deleteConfirmTitle',
+      textKey: 'reservations.deleteConfirmText',
+      params: { book: reservation.livreNom },
+      confirmKey: 'reservations.deleteAction',
+      danger: true
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.reservationService.supprimerReservation(reservation.reservationId).subscribe({
+      next: () => {
+        this.toast.success('reservations.deleted');
+        this.loadData();
+      },
+      error: (err) => {
         const serverMessage = this.serverMessage(err);
         if (serverMessage) {
           this.toast.showText('error', serverMessage);

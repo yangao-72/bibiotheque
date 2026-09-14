@@ -113,6 +113,19 @@ describe('ReservationService', () => {
     req.flush(mockResponse);
   });
 
+  it('should omit adherentId for a member (identity comes from the token)', () => {
+    const request: ReservationRequest = { livreId: 10, adherentId: null };
+
+    service.createReservation(request).subscribe();
+
+    const req = httpMock.expectOne(baseURL);
+    expect(req.request.method).toBe('POST');
+    // RS-04 : un ADHERENT n'a pas de champ adhérent à remplir — le corps ne
+    // contient que le livre, jamais un identifiant d'adhérent falsifiable.
+    expect(Object.keys(req.request.body)).toEqual(['livreId']);
+    req.flush(null);
+  });
+
   it('should cancel reservation without sending any userId (identity comes from the token)', () => {
     const mockResponse: Reservation = {
       reservationId: 1,

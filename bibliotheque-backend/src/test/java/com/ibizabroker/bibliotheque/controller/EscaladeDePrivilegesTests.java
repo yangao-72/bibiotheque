@@ -121,6 +121,19 @@ class EscaladeDePrivilegesTests {
                 .andExpect(status().isOk());
     }
 
+    /**
+     * `WebSecurityConfiguration` listait `/admin/books/` dans les `permitAll`.
+     * Le slash final n'ouvrait pas la liste des livres (BooksController porte un
+     * {@code @PreAuthorize}), mais la règle annonçait une protection inexistante.
+     * Celle-ci est retirée : le chemin retombe sur {@code anyRequest().authenticated()}.
+     */
+    @Test
+    @DisplayName("Sans token, /admin/books/ (slash final) renvoie 401")
+    void sansTokenLaListeDesLivresRenvoie401() throws Exception {
+        mockMvc.perform(get("/admin/books/"))
+                .andExpect(status().isUnauthorized());
+    }
+
     @Test
     @DisplayName("Un token dont le porteur n'existe plus renvoie 401, pas 500")
     void unTokenOrphelinRenvoie401() throws Exception {

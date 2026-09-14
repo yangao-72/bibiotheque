@@ -87,6 +87,8 @@ class ReservationSecuriteTests {
     private Users adherent1;
     private Users adherent2;
     private Users bibliothecaire;
+    /** Compte strictement « Admin », sans le rôle BIBLIOTHECAIRE. */
+    private Users adminPur;
     private Users sansRoleReservation;
 
     private Books livreLibreDeReservation;
@@ -97,6 +99,7 @@ class ReservationSecuriteTests {
     private String tokenAdherent1;
     private String tokenAdherent2;
     private String tokenBibliothecaire;
+    private String tokenAdminPur;
     private String tokenSansRoleReservation;
 
     @BeforeEach
@@ -108,6 +111,7 @@ class ReservationSecuriteTests {
         adherent1 = creerUtilisateur("adherent1", "Adhérent 1", "ADHERENT");
         adherent2 = creerUtilisateur("adherent2", "Adhérent 2", "ADHERENT");
         bibliothecaire = creerUtilisateur("biblio", "Bibliothécaire", "BIBLIOTHECAIRE");
+        adminPur = creerUtilisateur("admin", "Administrateur", "Admin");
         // Compte authentifié mais sans rôle du module réservation (ex. ancien rôle « User ») :
         // il permet de vérifier qu'on répond bien 403 et non 401.
         sansRoleReservation = creerUtilisateur("ancien", "Ancien compte", "User");
@@ -123,6 +127,7 @@ class ReservationSecuriteTests {
         tokenAdherent1 = tokenValidePour("adherent1");
         tokenAdherent2 = tokenValidePour("adherent2");
         tokenBibliothecaire = tokenValidePour("biblio");
+        tokenAdminPur = tokenValidePour("admin");
         tokenSansRoleReservation = tokenValidePour("ancien");
     }
 
@@ -211,6 +216,14 @@ class ReservationSecuriteTests {
         }
 
         @Test
+        @DisplayName("DELETE par un compte strictement Admin (sans BIBLIOTHECAIRE) → 204")
+        void suppressionParAdminPur() throws Exception {
+            mockMvc.perform(delete(URL + "/" + reservationDeAdherent1.getReservationId())
+                            .header("Authorization", "Bearer " + tokenAdminPur))
+                    .andExpect(status().isNoContent());
+        }
+
+        @Test
         @DisplayName("Authentifié mais sans rôle du module réservation → 403 (et non 401)")
         void authentifieSansRole() throws Exception {
             mockMvc.perform(get(URL).header("Authorization", "Bearer " + tokenSansRoleReservation))
@@ -284,6 +297,41 @@ class ReservationSecuriteTests {
             mockMvc.perform(get(URL + "/999999")
                             .header("Authorization", "Bearer " + tokenAdherent1))
                     .andExpect(status().isNotFound());
+        }
+
+        /**
+         * IDOR / Broken Object Level Authorization : un adhérent ne doit pas pouvoir
+         * parcourir les identifiants pour tomber sur la réservation d'un autre. Ce
+         * test balaie une fenêtre d'identifiants autour de celle d'autrui et vérifie
+         * qu'aucune réponse n'est 200 — ni en lecture, ni en écriture.
+         */
+        @Test
+        @DisplayName("IDOR : énumérer les identifiants ne donne jamais accès à la réservation d'un autre")
+        void enumerationDesIdentifiants() throws Exception {
+            int cible = reservationDeAdherent2.getReservationId();
+            int laSienne = reservationDeAdherent1.getReservationId();
+
+            for (int id = Math.max(1, cible - 5); id <= cible + 5; id++) {
+                if (id == laSienne) {
+                    continue; // sa propre réservation est couverte par les tests ci-dessus
+                }
+
+                int statutLecture = mockMvc.perform(get(URL + "/" + id)
+                                .header("Authorization", "Bearer " + tokenAdherent1))
+                        .andReturn().getResponse().getStatus();
+                int statutAnnulation = mockMvc.perform(patch(URL + "/" + id + "/annuler")
+                                .header("Authorization", "Bearer " + tokenAdherent1))
+                        .andReturn().getResponse().getStatus();
+
+                org.junit.jupiter.api.Assertions.assertTrue(
+                        statutLecture == 403 || statutLecture == 404,
+                        "GET sur l'identifiant " + id + " a répondu " + statutLecture
+                                + " : un ADHERENT ne doit jamais lire la réservation d'un autre.");
+                org.junit.jupiter.api.Assertions.assertTrue(
+                        statutAnnulation == 403 || statutAnnulation == 404,
+                        "PATCH sur l'identifiant " + id + " a répondu " + statutAnnulation
+                                + " : un ADHERENT ne doit jamais annuler la réservation d'un autre.");
+            }
         }
     }
 

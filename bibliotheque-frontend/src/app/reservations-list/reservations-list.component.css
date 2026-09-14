@@ -24,6 +24,13 @@
   white-space: nowrap;
 }
 
+.res-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
 .res-no-action { color: var(--text-muted); }
 
 .text-end { text-align: right; }

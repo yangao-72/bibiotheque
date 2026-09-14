@@ -95,14 +95,33 @@
             </span>
           </td>
           <td class="text-end">
-            <button type="button"
-                    class="ds-btn ds-btn--subtle-danger ds-btn--sm"
-                    *ngIf="canCancel(reservation.statut)"
-                    (click)="onAnnuler(reservation)">
-              <i class="fas fa-ban" aria-hidden="true"></i>
-              {{ 'common.cancel' | translate }}
-            </button>
-            <span class="res-no-action" *ngIf="!canCancel(reservation.statut)" aria-hidden="true">—</span>
+            <div class="res-actions">
+              <!-- Consultation de la fiche : ouverte aux deux rôles (RS-03 s'applique à l'API). -->
+              <button type="button"
+                      class="ds-btn ds-btn--ghost ds-btn--icon ds-btn--sm res-action-details"
+                      (click)="onDetails(reservation)"
+                      [attr.aria-label]="('reservations.detailsAction' | translate) + ' — ' + reservation.livreNom">
+                <i class="fas fa-eye" aria-hidden="true"></i>
+              </button>
+              <button type="button"
+                      class="ds-btn ds-btn--subtle-danger ds-btn--sm res-action-cancel"
+                      *ngIf="canCancel(reservation.statut)"
+                      (click)="onAnnuler(reservation)">
+                <i class="fas fa-ban" aria-hidden="true"></i>
+                {{ 'common.cancel' | translate }}
+              </button>
+              <!-- Suppression définitive : bibliothécaire / admin uniquement. -->
+              <button type="button"
+                      class="ds-btn ds-btn--ghost ds-btn--icon ds-btn--sm res-action-delete"
+                      *ngIf="estBibliothecaire"
+                      (click)="onSupprimer(reservation)"
+                      [attr.aria-label]="('reservations.deleteAction' | translate) + ' — ' + reservation.livreNom">
+                <i class="fas fa-trash" aria-hidden="true"></i>
+              </button>
+              <span class="res-no-action"
+                    *ngIf="!canCancel(reservation.statut) && !estBibliothecaire"
+                    aria-hidden="true">—</span>
+            </div>
           </td>
         </tr>
       </tbody>
